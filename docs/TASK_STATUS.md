@@ -1,35 +1,27 @@
 # Tehtävästatus (Tommi + Shared)
 
-Päivitetty backend-haaran mukaan.
-
 ## Tommi (backend) — valmis repossa
-
-| Issue | Tehtävä | Artefakti |
-|-------|---------|-------------|
-| #125–#129 | Setup, skeema, RLS, rakenne | `supabase/`, `lib/supabase/`, `app/api/` |
-| #130–#133 | Student / Opp / Application APIs | `app/api/students|opportunities|applications` |
-| #134–#137 | Matching | `lib/matching/`, `app/api/matches/` |
-| #138 | Ilmoitukset + email-stub | `lib/notifications/` |
-| #139 | Validointi | `lib/validation/`, `lib/api/` |
-| #140 | Postman + smoke | `docs/postman_collection.json`, `npm run smoke` |
-| #141 | Deploy-ohje | `docs/BACKEND.md` |
-| #142 / #151 | Raportti | `docs/RAPORTTI_BACKEND.md` |
-
-## Shared — Tommin luonnos valmis, Venla täydentää UI:n
 
 | Issue | Artefakti |
 |-------|-----------|
-| #100 | `docs/MVP_SCOPE.md` |
-| #101–#104 | `types/*`, `docs/SHARED_CONTRACT.md`, `docs/API.md` |
-| #143 | `lib/shared/api-client.ts` (UI-kytkentä Venlalla) |
-| #147 | `lib/shared/demo-fixtures.ts`, `docs/DEMO_CHECKLIST.md` |
-| #149 | `docs/RAPORTTI_JOHDANTO.md` |
-| #152 | `docs/RAPORTTI_POHDINTA.md` |
-| #146 | `lib/notifications/email-stub.ts` |
-| #153 | `docs/DEMO_CHECKLIST.md` (esitysjuoni) |
+| #125–#142 / #151 | Skeema, API, matching, raportti, Postman |
+| #144 backend | `npm run smoke:student`, `lib/matching/flows.test.ts` |
+| #145 backend | `npm run smoke:teacher` |
+| #148 backend | `docs/BACKEND_REGRESSION.md`, `npm run smoke:flows` |
 
-## Vielä Venlan / yhteisen demon varassa
+## Shared — Tommin osuus valmis
 
-- Frontend mock → `createSharedApiClient()` (#143 UI)
-- Frontend-raportti (#150)
-- Live E2E-käyttöpolut (#144–#145) demossa yhdessä
+| Issue | Artefakti | Venla vielä |
+|-------|-----------|-------------|
+| #100–#104 | sopimus + types | — |
+| #143 | `lib/shared/api-client.ts` | UI-kytkentä |
+| #147 | demo-fixtures + seed | UI-demo |
+| #149 / #152 | raporttiluonnokset | `[VENLA]`-tekstit |
+| #153 | `DEMO_CHECKLIST.md` | esitysharjoitus |
+
+## Avoinna (ei Tommin UI-työtä)
+
+- #143 frontend-kytkentä (Venla)
+- #144–#145 selain-E2E yhdessä demossa
+- #148 UI-lopputestaus
+- #150 frontend-raportti (Venla)

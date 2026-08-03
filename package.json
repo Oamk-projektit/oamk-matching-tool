@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "smoke": "node --env-file=.env.local scripts/api-smoke.mjs"
+    "smoke": "node --env-file=.env.local scripts/api-smoke.mjs",
+    "smoke:student": "node --env-file=.env.local scripts/flow-student.mjs",
+    "smoke:teacher": "node --env-file=.env.local scripts/flow-teacher.mjs",
+    "smoke:flows": "node --env-file=.env.local scripts/flow-all.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

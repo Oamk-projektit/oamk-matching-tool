@@ -70,3 +70,19 @@ Integraatio:
 3. Täydennä checklistin `[VENLA]`-kohdat.
 
 Tila: odottaa Venlan UI-demoa.
+
+---
+
+## VENLA-04 — API-käyttöpolut (Tommi testasi backendin)
+
+Tommi lisäsi **ilman UI:ta**:
+
+- `npm run smoke:student` — opiskelijapolku API:lla (#144)
+- `npm run smoke:teacher` — opettajapolku API:lla (#145)
+- `docs/BACKEND_REGRESSION.md`
+
+Venlan tehtävä:
+1. Toista samat polut selaimessa login → näkymät.
+2. Älä muuta API-sopimusta; käytä `createSharedApiClient()`.
+
+Tila: backend-varmistus valmis; selain-E2E odottaa Venlaa.
