@@ -1,0 +1,92 @@
+import type { User, SupabaseClient } from '@supabase/supabase-js'
+import type { UserRole } from '@/types/domain'
+import type { ApiErrorCode, ApiFieldError } from '@/types/api'
+import { createClient } from '@/lib/supabase/server'
+import { ValidationError } from '@/lib/validation'
+import { jsonError } from '@/lib/api/response'
+
+export class ApiHttpError extends Error {
+  readonly status: number
+  readonly code: ApiErrorCode
+  readonly details?: ApiFieldError[]
+
+  constructor(
+    status: number,
+    code: ApiErrorCode,
+    message: string,
+    details?: ApiFieldError[]
+  ) {
+    super(message)
+    this.name = 'ApiHttpError'
+    this.status = status
+    this.code = code
+    this.details = details
+  }
+}
+
+export type AuthContext = {
+  user: User
+  role: UserRole
+  supabase: SupabaseClient
+}
+
+export async function requireAuth(): Promise<AuthContext> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    throw new ApiHttpError(401, 'UNAUTHORIZED', 'Authentication required')
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (profileError) {
+    throw new ApiHttpError(500, 'INTERNAL_ERROR', profileError.message)
+  }
+
+  const role = (profile?.role as UserRole | undefined) ?? 'student'
+
+  return { user, role, supabase }
+}
+
+export function requireRole(
+  ctx: AuthContext,
+  allowed: UserRole[],
+  message = 'Insufficient permissions'
+): void {
+  if (!allowed.includes(ctx.role)) {
+    throw new ApiHttpError(403, 'FORBIDDEN', message)
+  }
+}
+
+export function isStaff(role: UserRole): boolean {
+  return role === 'teacher' || role === 'admin'
+}
+
+export function handleRouteError(error: unknown) {
+  if (error instanceof ValidationError) {
+    return jsonError(400, 'VALIDATION_ERROR', error.message, error.fields)
+  }
+  if (error instanceof ApiHttpError) {
+    return jsonError(error.status, error.code, error.message, error.details)
+  }
+  console.error(error)
+  return jsonError(500, 'INTERNAL_ERROR', 'Unexpected server error')
+}
+
+export async function parseJsonBody(request: Request): Promise<unknown> {
+  try {
+    return await request.json()
+  } catch {
+    throw new ValidationError('Invalid JSON body', [
+      { field: 'body', message: 'Must be valid JSON' },
+    ])
+  }
+}
