@@ -7,7 +7,9 @@
 | #125–#142 / #151 | Skeema, API, matching, raportti, Postman |
 | #144 backend | `npm run smoke:student`, `lib/matching/flows.test.ts` |
 | #145 backend | `npm run smoke:teacher` |
-| #148 backend | `docs/BACKEND_REGRESSION.md`, `npm run smoke:flows` |
+| #148 backend | `docs/BACKEND_REGRESSION.md`, `npm run smoke:flows` / `verify` |
+| Deploy health | `GET /api/health?deep=1` DB-ping |
+| Match FI/EN | `POST /api/matches/run/:id` body `{ "locale": "fi" }` |
 
 ## Shared — Tommin osuus valmis
 
