@@ -124,3 +124,7 @@ export type MatchResultResponse = MatchResult
 export interface UpdateApplicationStatusRequest {
   status: ApplicationStatus
 }
+
+export interface NotificationListMeta extends ListMeta {
+  unread_count: number
+}

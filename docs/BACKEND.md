@@ -90,6 +90,8 @@ Use a logged-in session cookie (browser) or Supabase access token as Bearer via 
 6. `POST /api/applications` → as student
 7. `POST /api/matches/run/:studentId` → scores persisted
 8. `GET /api/matches/:studentId` → ranked results
+9. `GET /api/notifications` → inbox + `unread_count`
+10. `PATCH /api/applications/:id` with `{ "status": "accepted" }` → student notified
 
 Full contract: `docs/API.md`.
 

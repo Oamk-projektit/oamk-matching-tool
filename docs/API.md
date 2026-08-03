@@ -261,6 +261,60 @@ Applicants are sorted by match score descending when a match exists; otherwise b
 **Auth:** student  
 **Response `200`:** `{ "data": [ ApplicationWithOpportunity ], "meta": { "count": n } }`
 
+### `PATCH /api/applications/:id`
+
+**Auth:** opportunity owner / admin (any status), or owning student (`withdrawn` only)  
+**Body:** `{ "status": "accepted" | "rejected" | "pending" | "withdrawn" }`  
+**Response `200`:** `Application`
+
+When status becomes `accepted` or `rejected`, the student receives an in-app notification.
+
+---
+
+## Notifications
+
+In-app notification store (email sending is out of MVP scope).
+
+### `GET /api/notifications`
+
+**Auth:** required (own inbox)  
+**Query:** `unread=true` (optional), `limit` (default 50, max 100)  
+**Response `200`:**
+
+```json
+{
+  "data": [
+    {
+      "id": "...",
+      "recipient_user_id": "...",
+      "type": "application_received",
+      "content": "Aino Virtanen applied to \"Campus portal renewal\".",
+      "read": false,
+      "created_at": "..."
+    }
+  ],
+  "meta": { "count": 1, "unread_count": 1 }
+}
+```
+
+### `PATCH /api/notifications/:id`
+
+**Auth:** recipient  
+Marks one notification as read. **Response `200`:** `Notification`
+
+### `POST /api/notifications/read-all`
+
+**Auth:** required  
+**Response `200`:** `{ "updated": 3 }`
+
+### Automatic events
+
+| Event | Recipient | `type` |
+|-------|-----------|--------|
+| New application | Opportunity teacher | `application_received` |
+| Application accepted/rejected | Student | `application_status_changed` |
+| Matching run finished | Student | `match_ready` |
+
 ---
 
 ## Matching

@@ -1,9 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Application, MatchResult } from '@/types/domain'
+import type { Application, ApplicationStatus, MatchResult } from '@/types/domain'
 import type { ApplicantListItem, ApplicationWithOpportunity } from '@/types/api'
 import { ApiHttpError } from '@/lib/api/auth'
 import { isUuid, ValidationError } from '@/lib/validation'
 import { getStudentById } from '@/lib/students/service'
+import { createNotification } from '@/lib/notifications/service'
+import {
+  buildApplicationReceivedContent,
+  buildApplicationStatusContent,
+} from '@/lib/notifications/messages'
 
 type ApplicationRow = {
   id: string
@@ -26,6 +31,13 @@ function mapApplication(row: ApplicationRow): Application {
     updated_at: row.updated_at,
   }
 }
+
+const APPLICATION_STATUSES: ApplicationStatus[] = [
+  'pending',
+  'accepted',
+  'rejected',
+  'withdrawn',
+]
 
 export function parseCreateApplication(body: unknown): {
   opportunity_id: string
@@ -51,6 +63,35 @@ export function parseCreateApplication(body: unknown): {
   }
 }
 
+export function parseUpdateApplicationStatus(body: unknown): {
+  status: ApplicationStatus
+} {
+  if (!body || typeof body !== 'object') {
+    throw new ValidationError('Body must be an object', [
+      { field: 'body', message: 'Must be an object' },
+    ])
+  }
+  const raw = body as Record<string, unknown>
+  if (
+    typeof raw.status !== 'string' ||
+    !APPLICATION_STATUSES.includes(raw.status as ApplicationStatus)
+  ) {
+    throw new ValidationError(
+      'status must be pending, accepted, rejected, or withdrawn',
+      [{ field: 'status', message: 'Invalid status' }]
+    )
+  }
+  return { status: raw.status as ApplicationStatus }
+}
+
+async function notifySafely(create: () => Promise<unknown>): Promise<void> {
+  try {
+    await create()
+  } catch (error) {
+    console.error('Notification skipped:', error)
+  }
+}
+
 export async function createApplication(
   supabase: SupabaseClient,
   studentId: string,
@@ -58,7 +99,7 @@ export async function createApplication(
 ): Promise<Application> {
   const { data: opportunity, error: oppError } = await supabase
     .from('opportunities')
-    .select('id')
+    .select('id, teacher_id, name')
     .eq('id', input.opportunity_id)
     .maybeSingle()
 
@@ -87,6 +128,114 @@ export async function createApplication(
       )
     }
     throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+  }
+
+  const student = await getStudentById(supabase, studentId)
+  await notifySafely(() =>
+    createNotification({
+      recipientUserId: opportunity.teacher_id,
+      type: 'application_received',
+      content: buildApplicationReceivedContent({
+        studentName: student?.name ?? 'A student',
+        opportunityName: opportunity.name,
+      }),
+    })
+  )
+
+  return mapApplication(data)
+}
+
+export async function getApplicationById(
+  supabase: SupabaseClient,
+  id: string
+): Promise<
+  | (Application & {
+      opportunity_teacher_id: string
+      opportunity_name: string
+      student_user_id: string
+    })
+  | null
+> {
+  const { data, error } = await supabase
+    .from('applications')
+    .select(
+      `
+      id,
+      student_id,
+      opportunity_id,
+      status,
+      message,
+      created_at,
+      updated_at,
+      opportunities ( teacher_id, name ),
+      students ( user_id )
+    `
+    )
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+  if (!data) return null
+
+  const opportunity = Array.isArray(data.opportunities)
+    ? data.opportunities[0]
+    : data.opportunities
+  const student = Array.isArray(data.students)
+    ? data.students[0]
+    : data.students
+
+  return {
+    ...mapApplication(data as ApplicationRow),
+    opportunity_teacher_id: opportunity?.teacher_id ?? '',
+    opportunity_name: opportunity?.name ?? '',
+    student_user_id: student?.user_id ?? '',
+  }
+}
+
+export async function updateApplicationStatus(
+  supabase: SupabaseClient,
+  id: string,
+  status: ApplicationStatus,
+  actor: { userId: string; role: string }
+): Promise<Application> {
+  const existing = await getApplicationById(supabase, id)
+  if (!existing) {
+    throw new ApiHttpError(404, 'NOT_FOUND', 'Application not found')
+  }
+
+  const isOwner = existing.opportunity_teacher_id === actor.userId
+  const isAdmin = actor.role === 'admin'
+  const isStudentOwner =
+    existing.student_user_id === actor.userId && status === 'withdrawn'
+
+  if (!isOwner && !isAdmin && !isStudentOwner) {
+    throw new ApiHttpError(
+      403,
+      'FORBIDDEN',
+      'Cannot update this application status'
+    )
+  }
+
+  const { data, error } = await supabase
+    .from('applications')
+    .update({ status })
+    .eq('id', id)
+    .select('*')
+    .single()
+
+  if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+
+  if (status === 'accepted' || status === 'rejected') {
+    await notifySafely(() =>
+      createNotification({
+        recipientUserId: existing.student_user_id,
+        type: 'application_status_changed',
+        content: buildApplicationStatusContent({
+          opportunityName: existing.opportunity_name,
+          status,
+        }),
+      })
+    )
   }
 
   return mapApplication(data)

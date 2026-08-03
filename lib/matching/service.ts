@@ -10,6 +10,8 @@ import {
 import { computeMatch, rankMatches } from '@/lib/matching/engine'
 import { mapMatchRow } from '@/lib/applications/service'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createNotification } from '@/lib/notifications/service'
+import { buildMatchReadyContent } from '@/lib/notifications/messages'
 
 export function parseRunMatchesBody(body: unknown): {
   opportunity_ids?: string[]
@@ -41,6 +43,18 @@ export function parseRunMatchesBody(body: unknown): {
   return { opportunity_ids: ids }
 }
 
+async function notifyMatchReady(studentUserId: string, count: number) {
+  try {
+    await createNotification({
+      recipientUserId: studentUserId,
+      type: 'match_ready',
+      content: buildMatchReadyContent({ count }),
+    })
+  } catch (error) {
+    console.error('Notification skipped:', error)
+  }
+}
+
 export async function runMatchingForStudent(
   supabase: SupabaseClient,
   studentId: string,
@@ -59,11 +73,9 @@ export async function runMatchingForStudent(
     opportunities.map((opportunity) => computeMatch(student, opportunity))
   )
 
-  // Persist with service role so students can store own match results
-  // even when RLS write policies are staff-oriented.
   const admin = createAdminClient()
-
   const persisted: MatchResult[] = []
+
   for (const match of computed) {
     const { data, error } = await admin
       .from('matches')
@@ -88,10 +100,13 @@ export async function runMatchingForStudent(
     persisted.push(mapMatchRow(data))
   }
 
-  return persisted.sort((a, b) => {
+  const sorted = persisted.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
     return a.opportunity_id.localeCompare(b.opportunity_id)
   })
+
+  await notifyMatchReady(student.user_id, sorted.length)
+  return sorted
 }
 
 export async function listMatchesForStudent(
