@@ -54,3 +54,19 @@ Tommi luonnosteli SHARED-dokumentit:
 - `docs/RAPORTTI_BACKEND.md` — Tommin tekninen osuus (valmis)
 
 Tila: odottaa Venlan täydennyksiä ennen lopullista yhdistämistä.
+
+---
+
+## VENLA-03 — Demo-data ja checklist
+
+Tommi lisäsi (**SHARED**):
+
+- `lib/shared/demo-fixtures.ts` — seed-UUID:t, opiskelijat, opportunities, match-esimerkit
+- `docs/DEMO_CHECKLIST.md` — demojuoni (#147 / #153)
+
+Integraatio:
+1. Käytä fixtureita mock-fallbackina tai demossa.
+2. Älä muuta UUID-arvoja ilman seedin päivitystä.
+3. Täydennä checklistin `[VENLA]`-kohdat.
+
+Tila: odottaa Venlan UI-demoa.

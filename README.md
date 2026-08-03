@@ -29,6 +29,8 @@ Health check: [http://localhost:3000/api/health](http://localhost:3000/api/healt
 | [docs/RAPORTTI_JOHDANTO.md](docs/RAPORTTI_JOHDANTO.md) | Johdanto-luonnos (SHARED) |
 | [docs/RAPORTTI_POHDINTA.md](docs/RAPORTTI_POHDINTA.md) | Pohdinta-luonnos (SHARED) |
 | [docs/VENLA_TASKS.md](docs/VENLA_TASKS.md) | Frontend integration follow-ups |
+| [docs/DEMO_CHECKLIST.md](docs/DEMO_CHECKLIST.md) | Demojuoni (SHARED) |
+| [docs/TASK_STATUS.md](docs/TASK_STATUS.md) | Tehtävästatus |
 
 ```bash
 npm test          # unit tests (matching + validation)

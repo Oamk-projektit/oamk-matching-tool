@@ -1,37 +1,35 @@
 # Tehtävästatus (Tommi + Shared)
 
-Päivitetty backend-haaran mukaan. GitHub-issuet voivat olla vielä OPEN vaikka työ olisi repossa valmis.
+Päivitetty backend-haaran mukaan.
 
-## Tommi (backend)
+## Tommi (backend) — valmis repossa
 
-| Issue | Tehtävä | Repo-status |
+| Issue | Tehtävä | Artefakti |
 |-------|---------|-------------|
-| #125 | Supabase + env | Valmis (docs + clients) |
-| #126 | Taulut | Valmis (`supabase/migrations`) |
-| #127 | Seed | Valmis (`supabase/seed.sql`) |
-| #128 | RLS | Valmis |
-| #129 | Backend-rakenne | Valmis (Next.js `app/api` + `lib/*`) |
-| #130–#133 | Student/Opp/App APIs | Valmis |
-| #134–#137 | Matching | Valmis |
-| #138 | Ilmoitukset / email | In-app + **email-stub** (ei SMTP) |
-| #139 | Validointi | Valmis |
-| #140 | Postman | Valmis (`docs/postman_collection.json`) |
-| #141 | Deploy | Ohjeet valmiit (`docs/BACKEND.md`) |
-| #142 / #151 | Raportti backend | Valmis (`docs/RAPORTTI_BACKEND.md`) |
+| #125–#129 | Setup, skeema, RLS, rakenne | `supabase/`, `lib/supabase/`, `app/api/` |
+| #130–#133 | Student / Opp / Application APIs | `app/api/students|opportunities|applications` |
+| #134–#137 | Matching | `lib/matching/`, `app/api/matches/` |
+| #138 | Ilmoitukset + email-stub | `lib/notifications/` |
+| #139 | Validointi | `lib/validation/`, `lib/api/` |
+| #140 | Postman + smoke | `docs/postman_collection.json`, `npm run smoke` |
+| #141 | Deploy-ohje | `docs/BACKEND.md` |
+| #142 / #151 | Raportti | `docs/RAPORTTI_BACKEND.md` |
 
-## Shared (Tommi teki luonnoksen, Venla täydentää)
+## Shared — Tommin luonnos valmis, Venla täydentää UI:n
 
-| Issue | Tehtävä | Merkintä koodissa/docsissa |
-|-------|---------|----------------------------|
-| #100 | MVP-rajaus | `docs/MVP_SCOPE.md` — **SHARED** |
-| #101–#104 | Sopimus | `types/*`, `docs/SHARED_CONTRACT.md`, `docs/API.md` — **SHARED** |
-| #143 | API-client integraatioon | `lib/shared/api-client.ts` — **SHARED** |
-| #149 | Johdanto | `docs/RAPORTTI_JOHDANTO.md` — **SHARED** (+ `[VENLA]`-aukot) |
-| #152 | Pohdinta | `docs/RAPORTTI_POHDINTA.md` — **SHARED** (`[TOMMI]` / `[VENLA]`) |
-| #146 | Email-simulaatio | `lib/notifications/email-stub.ts` — **TOMMI** (testattavissa) |
+| Issue | Artefakti |
+|-------|-----------|
+| #100 | `docs/MVP_SCOPE.md` |
+| #101–#104 | `types/*`, `docs/SHARED_CONTRACT.md`, `docs/API.md` |
+| #143 | `lib/shared/api-client.ts` (UI-kytkentä Venlalla) |
+| #147 | `lib/shared/demo-fixtures.ts`, `docs/DEMO_CHECKLIST.md` |
+| #149 | `docs/RAPORTTI_JOHDANTO.md` |
+| #152 | `docs/RAPORTTI_POHDINTA.md` |
+| #146 | `lib/notifications/email-stub.ts` |
+| #153 | `docs/DEMO_CHECKLIST.md` (esitysjuoni) |
 
-## Ei vielä / Venla
+## Vielä Venlan / yhteisen demon varassa
 
-- Frontend mock → API (#143 UI-osa)
+- Frontend mock → `createSharedApiClient()` (#143 UI)
 - Frontend-raportti (#150)
-- E2E-käyttöpolkutestit (#144–#145) yhdessä demossa
+- Live E2E-käyttöpolut (#144–#145) demossa yhdessä
