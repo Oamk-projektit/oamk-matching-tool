@@ -52,6 +52,13 @@ export interface HealthResponse {
   supabase: 'configured' | 'missing'
 }
 
+export interface MeResponse {
+  user_id: string
+  email: string | null
+  role: import('./domain').UserRole
+  student_id: string | null
+}
+
 export interface CreateStudentRequest {
   name: string
   email: string

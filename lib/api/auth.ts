@@ -30,6 +30,49 @@ export type AuthContext = {
   supabase: SupabaseClient
 }
 
+function roleFromMetadata(user: User): UserRole {
+  const raw = user.user_metadata?.role
+  if (raw === 'student' || raw === 'teacher' || raw === 'admin') {
+    return raw
+  }
+  return 'student'
+}
+
+/**
+ * Ensures a profiles row exists for the authenticated user.
+ * Uses auth metadata role on first insert (default: student).
+ */
+export async function ensureProfile(
+  supabase: SupabaseClient,
+  user: User
+): Promise<UserRole> {
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (error) {
+    throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+  }
+
+  if (profile?.role === 'student' || profile?.role === 'teacher' || profile?.role === 'admin') {
+    return profile.role
+  }
+
+  const role = roleFromMetadata(user)
+  const { error: upsertError } = await supabase.from('profiles').upsert(
+    { user_id: user.id, role },
+    { onConflict: 'user_id' }
+  )
+
+  if (upsertError) {
+    throw new ApiHttpError(500, 'INTERNAL_ERROR', upsertError.message)
+  }
+
+  return role
+}
+
 export async function requireAuth(): Promise<AuthContext> {
   const supabase = await createClient()
   const {
@@ -41,18 +84,7 @@ export async function requireAuth(): Promise<AuthContext> {
     throw new ApiHttpError(401, 'UNAUTHORIZED', 'Authentication required')
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('user_id', user.id)
-    .maybeSingle()
-
-  if (profileError) {
-    throw new ApiHttpError(500, 'INTERNAL_ERROR', profileError.message)
-  }
-
-  const role = (profile?.role as UserRole | undefined) ?? 'student'
-
+  const role = await ensureProfile(supabase, user)
   return { user, role, supabase }
 }
 

@@ -88,6 +88,26 @@ No auth required.
 
 ---
 
+## Current user
+
+### `GET /api/me`
+
+**Auth:** required  
+**Response `200`**
+
+```json
+{
+  "user_id": "33333333-3333-3333-3333-333333333333",
+  "email": "aino.virtanen@students.oamk.fi",
+  "role": "student",
+  "student_id": "22222222-2222-2222-2222-222222222222"
+}
+```
+
+`student_id` is `null` until a student profile row exists.
+
+---
+
 ## Students
 
 ### `GET /api/students`
