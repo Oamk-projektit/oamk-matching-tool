@@ -25,6 +25,7 @@ Health check: [http://localhost:3000/api/health](http://localhost:3000/api/healt
 | [docs/SCHEMA.md](docs/SCHEMA.md) | Database tables, RLS, indexes |
 | [docs/BACKEND.md](docs/BACKEND.md) | Env vars, deploy, smoke tests |
 | [docs/API_TESTING.md](docs/API_TESTING.md) | Postman / Bearer token testing |
+| [docs/RAPORTTI.md](docs/RAPORTTI.md) | Raportin sisällysluettelo (SHARED) |
 | [docs/RAPORTTI_BACKEND.md](docs/RAPORTTI_BACKEND.md) | Backend-raportti (Tommi) |
 | [docs/RAPORTTI_JOHDANTO.md](docs/RAPORTTI_JOHDANTO.md) | Johdanto-luonnos (SHARED) |
 | [docs/RAPORTTI_POHDINTA.md](docs/RAPORTTI_POHDINTA.md) | Pohdinta-luonnos (SHARED) |

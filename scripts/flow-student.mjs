@@ -72,7 +72,7 @@ async function main() {
   const run = await api(baseUrl, `/api/matches/run/${studentId}`, {
     token,
     method: 'POST',
-    body: {},
+    body: { locale: 'fi' },
   })
   assertOk('POST /api/matches/run/:id', run)
   logOk('run matching', `count=${run.json.meta.count}`)

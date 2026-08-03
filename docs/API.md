@@ -92,7 +92,12 @@ No auth required.
 }
 ```
 
-`supabase` is `"configured"` when env vars are present, otherwise `"missing"`. Does not open a DB connection in the cheap health check.
+`supabase` is `"configured"` when env vars are present, otherwise `"missing"`.
+
+### Deep check
+
+`GET /api/health?deep=1` also probes the database (service role).  
+`database` may be `ok` | `error` | `skipped`. On DB failure `status` becomes `degraded`.
 
 ---
 
@@ -338,10 +343,12 @@ Runs matching against all opportunities (or filtered set) and upserts `matches` 
 
 ```json
 {
-  "opportunity_ids": ["..."]
+  "opportunity_ids": ["..."],
+  "locale": "fi"
 }
 ```
 
+`locale` is `en` (default) or `fi` for explanation/recommendation language.
 **Response `200`:**
 
 ```json

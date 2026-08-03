@@ -9,14 +9,15 @@ Does not cover Venla UI E2E. Run before demo / PR merge.
 
 ```bash
 npm test
+npm run verify          # tsc + unit tests
 npx tsc --noEmit
 # with dev server + seed + .env.local:
 npm run smoke
 npm run smoke:student   # #144 API path
 npm run smoke:teacher   # #145 API path
 npm run smoke:flows     # both
+curl "http://localhost:3000/api/health?deep=1"
 ```
-
 ## Manual API
 
 1. Import `docs/postman_collection.json`

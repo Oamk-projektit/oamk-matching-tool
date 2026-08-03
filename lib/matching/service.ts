@@ -15,15 +15,28 @@ import { buildMatchReadyContent } from '@/lib/notifications/messages'
 
 export function parseRunMatchesBody(body: unknown): {
   opportunity_ids?: string[]
+  locale: 'en' | 'fi'
 } {
-  if (body === undefined || body === null || body === '') return {}
+  if (body === undefined || body === null || body === '') {
+    return { locale: 'en' }
+  }
   if (typeof body !== 'object') {
     throw new ValidationError('Body must be an object', [
       { field: 'body', message: 'Must be an object' },
     ])
   }
   const raw = body as Record<string, unknown>
-  if (raw.opportunity_ids === undefined) return {}
+  let locale: 'en' | 'fi' = 'en'
+  if (raw.locale !== undefined) {
+    if (raw.locale !== 'en' && raw.locale !== 'fi') {
+      throw new ValidationError('locale must be en or fi', [
+        { field: 'locale', message: 'Must be en or fi' },
+      ])
+    }
+    locale = raw.locale
+  }
+
+  if (raw.opportunity_ids === undefined) return { locale }
   if (!Array.isArray(raw.opportunity_ids)) {
     throw new ValidationError('opportunity_ids must be an array', [
       { field: 'opportunity_ids', message: 'Must be an array of UUIDs' },
@@ -40,7 +53,7 @@ export function parseRunMatchesBody(body: unknown): {
     }
     return id
   })
-  return { opportunity_ids: ids }
+  return { opportunity_ids: ids, locale }
 }
 
 async function notifyMatchReady(studentUserId: string, count: number) {
@@ -58,7 +71,8 @@ async function notifyMatchReady(studentUserId: string, count: number) {
 export async function runMatchingForStudent(
   supabase: SupabaseClient,
   studentId: string,
-  opportunityIds?: string[]
+  opportunityIds?: string[],
+  locale: 'en' | 'fi' = 'en'
 ): Promise<MatchResult[]> {
   const student = await getStudentById(supabase, studentId)
   if (!student) throw new ApiHttpError(404, 'NOT_FOUND', 'Student not found')
@@ -70,7 +84,9 @@ export async function runMatchingForStudent(
   }
 
   const computed = rankMatches(
-    opportunities.map((opportunity) => computeMatch(student, opportunity))
+    opportunities.map((opportunity) =>
+      computeMatch(student, opportunity, opportunity.weights, locale)
+    )
   )
 
   const admin = createAdminClient()

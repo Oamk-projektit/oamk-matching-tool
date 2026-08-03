@@ -95,16 +95,42 @@ export type MatchOpportunityInput = Pick<
   | 'name'
 >
 
-function buildExplanation(input: {
-  score: number
-  matchedCourses: string[]
-  missingCourses: string[]
-  matchedSkills: string[]
-  missingSkills: string[]
-  languageOk: boolean
-  creditsOk: boolean
-}): string {
+function buildExplanation(
+  input: {
+    score: number
+    matchedCourses: string[]
+    missingCourses: string[]
+    matchedSkills: string[]
+    missingSkills: string[]
+    languageOk: boolean
+    creditsOk: boolean
+  },
+  locale: 'en' | 'fi'
+): string {
   const parts: string[] = []
+  if (locale === 'fi') {
+    if (input.score >= 80) parts.push('Vahva kokonaissopivuus tähän opportunityyn.')
+    else if (input.score >= 50)
+      parts.push('Osittainen sopivuus; joitain puutteita kannattaa täydentää.')
+    else parts.push('Vähäinen vastaavuus opportunityn vaatimuksiin.')
+
+    if (input.matchedSkills.length > 0) {
+      parts.push(`Täsmäävät taidot: ${input.matchedSkills.join(', ')}.`)
+    }
+    if (input.missingSkills.length > 0) {
+      parts.push(`Puuttuvat taidot: ${input.missingSkills.join(', ')}.`)
+    }
+    if (input.matchedCourses.length > 0) {
+      parts.push(`Täsmäävät kurssit: ${input.matchedCourses.join(', ')}.`)
+    }
+    if (input.missingCourses.length > 0) {
+      parts.push(`Puuttuvat kurssit: ${input.missingCourses.join(', ')}.`)
+    }
+    if (!input.languageOk) parts.push('Kielivalinta ei vastaa vaatimusta.')
+    if (!input.creditsOk) parts.push('Opintopistevaatimus ei täyty kokonaan.')
+    return parts.join(' ')
+  }
+
   if (input.score >= 80) parts.push('Strong overall fit for this opportunity.')
   else if (input.score >= 50)
     parts.push('Partial fit with some gaps to address.')
@@ -128,15 +154,39 @@ function buildExplanation(input: {
   return parts.join(' ')
 }
 
-function buildRecommendation(input: {
-  missingCourses: string[]
-  missingSkills: string[]
-  languageOk: boolean
-  creditsOk: boolean
-  minimumCredits: number
-  studentCredits: number
-}): string {
+function buildRecommendation(
+  input: {
+    missingCourses: string[]
+    missingSkills: string[]
+    languageOk: boolean
+    creditsOk: boolean
+    minimumCredits: number
+    studentCredits: number
+  },
+  locale: 'en' | 'fi'
+): string {
   const tips: string[] = []
+  if (locale === 'fi') {
+    if (input.missingCourses.length > 0) {
+      tips.push(`Suorita: ${input.missingCourses.join(', ')}.`)
+    }
+    if (input.missingSkills.length > 0) {
+      tips.push(`Kehitä taitoja: ${input.missingSkills.join(', ')}.`)
+    }
+    if (!input.languageOk) {
+      tips.push('Sovita kielivalinta opportunityn vaatimukseen.')
+    }
+    if (!input.creditsOk) {
+      tips.push(
+        `Kerää vähintään ${input.minimumCredits} op (nyt ${input.studentCredits}).`
+      )
+    }
+    if (tips.length === 0) {
+      return 'Valmis hakemaan; tarkista vielä kuvaus ja aikataulu.'
+    }
+    return tips.join(' ')
+  }
+
   if (input.missingCourses.length > 0) {
     tips.push(`Complete: ${input.missingCourses.join(', ')}.`)
   }
@@ -163,7 +213,8 @@ function buildRecommendation(input: {
 export function computeMatch(
   student: MatchStudentInput,
   opportunity: MatchOpportunityInput,
-  weights: MatchingWeights = opportunity.weights ?? DEFAULT_MATCHING_WEIGHTS
+  weights: MatchingWeights = opportunity.weights ?? DEFAULT_MATCHING_WEIGHTS,
+  locale: 'en' | 'fi' = 'en'
 ): ComputedMatch {
   const courses = splitRequired(
     opportunity.required_courses,
@@ -203,23 +254,29 @@ export function computeMatch(
     missing_courses: courses.missing,
     matched_skills: skills.matched,
     missing_skills: skills.missing,
-    explanation: buildExplanation({
-      score,
-      matchedCourses: courses.matched,
-      missingCourses: courses.missing,
-      matchedSkills: skills.matched,
-      missingSkills: skills.missing,
-      languageOk,
-      creditsOk,
-    }),
-    recommendation: buildRecommendation({
-      missingCourses: courses.missing,
-      missingSkills: skills.missing,
-      languageOk,
-      creditsOk,
-      minimumCredits: opportunity.minimum_credits,
-      studentCredits: student.credits,
-    }),
+    explanation: buildExplanation(
+      {
+        score,
+        matchedCourses: courses.matched,
+        missingCourses: courses.missing,
+        matchedSkills: skills.matched,
+        missingSkills: skills.missing,
+        languageOk,
+        creditsOk,
+      },
+      locale
+    ),
+    recommendation: buildRecommendation(
+      {
+        missingCourses: courses.missing,
+        missingSkills: skills.missing,
+        languageOk,
+        creditsOk,
+        minimumCredits: opportunity.minimum_credits,
+        studentCredits: student.credits,
+      },
+      locale
+    ),
   }
 }
 

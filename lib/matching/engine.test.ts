@@ -72,6 +72,17 @@ describe('computeMatch', () => {
     expect(a).toEqual(b)
   })
 
+  it('can emit Finnish explanations', () => {
+    const fi = computeMatch(
+      studentBase,
+      opportunityBase,
+      opportunityBase.weights,
+      'fi'
+    )
+    expect(fi.explanation).toContain('Vahva')
+    expect(fi.recommendation.length).toBeGreaterThan(5)
+  })
+
   it('returns a low score when requirements are missing', () => {
     const weak = computeMatch(
       {

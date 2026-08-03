@@ -45,11 +45,12 @@ export async function POST(request: Request, context: RouteContext) {
       }
     }
 
-    const { opportunity_ids } = parseRunMatchesBody(rawBody)
+    const { opportunity_ids, locale } = parseRunMatchesBody(rawBody)
     const data = await runMatchingForStudent(
       ctx.supabase,
       studentId,
-      opportunity_ids
+      opportunity_ids,
+      locale
     )
 
     return jsonOk({

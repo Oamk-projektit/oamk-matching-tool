@@ -53,10 +53,13 @@ export interface ListResponse<T> {
 }
 
 export interface HealthResponse {
-  status: 'ok'
+  status: 'ok' | 'degraded'
   service: string
   timestamp: string
   supabase: 'configured' | 'missing'
+  /** Present when ?deep=1 */
+  database?: 'ok' | 'error' | 'skipped'
+  database_error?: string
 }
 
 export interface MeResponse {
@@ -124,6 +127,8 @@ export interface ApplicantListItem {
 
 export interface RunMatchesRequest {
   opportunity_ids?: string[]
+  /** Explanation language — default en (API examples). Use fi for Finnish demo. */
+  locale?: 'en' | 'fi'
 }
 
 export type MatchResultResponse = MatchResult
