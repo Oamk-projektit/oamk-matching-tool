@@ -1,6 +1,12 @@
 /**
- * API request/response contracts for OAMK Matching Tool.
- * Keep in sync with docs/API.md. No UI logic here.
+ * ============================================================================
+ * SHARED CONTRACT — Tommi + Venla
+ * ============================================================================
+ *
+ * Joint ownership. HTTP request/response shapes for `/api/*`.
+ * Related issues: #104, #143
+ *
+ * Keep in sync with docs/API.md. No React / UI code here.
  */
 
 import type {
@@ -12,6 +18,7 @@ import type {
   Opportunity,
   OpportunityType,
   Student,
+  UserRole,
 } from './domain'
 
 export type ApiErrorCode =
@@ -55,7 +62,7 @@ export interface HealthResponse {
 export interface MeResponse {
   user_id: string
   email: string | null
-  role: import('./domain').UserRole
+  role: UserRole
   student_id: string | null
 }
 

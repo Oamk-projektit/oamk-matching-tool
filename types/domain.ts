@@ -1,7 +1,15 @@
 /**
- * Canonical domain types for OAMK Matching Tool.
- * Shared by API handlers, matching engine, and (later) frontend services.
- * No UI / React code belongs here.
+ * ============================================================================
+ * SHARED CONTRACT — Tommi + Venla
+ * ============================================================================
+ *
+ * Joint ownership. Canonical domain models for DB, API and (later) frontend.
+ * Related issues: #101, #102, #103
+ *
+ * Rules:
+ * - Keep English snake_case field names aligned with docs/API.md and docs/SCHEMA.md.
+ * - No React components, hooks, or view-specific styles in this file.
+ * - Venla imports these types in services; do not duplicate parallel models in mock-only shapes.
  */
 
 export type UserRole = 'student' | 'teacher' | 'admin'
@@ -40,6 +48,7 @@ export interface Profile {
   updated_at: string
 }
 
+/** Student model — issue #101 */
 export interface Student {
   id: string
   user_id: string
@@ -57,6 +66,7 @@ export interface Student {
   updated_at: string
 }
 
+/** Opportunity (project | internship) — issue #102 */
 export interface Opportunity {
   id: string
   teacher_id: string
@@ -86,6 +96,7 @@ export interface Application {
   updated_at: string
 }
 
+/** Match result — issue #103 */
 export interface MatchResult {
   id: string
   student_id: string

@@ -1,7 +1,15 @@
 # API Contract — OAMK Matching Tool
 
+<!--
+SHARED — Tommi + Venla
+Issues: #104, #143
+-->
+
 Shared REST contract for Tommi (backend) and Venla (frontend).  
 All routes live under the Next.js App Router prefix `/api`.
+
+Typed client for frontend services: `lib/shared/api-client.ts`.
+
 
 Base URL (local): `http://localhost:3000/api`
 

@@ -2,30 +2,27 @@
 
 Tähän tiedostoon kirjataan Tommin tekemät väliaikaiset frontend-yhteensopivuusmuutokset ja muut Venlan hoidettavat integraatiotehtävät.
 
-Tällä hetkellä **ei ole väliaikaisia adaptereita**. Backend-sopimus on dokumentoitu; Venla voi integroida sen kun mock-data korvataan.
-
 ---
 
 ## VENLA-00 — Yhdistä frontend kanoniseen API-sopimukseen
 
 Tommi lisäsi / päivitti:
 
-- `docs/API.md`
-- `docs/SCHEMA.md`
-- `types/domain.ts`
-- `types/api.ts`
+- `docs/API.md`, `docs/SHARED_CONTRACT.md`, `docs/MVP_SCOPE.md`
+- `types/domain.ts`, `types/api.ts` (**SHARED**-otsikko tiedostoissa)
 - `GET /api/me`
+- `lib/shared/api-client.ts` (**SHARED**, issue #143)
 
 Syy:
-Sprintti 1:n UI käyttää vielä placeholdereita ja projektisanastoa. Backend käyttää `Opportunity`-mallia (`type: project | internship`) ja `/api/*`-reittejä.
+Sprintti 1:n UI käyttää vielä placeholdereita ja projektisanastoa.
 
 Poistaminen / integraatio:
-1. Luo service-kerros (`studentService`, `opportunityService`, `applicationService`, `matchService`) käyttäen `types/api.ts`-tyyppejä.
-2. Korvaa mock-data vaiheittain API-kutsuilla (`docs/API.md`).
-3. Mapaa UI-teksti "Projects" → API `opportunities` (älä uudelleennimeä backend-kenttiä).
-4. Käytä `GET /api/me` roolin ja `student_id`:n lukemiseen login-jälkeen.
+1. Luo frontend service-kerros, joka kutsuu `createSharedApiClient()` (älä fetchöi URL:eja komponenteissa).
+2. Korvaa mock-data vaiheittain API-kutsuilla.
+3. Mapaa UI-teksti "Projects" → API `opportunities`.
+4. Käytä `client.me()` roolin ja `student_id`:n lukemiseen.
 
-Tila: odottaa Venlan integraatiota, ei väliaikaisia Tommi-adaptereita.
+Tila: odottaa Venlan integraatiota.
 
 ---
 
@@ -37,11 +34,23 @@ Tommi päivitti:
 - `lib/supabase/middleware.ts`
 
 Syy:
-Sivusuojaus käyttää nyt oikeaa Supabase `getUser()`-sessiota (ei enää `sb-auth-token`-cookien nimen arvailua). Julkiset sivut ovat eksakteja polkuja (`/`, `/login`, …).
+Sivusuojaus käyttää Supabase `getUser()`-sessiota.
 
-Vaikutus frontendiin:
-1. Kirjautumisen pitää asettaa Supabase Auth -evästeet (`@supabase/ssr` browser client).
-2. Vanha mock-login ilman Supabase-sessiota ei enää ohita suojattuja sivuja.
-3. `/api/*` ei redirectaa HTML-loginille; API palauttaa JSON 401.
+Vaikutus:
+1. Kirjautuminen `@supabase/ssr` browser clientillä.
+2. Mock-login ilman sessiota ei ohita suojauksia.
+3. `/api/*` palauttaa JSON 401.
 
-Tila: odottaa Venlan auth-UI-integraatiota Supabaseen.
+Tila: odottaa Venlan auth-UI-integraatiota.
+
+---
+
+## VENLA-02 — Raportin yhteiset osiot
+
+Tommi luonnosteli SHARED-dokumentit:
+
+- `docs/RAPORTTI_JOHDANTO.md` (#149) — täydennä [VENLA]-kohdat
+- `docs/RAPORTTI_POHDINTA.md` (#152) — täydennä [VENLA]-kohdat
+- `docs/RAPORTTI_BACKEND.md` — Tommin tekninen osuus (valmis)
+
+Tila: odottaa Venlan täydennyksiä ennen lopullista yhdistämistä.

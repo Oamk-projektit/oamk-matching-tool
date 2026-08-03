@@ -1,3 +1,12 @@
+/**
+ * ============================================================================
+ * TOMMI — Deterministic matching engine (issues #134–#136)
+ * ============================================================================
+ *
+ * Pure functions only. Used by matching API and unit tests.
+ * Project-specific weights come from Opportunity.weights (#135).
+ */
+
 import type {
   AppLanguage,
   MatchingWeights,

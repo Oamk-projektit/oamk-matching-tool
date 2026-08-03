@@ -6,6 +6,7 @@ import {
   mapNotificationRow,
   type NotificationType,
 } from '@/lib/notifications/messages'
+import { simulateNotificationEmail } from '@/lib/notifications/email-stub'
 
 export async function createNotification(input: {
   recipientUserId: string
@@ -25,6 +26,14 @@ export async function createNotification(input: {
     .single()
 
   if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+
+  // TOMMI (#138/#146): simulate email delivery without SMTP
+  simulateNotificationEmail({
+    toUserId: input.recipientUserId,
+    type: input.type,
+    content: input.content,
+  })
+
   return mapNotificationRow(data)
 }
 
