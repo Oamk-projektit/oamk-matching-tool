@@ -11,6 +11,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // API routes handle their own auth and return JSON errors.
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
+
   // Get session from cookies (JWT stored as 'sb-auth-token')
   const authToken = request.cookies.get('sb-auth-token')?.value
 
