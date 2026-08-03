@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "OAMK Matching Tool API",
+    "description": "Tommi backend smoke collection. Set collection variables after signing in via Supabase Auth (password grant or dashboard).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "accessToken", "value": "" },
+    { "key": "studentId", "value": "" },
+    { "key": "opportunityId", "value": "" },
+    { "key": "applicationId", "value": "" },
+    { "key": "notificationId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health (no auth)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "Me",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/me"
+      }
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "List students",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/students"
+          }
+        },
+        {
+          "name": "Create student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aino Virtanen\",\n  \"email\": \"aino.virtanen@students.oamk.fi\",\n  \"degree_program\": \"Tietotekniikka\",\n  \"credits\": 120,\n  \"language\": \"FI\",\n  \"availability\": \"Full-time\",\n  \"completed_courses\": [\"Web-ohjelmointi\", \"Tietokannat\"],\n  \"skills\": [\"React\", \"TypeScript\"],\n  \"interests\": [\"Web development\"],\n  \"project_preferences\": [\"project\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/students"
+          }
+        },
+        {
+          "name": "Get student",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/students/{{studentId}}"
+          }
+        },
+        {
+          "name": "Update student",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"credits\": 130,\n  \"skills\": [\"React\", \"TypeScript\", \"SQL\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/students/{{studentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Opportunities",
+      "item": [
+        {
+          "name": "List opportunities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/opportunities?type=project"
+          }
+        },
+        {
+          "name": "Create opportunity",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Campus portal renewal\",\n  \"description\": \"Rebuild student-facing portal UI.\",\n  \"type\": \"project\",\n  \"required_courses\": [\"Web-ohjelmointi\"],\n  \"recommended_courses\": [\"Käyttöliittymäsuunnittelu\"],\n  \"minimum_credits\": 60,\n  \"required_language\": \"FI\",\n  \"schedule\": \"Flexible\",\n  \"duration\": \"3 months\",\n  \"required_skills\": [\"React\", \"TypeScript\"],\n  \"student_slots\": 2\n}"
+            },
+            "url": "{{baseUrl}}/api/opportunities"
+          }
+        },
+        {
+          "name": "Get opportunity",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/opportunities/{{opportunityId}}"
+          }
+        },
+        {
+          "name": "List applicants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/opportunities/{{opportunityId}}/applicants"
+          }
+        },
+        {
+          "name": "List opportunity matches",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/opportunities/{{opportunityId}}/matches"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Create application",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"opportunity_id\": \"{{opportunityId}}\",\n  \"message\": \"I am interested in this project.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/applications"
+          }
+        },
+        {
+          "name": "My applications",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/applications/me"
+          }
+        },
+        {
+          "name": "Update application status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            },
+            "url": "{{baseUrl}}/api/applications/{{applicationId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matching",
+      "item": [
+        {
+          "name": "Run matching",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": "{{baseUrl}}/api/matches/run/{{studentId}}"
+          }
+        },
+        {
+          "name": "Get student matches",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/matches/{{studentId}}?limit=3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List notifications",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/notifications"
+          }
+        },
+        {
+          "name": "Mark notification read",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/notifications/{{notificationId}}"
+          }
+        },
+        {
+          "name": "Mark all read",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/notifications/read-all"
+          }
+        }
+      ]
+    }
+  ]
+}

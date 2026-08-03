@@ -71,10 +71,13 @@ curl http://localhost:3000/api/health
 |-------|-----------|
 | `middleware.ts` | Refreshes Supabase cookies; protects non-public pages with real `getUser()` |
 | `/api/*` | Own auth via `requireAuth()`; returns JSON errors (no HTML redirect) |
+| Auth modes | Browser cookies **or** `Authorization: Bearer <access_token>` |
 | `profiles` | Auto-created on first API auth if missing (`ensureProfile`) |
 | `/api/me` | Current `user_id`, `email`, `role`, `student_id` |
 
 Public pages (no login redirect): `/`, `/login`, `/register`, `/teacher/login`, `/style-guide`.
+
+Manual API testing: import `docs/postman_collection.json` (see `docs/API_TESTING.md`).
 
 ---
 

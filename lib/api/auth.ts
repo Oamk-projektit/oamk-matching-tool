@@ -1,9 +1,12 @@
+import { createClient as createSupabaseJsClient } from '@supabase/supabase-js'
 import type { User, SupabaseClient } from '@supabase/supabase-js'
+import { headers } from 'next/headers'
 import type { UserRole } from '@/types/domain'
 import type { ApiErrorCode, ApiFieldError } from '@/types/api'
 import { createClient } from '@/lib/supabase/server'
 import { ValidationError } from '@/lib/validation'
 import { jsonError } from '@/lib/api/response'
+import { extractBearerToken } from '@/lib/api/bearer'
 
 export class ApiHttpError extends Error {
   readonly status: number
@@ -56,7 +59,11 @@ export async function ensureProfile(
     throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
   }
 
-  if (profile?.role === 'student' || profile?.role === 'teacher' || profile?.role === 'admin') {
+  if (
+    profile?.role === 'student' ||
+    profile?.role === 'teacher' ||
+    profile?.role === 'admin'
+  ) {
     return profile.role
   }
 
@@ -73,7 +80,55 @@ export async function ensureProfile(
   return role
 }
 
+function createBearerClient(accessToken: string): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !anonKey) {
+    throw new ApiHttpError(
+      500,
+      'INTERNAL_ERROR',
+      'Supabase environment is not configured'
+    )
+  }
+
+  return createSupabaseJsClient(url, anonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
+}
+
+/**
+ * Resolves the caller from either:
+ * 1. `Authorization: Bearer <access_token>` (Postman / mobile / scripts), or
+ * 2. Supabase Auth cookies (browser SSR session).
+ */
 export async function requireAuth(): Promise<AuthContext> {
+  const headerStore = await headers()
+  const bearer = extractBearerToken(headerStore.get('authorization'))
+
+  if (bearer) {
+    const supabase = createBearerClient(bearer)
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(bearer)
+
+    if (error || !user) {
+      throw new ApiHttpError(401, 'UNAUTHORIZED', 'Invalid or expired token')
+    }
+
+    const role = await ensureProfile(supabase, user)
+    return { user, role, supabase }
+  }
+
   const supabase = await createClient()
   const {
     data: { user },

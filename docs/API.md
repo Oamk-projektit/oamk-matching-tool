@@ -14,7 +14,7 @@ Base URL (local): `http://localhost:3000/api`
 | Format | JSON request and response bodies |
 | IDs | UUID strings |
 | Timestamps | ISO 8601 UTC (`timestamptz`) |
-| Auth | Supabase Auth Bearer cookie/session; API routes validate the user |
+| Auth | Supabase Auth cookie **or** `Authorization: Bearer <access_token>` |
 | Roles | `student` \| `teacher` \| `admin` (from `profiles.role`) |
 | Errors | Uniform envelope (see below) |
 | Naming | English field names, snake_case in JSON to match DB |

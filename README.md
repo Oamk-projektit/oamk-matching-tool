@@ -22,6 +22,8 @@ Health check: [http://localhost:3000/api/health](http://localhost:3000/api/healt
 | [docs/API.md](docs/API.md) | REST contract |
 | [docs/SCHEMA.md](docs/SCHEMA.md) | Database tables, RLS, indexes |
 | [docs/BACKEND.md](docs/BACKEND.md) | Env vars, deploy, smoke tests |
+| [docs/API_TESTING.md](docs/API_TESTING.md) | Postman / Bearer token testing |
+| [docs/BACKEND_REPORT.md](docs/BACKEND_REPORT.md) | Report draft (backend section) |
 | [docs/VENLA_TASKS.md](docs/VENLA_TASKS.md) | Frontend integration follow-ups |
 
 ```bash
