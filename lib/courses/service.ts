@@ -25,6 +25,17 @@ export function mapCourseRow(row: CourseRow): Course {
 }
 
 /**
+ * Build a PostgREST `or` filter for course search.
+ * Supports code, Finnish name, English name, and department.
+ * Returns null when the search term is empty after sanitization.
+ */
+export function buildCourseSearchFilter(search: string): string | null {
+  const safe = search.replace(/[%_,]/g, ' ').trim()
+  if (!safe) return null
+  return `code.ilike.%${safe}%,name_fi.ilike.%${safe}%,name_en.ilike.%${safe}%,department.ilike.%${safe}%`
+}
+
+/**
  * Search courses by code, Finnish name, English name, or department.
  * Empty search returns active courses (capped).
  */
@@ -43,11 +54,9 @@ export async function listCourses(
     .limit(limit)
 
   if (search) {
-    const safe = search.replace(/[%_,]/g, ' ').trim()
-    if (safe) {
-      query = query.or(
-        `code.ilike.%${safe}%,name_fi.ilike.%${safe}%,name_en.ilike.%${safe}%,department.ilike.%${safe}%`
-      )
+    const filter = buildCourseSearchFilter(search)
+    if (filter) {
+      query = query.or(filter)
     }
   }
 
