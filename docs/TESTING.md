@@ -43,13 +43,12 @@ Require `npm run dev` running, `.env.local` configured, and `supabase db reset` 
 ```bash
 npm run smoke          # health + auth + list projects
 npm run smoke:student  # full student journey: login → me → matches → apply → notifications
-npm run smoke:teacher  # full teacher journey: login → projects → applicants → matches → status update
-npm run smoke:flows    # runs smoke:student then smoke:teacher
+npm run smoke:company  # company journey: projects → applicants → Top 3 → selections
+npm run smoke:teacher  # teacher journey: projects → applicants → matches → audit
+npm run smoke:flows    # student + teacher flows
 ```
 
-Scripts live in `scripts/` (`api-smoke.mjs`, `flow-student.mjs`, `flow-teacher.mjs`, `flow-all.mjs`, shared helpers in `scripts/lib/smoke-helpers.mjs`). They authenticate via `signInWithPassword` and call the API with a Bearer token — see `docs/API_TESTING.md` for the manual Postman equivalent.
-
-> **Known gap:** the smoke scripts predate the projects-model migration and still call the legacy `/api/opportunities` surface in a few places. That legacy table no longer exists after `supabase db reset` (dropped by `20260804140000_drop_legacy_opportunity_schema.sql`), so those specific calls will fail against the current schema until the scripts are updated to `/api/projects`. Use the manual checklist in `docs/BACKEND_SETUP.md` §7 (all current `/api/projects` paths) for a reliable end-to-end smoke test in the meantime.
+Scripts live in `scripts/` (`api-smoke.mjs`, `flow-student.mjs`, `flow-company.mjs`, `flow-teacher.mjs`, `flow-all.mjs`, shared helpers in `scripts/lib/smoke-helpers.mjs`). They authenticate via `signInWithPassword` and call the **projects-model** API with a Bearer token — see `docs/API_TESTING.md` for the manual Postman equivalent. Full UI checklist: `docs/DEMO_CHECKLIST.md`.
 
 ## 4. Privacy test checklist (manual or automated E2E)
 
