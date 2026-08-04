@@ -9,6 +9,7 @@ import { headers } from 'next/headers'
 import type { UserRole } from '@/types/domain'
 import type { ApiErrorCode, ApiFieldError } from '@/types/api'
 import { createClient } from '@/lib/supabase/server'
+import { requireSupabasePublicEnv } from '@/lib/supabase/env'
 import { ValidationError } from '@/lib/validation'
 import { jsonError } from '@/lib/api/response'
 import { extractBearerToken } from '@/lib/api/bearer'
@@ -112,10 +113,11 @@ export async function ensureProfile(
 }
 
 function createBearerClient(accessToken: string): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!url || !anonKey) {
+  let url: string
+  let key: string
+  try {
+    ;({ url, key } = requireSupabasePublicEnv())
+  } catch {
     throw new ApiHttpError(
       500,
       'INTERNAL_ERROR',
@@ -123,7 +125,7 @@ function createBearerClient(accessToken: string): SupabaseClient {
     )
   }
 
-  return createSupabaseJsClient(url, anonKey, {
+  return createSupabaseJsClient(url, key, {
     global: {
       headers: {
         Authorization: `Bearer ${accessToken}`,

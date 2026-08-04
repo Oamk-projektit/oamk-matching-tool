@@ -1,6 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { User } from '@supabase/supabase-js'
+import {
+  getSupabasePublishableKey,
+  getSupabaseUrl,
+} from '@/lib/supabase/env'
 
 export type SessionUpdateResult = {
   response: NextResponse
@@ -20,14 +24,14 @@ export async function updateSession(
     },
   })
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const url = getSupabaseUrl()
+  const key = getSupabasePublishableKey()
 
-  if (!url || !anonKey) {
+  if (!url || !key) {
     return { response, user: null }
   }
 
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
         return request.cookies.getAll()

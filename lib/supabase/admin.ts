@@ -1,12 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
+import {
+  getSupabasePublishableKey,
+  getSupabaseUrl,
+} from '@/lib/supabase/env'
 
 /**
  * Service-role Supabase client for privileged Route Handlers.
  * Server-only: never import from client components or shared browser code.
  */
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const url = getSupabaseUrl()
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
 
   if (!url || !serviceRoleKey) {
     throw new Error(
@@ -24,10 +28,7 @@ export function createAdminClient() {
 }
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
+  return Boolean(getSupabaseUrl() && getSupabasePublishableKey())
 }
 
 export function isSupabaseAdminConfigured(): boolean {

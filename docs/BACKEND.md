@@ -11,9 +11,12 @@ Create `.env.local` (never commit secrets):
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Anon/public key (browser + RLS-scoped server) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes* | Publishable/public key (browser + RLS-scoped server) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes* | Legacy alias for the publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes (API) | Service role key for privileged Route Handlers only |
 | `APP_URL` | recommended | Canonical app URL, e.g. `http://localhost:3000` |
+
+\* Provide **either** `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` (publishable preferred). Clients live under `lib/supabase/` (not `utils/supabase/`).
 
 Optional:
 
@@ -35,8 +38,8 @@ Example `.env.local`:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_...   # or legacy service_role JWT
 APP_URL=http://localhost:3000
 ```
 
