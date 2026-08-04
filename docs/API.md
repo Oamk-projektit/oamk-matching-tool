@@ -170,7 +170,7 @@ No auth.
 {
   "data": {
     "profile": {
-      "id": "p0000000-0000-4000-8000-000000000001",
+      "id": "90000000-0000-4000-8000-000000000001",
       "role": "student",
       "displayName": "Aino Virtanen",
       "email": "aino.virtanen@students.oamk.fi",
@@ -569,7 +569,7 @@ Email sending remains out of MVP (in-app + stub only).
 
 ```json
 {
-  "id": "p0000000-0000-4000-8000-000000000001",
+  "id": "90000000-0000-4000-8000-000000000001",
   "role": "student",
   "displayName": "Aino Virtanen",
   "email": "aino.virtanen@students.oamk.fi",
@@ -584,7 +584,7 @@ Email sending remains out of MVP (in-app + stub only).
 ```json
 {
   "id": "s0000000-0000-4000-8000-000000000001",
-  "profileId": "p0000000-0000-4000-8000-000000000001",
+  "profileId": "90000000-0000-4000-8000-000000000001",
   "degreeProgramme": "Tietotekniikka",
   "department": "ICT",
   "studyCredits": 120,
@@ -645,7 +645,7 @@ Email sending remains out of MVP (in-app + stub only).
   "studentId": "s0000000-0000-4000-8000-000000000001",
   "applicationId": "a0000000-0000-4000-8000-000000000001",
   "decision": "selected",
-  "decidedBy": "p0000000-0000-4000-8000-000000000099",
+  "decidedBy": "90000000-0000-4000-8000-000000000099",
   "reason": "Strong React fit and availability.",
   "decidedAt": "2026-08-10T14:00:00.000Z"
 }

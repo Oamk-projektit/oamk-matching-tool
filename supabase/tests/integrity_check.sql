@@ -10,7 +10,7 @@ BEGIN
   BEGIN
     INSERT INTO public.applications (project_id, student_id, status)
     VALUES (
-      'p0000000-0000-4000-8000-000000000001',
+      '90000000-0000-4000-8000-000000000001',
       'b0000000-0000-4000-8000-000000000011',
       'submitted'
     );
@@ -25,7 +25,7 @@ BEGIN
     INSERT INTO public.matches (
       project_id, student_id, total_score, explanation
     ) VALUES (
-      'p0000000-0000-4000-8000-000000000001',
+      '90000000-0000-4000-8000-000000000001',
       'b0000000-0000-4000-8000-000000000011',
       50,
       'dup'
@@ -40,7 +40,7 @@ BEGIN
   BEGIN
     UPDATE public.project_weights
     SET skills = skills + 1
-    WHERE project_id = 'p0000000-0000-4000-8000-000000000001';
+    WHERE project_id = '90000000-0000-4000-8000-000000000001';
     RAISE EXCEPTION 'Expected invalid weight sum to fail';
   EXCEPTION
     WHEN check_violation THEN
@@ -52,7 +52,7 @@ BEGIN
     INSERT INTO public.selection_decisions (
       project_id, student_id, application_id, decision, decided_by
     ) VALUES (
-      'p0000000-0000-4000-8000-000000000007',
+      '90000000-0000-4000-8000-000000000007',
       'b0000000-0000-4000-8000-000000000015',
       'd0000000-0000-4000-8000-000000000001', -- belongs to other project
       'selected',
@@ -102,7 +102,7 @@ BEGIN
   -- Student must not see peer match scores on same project (Top-N leakage)
   SELECT count(*) INTO n
   FROM public.matches
-  WHERE project_id = 'p0000000-0000-4000-8000-000000000001'
+  WHERE project_id = '90000000-0000-4000-8000-000000000001'
     AND student_id <> 'b0000000-0000-4000-8000-000000000011';
 
   IF n <> 0 THEN
@@ -118,7 +118,7 @@ BEGIN
 
   SELECT count(*) INTO n
   FROM public.applications
-  WHERE project_id = 'p0000000-0000-4000-8000-000000000004';
+  WHERE project_id = '90000000-0000-4000-8000-000000000004';
 
   IF n <> 0 THEN
     RAISE EXCEPTION 'RLS fail: company saw other company applicants (count=%)', n;
@@ -128,7 +128,7 @@ BEGIN
   -- Own applicants visible
   SELECT count(*) INTO n
   FROM public.applications
-  WHERE project_id = 'p0000000-0000-4000-8000-000000000001';
+  WHERE project_id = '90000000-0000-4000-8000-000000000001';
 
   IF n < 1 THEN
     RAISE EXCEPTION 'RLS fail: company cannot see own applicants';

@@ -1,8 +1,7 @@
 # Supabase local config (minimal). Full defaults applied by CLI when present.
 # https://supabase.com/docs/guides/cli/config
 
-[project]
-id = "oamk-matching-tool"
+project_id = "oamk-matching-tool"
 
 [db]
 port = 54322
