@@ -212,4 +212,16 @@ BEGIN
   RAISE NOTICE 'RLS checks completed';
 END $$;
 
+-- service_role must retain table DML for server-only admin jobs (health, match upsert).
+DO $$
+BEGIN
+  IF NOT has_table_privilege('service_role', 'public.profiles', 'SELECT') THEN
+    RAISE EXCEPTION 'Grant fail: service_role lacks SELECT on public.profiles';
+  END IF;
+  IF NOT has_table_privilege('service_role', 'public.matches', 'INSERT') THEN
+    RAISE EXCEPTION 'Grant fail: service_role lacks INSERT on public.matches';
+  END IF;
+  RAISE NOTICE 'OK: service_role has required table privileges';
+END $$;
+
 DROP FUNCTION IF EXISTS public._test_set_auth(uuid);
