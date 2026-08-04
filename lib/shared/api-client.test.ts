@@ -28,10 +28,13 @@ describe('shared api client (#143)', () => {
       expect(String(input)).toBe('http://localhost:3000/api/health')
       return new Response(
         JSON.stringify({
-          status: 'ok',
-          service: 'oamk-matching-tool',
-          timestamp: '2026-08-03T00:00:00.000Z',
-          supabase: 'configured',
+          data: {
+            status: 'ok',
+            service: 'oamk-matching-tool',
+            database: 'connected',
+            timestamp: '2026-08-03T00:00:00.000Z',
+          },
+          meta: {},
         }),
         { status: 200 }
       )
@@ -42,7 +45,8 @@ describe('shared api client (#143)', () => {
       fetchImpl,
     })
     const health = await client.health()
-    expect(health.status).toBe('ok')
+    expect(health.data.status).toBe('ok')
+    expect(health.data.database).toBe('connected')
   })
 
   it('throws SharedApiError on 401', async () => {
