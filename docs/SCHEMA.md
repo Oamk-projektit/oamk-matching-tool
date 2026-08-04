@@ -1,205 +1,226 @@
 # Database Schema
 
-This document describes the database schema for the OAMK Matching Tool built in Supabase.
+Canonical Supabase schema for the OAMK Matching Tool.  
+Aligned with `docs/API.md` and `types/domain.ts` (projects model).
+
+Migrations: `supabase/migrations/`. Seed: `supabase/seed.sql`.
+
+> **Runtime note:** The **projects model is live**. After `supabase db reset`,
+> the database is exactly the schema documented here. The legacy
+> `/api/opportunities` Next.js handlers (`types/legacy.ts`) remain in the
+> codebase but target the `opportunities` table, which this schema drops —
+> treat that surface as deprecated/non-functional in favor of `/api/projects`.
+
+---
+
+## Design decisions
+
+| Topic | Choice |
+|-------|--------|
+| Canonical listing unit | `projects` (`company_project` \| `internship`) |
+| Ownership | **Only `company`** creates/owns via `projects.company_id` → `companies.id` |
+| Teacher | Oversight only (read projects, applications, matches, selections, audit) — **no ownership** |
+| Admin | Full administer / override |
+| Student | Browse published projects + apply |
+| Catalogs | Shared `courses`, `skills`, `interests` |
+| Skill links | `project_required_skills` **and** `project_recommended_skills` (both required tables; rows optional) |
+| Interest links | `project_interests` (required table; rows optional) |
+| Empty optional lists | Must not hurt matching score / cause divide-by-zero (engine rule) |
+| Weights | Integer percentages on `project_weights`, **sum = 100** |
+| Final choice | `selection_decisions` (matching never auto-selects) |
+| Auth link | `profiles.id` = `auth.users.id` |
+| Roles | `profiles.role`: `student` \| `company` \| `teacher` \| `admin` |
+| Auditing | `audit_events` via triggers |
+
+Legacy `opportunities` tables are dropped by
+`20260804140000_drop_legacy_opportunity_schema.sql`.
+
+---
+
+## Enums (check constraints)
+
+| Name | Values |
+|------|--------|
+| Role | `student`, `company`, `teacher`, `admin` |
+| Language | `fi`, `en` |
+| Project type | `company_project`, `internship` |
+| Project status | `draft`, `published`, `closed`, `archived` |
+| Work mode | `onsite`, `hybrid`, `remote` |
+| Application status | `submitted`, `under_review`, `shortlisted`, `selected`, `not_selected`, `withdrawn` |
+| Selection decision | `selected`, `not_selected` |
+| Notification type | `application_received`, `application_status_changed`, `application_shortlisted`, `student_selected`, `student_not_selected`, `project_updated`, `application_deadline_approaching`, `new_application_for_company`, `selection_completed_for_teacher`, plus retained legacy values `match_ready`, `selection_decided`, `project_published` |
+
+---
 
 ## Tables
 
 ### `profiles`
-User role and authentication metadata.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| user_id | uuid | FOREIGN KEY (auth.users.id) | Supabase Auth user |
-| role | text | NOT NULL, DEFAULT 'student' | User role: admin, teacher, or student |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Account creation time |
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PK, FK → `auth.users(id)` ON DELETE CASCADE |
+| role | text | NOT NULL, CHECK role |
+| display_name | text | NOT NULL |
+| email | text | NOT NULL |
+| preferred_language | text | NOT NULL DEFAULT `fi` |
+| created_at / updated_at | timestamptz | NOT NULL |
+
+### `companies` / `company_users`
+
+| Table | Notes |
+|-------|-------|
+| `companies` | `name`, optional `business_id`, `description`, `website` |
+| `company_users` | UNIQUE `(company_id, profile_id)` and UNIQUE `(profile_id)` (MVP: one company per profile); `company_role` `owner` \| `member` |
+
+### `courses` / `skills` / `interests`
+
+Shared catalogs. `courses.credits >= 0`. Skills/interests use `normalized_name` UNIQUE.
 
 ### `students`
-Student profile information and availability.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| user_id | uuid | FOREIGN KEY (auth.users.id) | Supabase Auth user |
-| name | text | NOT NULL | Student name |
-| email | text | NOT NULL | Student email |
-| availability | text | | Availability description (e.g., "Full-time", "Part-time") |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Profile creation time |
+| Column | Notes |
+|--------|-------|
+| profile_id | UNIQUE → one student row per profile |
+| study_credits | CHECK ≥ 0 |
+| preferred_project_types | `text[]` subset of project types |
 
-### `skills`
-Skills associated with students.
+Child tables:
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| student_id | uuid | FOREIGN KEY (students.id) ON DELETE CASCADE | Reference to student |
-| skill_name | text | NOT NULL | Name of the skill (e.g., "React", "Python") |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Skill creation time |
-
-### `interests`
-Interests/preferences for students.
-
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| student_id | uuid | FOREIGN KEY (students.id) ON DELETE CASCADE | Reference to student |
-| interest_name | text | NOT NULL | Interest description |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Interest creation time |
+- `student_courses` — UNIQUE `(student_id, course_id)`; optional completion metadata (`completion_status`, `completed_at`, `grade`, `verified`)
+- `student_skills` — UNIQUE `(student_id, skill_id)`; optional `level`
+- `student_interests` — UNIQUE `(student_id, interest_id)`
 
 ### `projects`
-Projects created by teachers.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| teacher_id | uuid | FOREIGN KEY (auth.users.id) | Teacher creating the project |
-| name | text | NOT NULL | Project name |
-| description | text | | Project description |
-| schedule | text | | Project schedule/timeline |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Project creation time |
+Owned **only** by `company_id` (no teacher owner column). `positions >= 1`, `minimum_study_credits >= 0`.
 
-### `project_skills`
-Skills required for projects.
+Children (tables always exist; per-project rows optional):
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| project_id | uuid | FOREIGN KEY (projects.id) ON DELETE CASCADE | Reference to project |
-| skill_name | text | NOT NULL | Required skill name |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Skill creation time |
+- `project_required_courses`
+- `project_recommended_courses`
+- `project_required_skills` (optional `level`)
+- `project_recommended_skills` (optional `level`) — missing recommended skills weigh less than required in matching
+- `project_interests` — enables structured interest overlap scoring
+
+### `project_weights`
+
+1:1 with project. Integer criteria columns; CHECK sum = 100.
+
+### `applications`
+
+UNIQUE `(student_id, project_id)`. Status enum as above.
 
 ### `matches`
-Student-project matches and compatibility scores.
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| student_id | uuid | FOREIGN KEY (students.id) ON DELETE CASCADE | Reference to student |
-| project_id | uuid | FOREIGN KEY (projects.id) ON DELETE CASCADE | Reference to project |
-| score | float | | Match compatibility score (0-1) |
-| created_at | timestamp | NOT NULL, DEFAULT now() | Match creation time |
+UNIQUE `(student_id, project_id)` — one current result per pair.
+`total_score` 0–100; `score_breakdown` / `weights_snapshot` jsonb.
 
-### `roles`
-Legacy role definitions (if needed for role-based features).
+### `selection_decisions`
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | uuid | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
-| user_id | uuid | FOREIGN KEY (auth.users.id) | Supabase Auth user |
-| role | text | NOT NULL | Role value (admin, teacher, student) |
+Links to `application_id` (UNIQUE). Trigger enforces application’s
+`student_id` / `project_id` match. Teachers cannot INSERT (RLS); admin may.
+A trigger (`enforce_selection_capacity`) blocks `selected` decisions once
+`positions` is reached; a companion trigger blocks lowering a project's
+`positions` below its current selected count.
 
-## Row Level Security (RLS) Policies
+Snapshot columns (added by `20260804141300_selection_snapshots_and_notifications.sql`),
+frozen at decision time and never rewritten by later rematches or weight edits:
 
-All tables have RLS enabled. Here are the core policies:
+| Column | Notes |
+|--------|-------|
+| `match_id` | FK → `matches(id)`, `ON DELETE SET NULL` |
+| `match_snapshot` | jsonb — score, breakdown, explanation at decision time |
+| `weights_snapshot` | jsonb — `ProjectWeights` used for that match |
+| `algorithm_rank` | 1-based rank among project matches at decision time (informational; CHECK ≥ 1) |
 
-### `students` table
-- **Students**: Can read/write only their own row
-- **Teachers**: Can read all student data
-- **Admins**: Full access
+### `notifications`
 
-### `skills` and `interests` tables
-- **Students**: Can read/write only their own related data
-- **Teachers**: Can read all
+`profile_id`, typed `type` (see enum above), bilingual `title`/`body`, optional `read_at`.
 
-### `projects` table
-- **Teachers**: Can create and edit their own projects, read all
-- **Students**: Can read all projects
-- **Admins**: Full access
+`idempotency_key` (text, nullable) plus a unique index where non-null
+(`notifications_idempotency_key_uidx`) let notification emitters call
+`createNotificationIdempotent()` safely on retries without creating duplicates.
 
-### `matches` table
-- **Students**: Can read their own matches
-- **Teachers**: Can read matches for their projects
-- **Admins**: Full access
+### `audit_events`
 
-## Setting Up the Schema
+`actor_profile_id`, `action`, `entity_type`, `entity_id`, `old_values`,
+`new_values`, `created_at`.
 
-### SQL Setup Script
+Automatic actions (via `SECURITY DEFINER` triggers, never client-writable) include:
 
-Run this in Supabase SQL Editor to create all tables:
+- `project_created`, `project_updated`, `project_published`
+- `application_created`, `application_status_changed`, `application_shortlisted`,
+  `application_unshortlisted`, `application_withdrawn`
+- `match_saved`, `match_updated`
+- `selection_selected`, `selection_not_selected`, `selection_changed`,
+  `selection_reason_changed`
+- `notification_created`
 
-```sql
--- Create profiles table
-CREATE TABLE profiles (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  role text DEFAULT 'student' NOT NULL,
-  created_at timestamp DEFAULT now() NOT NULL
-);
+---
 
--- Create students table
-CREATE TABLE students (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  name text NOT NULL,
-  email text NOT NULL,
-  availability text,
-  created_at timestamp DEFAULT now() NOT NULL
-);
+## Integrity highlights
 
--- Create skills table
-CREATE TABLE skills (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id uuid REFERENCES students(id) ON DELETE CASCADE NOT NULL,
-  skill_name text NOT NULL,
-  created_at timestamp DEFAULT now() NOT NULL
-);
+- One student profile per `profiles` row (`students.profile_id` UNIQUE)
+- No duplicate student course / skill / interest
+- No duplicate application to same project
+- No duplicate current match for student–project
+- Project weights sum to 100
+- Selection must reference a real application for that student+project
+- Positions ≥ 1; study/course credits ≥ 0
 
--- Create interests table
-CREATE TABLE interests (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id uuid REFERENCES students(id) ON DELETE CASCADE NOT NULL,
-  interest_name text NOT NULL,
-  created_at timestamp DEFAULT now() NOT NULL
-);
+---
 
--- Create projects table
-CREATE TABLE projects (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  teacher_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  name text NOT NULL,
-  description text,
-  schedule text,
-  created_at timestamp DEFAULT now() NOT NULL
-);
+## Relationships
 
--- Create project_skills table
-CREATE TABLE project_skills (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id uuid REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
-  skill_name text NOT NULL,
-  created_at timestamp DEFAULT now() NOT NULL
-);
-
--- Create matches table
-CREATE TABLE matches (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id uuid REFERENCES students(id) ON DELETE CASCADE NOT NULL,
-  project_id uuid REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
-  score float,
-  created_at timestamp DEFAULT now() NOT NULL
-);
-
--- Create roles table (legacy, optional)
-CREATE TABLE roles (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  role text NOT NULL
-);
-
--- Enable RLS on all tables
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE students ENABLE ROW LEVEL SECURITY;
-ALTER TABLE skills ENABLE ROW LEVEL SECURITY;
-ALTER TABLE interests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE project_skills ENABLE ROW LEVEL SECURITY;
-ALTER TABLE matches ENABLE ROW LEVEL SECURITY;
-ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+```text
+auth.users 1──1 profiles
+profiles 1──0..1 students
+profiles 1──0..1 company_users ──* companies
+companies 1──* projects
+projects 1──1 project_weights
+projects 1──* applications / matches / selection_decisions
+students 1──* applications / matches / student_*
 ```
 
-## Next Steps
+---
 
-1. Run the SQL script above in Supabase dashboard
-2. Add RLS policies for each table
-3. Add indexes on frequently queried columns (e.g., `student_id`, `project_id`, `teacher_id`)
-4. Set up database backups
+## Row Level Security
+
+RLS enabled on all public application tables.
+
+Helpers: `current_user_role`, `is_admin`, `is_teacher`, `is_teacher_or_admin`,
+`is_company_role`, `is_student`, `owns_student_row`, `member_of_company`,
+`owns_project`, `can_view_project_staff`.
+
+| Concern | Policy |
+|---------|--------|
+| Student profile / courses / skills / interests | Own CRUD |
+| Published projects + weights | Readable by authenticated |
+| Draft projects | Owner company / teacher / admin |
+| Project INSERT/UPDATE/DELETE | **Company member with role=company** (or admin); teachers cannot create |
+| Applications | Own student **or** own-project company / teacher / admin |
+| Matches | Own student row **or** project staff (student never sees peers) |
+| Selection | Company on own projects + admin write; teachers read-only |
+| Audit | Teacher / admin SELECT |
+| Cross-company | Company A cannot see company B applicants |
+
+Service role bypasses RLS for server-side jobs.
+
+---
+
+## Applying locally
+
+```bash
+supabase db reset   # migrations + seed.sql
+supabase db lint    # if CLI available
+```
+
+SQL checks: `supabase/tests/schema_check.sql`, `supabase/tests/integrity_check.sql`.
+
+---
+
+## Seed
+
+`supabase/seed.sql`: 5 students, 2 companies, 7 projects (incl. draft),
+catalogs, applications, matches, one selection, sample notifications.
+Local demo password: `LocalDemoOnly!1` (fictional, local Auth only).

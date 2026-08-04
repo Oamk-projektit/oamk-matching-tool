@@ -1,26 +1,32 @@
 import React from 'react'
 
-interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'pending' | 'approved' | 'matched' | 'default'
+export type BadgeVariant = 'pending' | 'approved' | 'matched' | 'default'
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  variant?: BadgeVariant
   children: React.ReactNode
 }
 
+const variantStyles: Record<BadgeVariant, string> = {
+  pending: 'bg-warning-soft text-warning',
+  approved: 'bg-success-soft text-success',
+  matched: 'bg-primary-soft text-primary',
+  default: 'bg-surface-muted text-foreground-secondary',
+}
+
+/**
+ * @deprecated Prefer `StatusBadge` for ApplicationStatus/ProjectStatus values.
+ * Kept as a thin, backward-compatible wrapper using the same design tokens.
+ */
 export const Badge: React.FC<BadgeProps> = ({
   variant = 'default',
   className = '',
   children,
   ...props
 }) => {
-  const variantStyles = {
-    pending: 'bg-[#f59e0b] text-white',
-    approved: 'bg-[#22c55e] text-white',
-    matched: 'bg-[#005EB8] text-white',
-    default: 'bg-[#e0e0e0] text-[#171717]',
-  }
-
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {children}

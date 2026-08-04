@@ -1,43 +1,60 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware'
 
-// Pages that don't require authentication
-const publicPages = ['/', '/login', '/register', '/teacher/login', '/style-guide']
+// Only exact matches below are public. Everything else — including all
+// `/company/*`, `/teacher/*` (except `/teacher/login`), `/admin/*`, and
+// `/dashboard` routes — is protected by default and requires a session.
+const PUBLIC_EXACT = new Set([
+  '/',
+  '/login',
+  '/register',
+  '/teacher/login',
+  '/style-guide',
+])
+
+function isPublicPage(pathname: string): boolean {
+  if (PUBLIC_EXACT.has(pathname)) return true
+  // Style guide assets under the same path prefix are not expected; keep exact.
+  return false
+}
+
+function loginRedirect(request: NextRequest, pathname: string): NextResponse {
+  if (pathname.startsWith('/teacher')) {
+    return NextResponse.redirect(new URL('/teacher/login', request.url))
+  }
+  if (pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+  return NextResponse.redirect(new URL('/login', request.url))
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const { response, user } = await updateSession(request)
 
-  // Allow public pages to be accessed without authentication
-  if (publicPages.some(page => pathname === page || pathname.startsWith(page))) {
-    return NextResponse.next()
+  // API routes authenticate inside handlers; still refresh cookies above.
+  if (pathname.startsWith('/api')) {
+    return response
   }
 
-  // Get session from cookies (JWT stored as 'sb-auth-token')
-  const authToken = request.cookies.get('sb-auth-token')?.value
-
-  if (!authToken) {
-    // Redirect to login for student pages or teacher pages
-    if (pathname.startsWith('/teacher')) {
-      return NextResponse.redirect(new URL('/teacher/login', request.url))
-    }
-    if (pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (isPublicPage(pathname)) {
+    return response
   }
 
-  return NextResponse.next()
+  if (!user) {
+    const redirect = loginRedirect(request, pathname)
+    // Preserve refreshed cookies on the redirect response.
+    response.cookies.getAll().forEach((cookie) => {
+      redirect.cookies.set(cookie)
+    })
+    return redirect
+  }
+
+  return response
 }
 
-// Configure which routes should use the middleware
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

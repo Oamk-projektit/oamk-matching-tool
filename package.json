@@ -6,14 +6,25 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "verify": "tsc --noEmit && vitest run",
+    "gen:types": "node scripts/gen-database-types.mjs",
+    "smoke": "node --env-file=.env.local scripts/api-smoke.mjs",
+    "smoke:student": "node --env-file=.env.local scripts/flow-student.mjs",
+    "smoke:company": "node --env-file=.env.local scripts/flow-company.mjs",
+    "smoke:teacher": "node --env-file=.env.local scripts/flow-teacher.mjs",
+    "smoke:flows": "node --env-file=.env.local scripts/flow-all.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.106.1",
+    "@supabase/supabase-js": "^2.112.0",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -23,6 +34,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.10"
   }
 }

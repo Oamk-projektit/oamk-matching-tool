@@ -1,7 +1,12 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '@/types/database'
+import { requireSupabasePublicEnv } from '@/lib/supabase/env'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const createClient = () =>
-  createBrowserClient(supabaseUrl, supabaseAnonKey)
+/**
+ * Browser Supabase client (anon/publishable key only, RLS applies).
+ * Never import or embed the service role key here.
+ */
+export const createClient = () => {
+  const { url, key } = requireSupabasePublicEnv()
+  return createBrowserClient<Database>(url, key)
+}

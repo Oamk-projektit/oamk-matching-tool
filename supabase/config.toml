@@ -1,0 +1,16 @@
+# Supabase local config (minimal). Full defaults applied by CLI when present.
+# https://supabase.com/docs/guides/cli/config
+
+project_id = "oamk-matching-tool"
+
+[db]
+port = 54322
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ['./seed.sql']
+
+[api]
+enabled = true
+port = 54321
