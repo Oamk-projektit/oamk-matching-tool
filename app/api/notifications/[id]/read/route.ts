@@ -9,7 +9,7 @@ import { markNotificationRead } from '@/lib/notifications/service'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
-/** Legacy path: PATCH /api/notifications/:id */
+/** Canonical path: PATCH /api/notifications/:id/read */
 export async function PATCH(_request: Request, context: RouteContext) {
   try {
     const ctx = await requireAuth()

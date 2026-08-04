@@ -3,7 +3,7 @@ import {
   handleRouteError,
   requireAuth,
 } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
+import { jsonData } from '@/lib/api/response'
 import {
   countUnread,
   listNotifications,
@@ -28,15 +28,12 @@ export async function GET(request: Request) {
       limit = parsed
     }
 
-    const [data, unread_count] = await Promise.all([
-      listNotifications(ctx.supabase, ctx.user.id, { unreadOnly, limit }),
-      countUnread(ctx.supabase, ctx.user.id),
+    const [data, unreadCount] = await Promise.all([
+      listNotifications(ctx.supabase, ctx.profileId, { unreadOnly, limit }),
+      countUnread(ctx.supabase, ctx.profileId),
     ])
 
-    return jsonOk({
-      data,
-      meta: { count: data.length, unread_count },
-    })
+    return jsonData(data, { count: data.length, unreadCount })
   } catch (error) {
     return handleRouteError(error)
   }

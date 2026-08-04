@@ -2,7 +2,7 @@ import { handleRouteError, requireAuth } from '@/lib/api/auth'
 import { jsonData } from '@/lib/api/response'
 import { markAllNotificationsRead } from '@/lib/notifications/service'
 
-/** Legacy path: POST /api/notifications/read-all */
+/** Canonical path: POST /api/notifications/mark-all-read */
 export async function POST() {
   try {
     const ctx = await requireAuth()
