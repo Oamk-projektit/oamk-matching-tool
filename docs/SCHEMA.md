@@ -17,8 +17,14 @@ Migrations: `supabase/migrations/`. Seed: `supabase/seed.sql`.
 | Topic | Choice |
 |-------|--------|
 | Canonical listing unit | `projects` (`company_project` \| `internship`) |
-| Ownership | `companies` + `company_users`; teachers oversee, do not own |
+| Ownership | **Only `company`** creates/owns via `projects.company_id` → `companies.id` |
+| Teacher | Oversight only (read projects, applications, matches, selections, audit) — **no ownership** |
+| Admin | Full administer / override |
+| Student | Browse published projects + apply |
 | Catalogs | Shared `courses`, `skills`, `interests` |
+| Skill links | `project_required_skills` **and** `project_recommended_skills` (both required tables; rows optional) |
+| Interest links | `project_interests` (required table; rows optional) |
+| Empty optional lists | Must not hurt matching score / cause divide-by-zero (engine rule) |
 | Weights | Integer percentages on `project_weights`, **sum = 100** |
 | Final choice | `selection_decisions` (matching never auto-selects) |
 | Auth link | `profiles.id` = `auth.users.id` |
@@ -60,7 +66,10 @@ Legacy `opportunities` tables are dropped by
 
 ### `companies` / `company_users`
 
-`company_users`: UNIQUE `(company_id, profile_id)` and UNIQUE `(profile_id)` (MVP: one company per profile).
+| Table | Notes |
+|-------|-------|
+| `companies` | `name`, optional `business_id`, `description`, `website` |
+| `company_users` | UNIQUE `(company_id, profile_id)` and UNIQUE `(profile_id)` (MVP: one company per profile); `company_role` `owner` \| `member` |
 
 ### `courses` / `skills` / `interests`
 
@@ -74,14 +83,23 @@ Shared catalogs. `courses.credits >= 0`. Skills/interests use `normalized_name` 
 | study_credits | CHECK ≥ 0 |
 | preferred_project_types | `text[]` subset of project types |
 
-Child tables `student_courses`, `student_skills`, `student_interests`: UNIQUE per `(student_id, catalog_id)`.
+Child tables:
+
+- `student_courses` — UNIQUE `(student_id, course_id)`; optional completion metadata (`completion_status`, `completed_at`, `grade`, `verified`)
+- `student_skills` — UNIQUE `(student_id, skill_id)`; optional `level`
+- `student_interests` — UNIQUE `(student_id, interest_id)`
 
 ### `projects`
 
-Owned by `company_id`. `positions >= 1`, `minimum_study_credits >= 0`.
+Owned **only** by `company_id` (no teacher owner column). `positions >= 1`, `minimum_study_credits >= 0`.
 
-Children: `project_required_courses`, `project_recommended_courses`,
-`project_required_skills`, `project_recommended_skills`, `project_interests`.
+Children (tables always exist; per-project rows optional):
+
+- `project_required_courses`
+- `project_recommended_courses`
+- `project_required_skills` (optional `level`)
+- `project_recommended_skills` (optional `level`) — missing recommended skills weigh less than required in matching
+- `project_interests` — enables structured interest overlap scoring
 
 ### `project_weights`
 
@@ -154,6 +172,7 @@ Helpers: `current_user_role`, `is_admin`, `is_teacher`, `is_teacher_or_admin`,
 | Student profile / courses / skills / interests | Own CRUD |
 | Published projects + weights | Readable by authenticated |
 | Draft projects | Owner company / teacher / admin |
+| Project INSERT/UPDATE/DELETE | **Company member with role=company** (or admin); teachers cannot create |
 | Applications | Own student **or** own-project company / teacher / admin |
 | Matches | Own student row **or** project staff (student never sees peers) |
 | Selection | Company on own projects + admin write; teachers read-only |

@@ -172,24 +172,26 @@ ON CONFLICT (id) DO UPDATE SET
 -- ---------------------------------------------------------------------------
 -- Companies
 -- ---------------------------------------------------------------------------
-INSERT INTO public.companies (id, name, description, website) VALUES
+INSERT INTO public.companies (id, name, business_id, description, website) VALUES
   (
     'f0000000-0000-4000-8000-000000000001',
     'Nordic Soft Oy',
+    '1234567-8',
     'Fictional Oulu software house focused on campus and municipal digital services.',
     'https://nordicsoft.example'
   ),
   (
     'f0000000-0000-4000-8000-000000000002',
     'Polar Byte Ab',
+    '2345678-9',
     'Fictional bilingual product company building cloud tooling for education.',
     'https://polarbyte.example'
   )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.company_users (company_id, profile_id) VALUES
-  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003'),
-  ('f0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000004')
+INSERT INTO public.company_users (company_id, profile_id, company_role) VALUES
+  ('f0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003', 'owner'),
+  ('f0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000004', 'owner')
 ON CONFLICT DO NOTHING;
 
 -- ---------------------------------------------------------------------------

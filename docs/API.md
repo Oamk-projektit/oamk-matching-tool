@@ -80,14 +80,15 @@ Canonical role source: **`profiles.role`**.
 | Read/update own profile | yes | yes | yes | yes |
 | CRUD own student profile | yes | — | — | yes |
 | Browse published projects | yes | yes | yes | yes |
-| Create/update own projects | — | yes | —* | yes |
+| Create/update/archive own projects | — | yes | — | yes |
 | Apply to project | yes | — | — | — |
 | See own match result | yes | — | —* | yes |
 | See Top 3 / ranked applicants | — | own projects | yes | yes |
 | Final selection decision | — | own projects | — | yes |
 | Run matching | own | own projects | yes | yes |
+| Audit read | — | — | yes | yes |
 
-\* Teachers may create projects only if product rules later allow; MVP ownership of project rows is `companyId`. Teachers may inspect matches for oversight.
+\* Teachers may inspect matches and applicants for oversight but **never create or own** projects in MVP (`projects.company_id` only).
 
 ### Privacy model
 
