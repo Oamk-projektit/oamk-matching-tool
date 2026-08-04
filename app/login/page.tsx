@@ -1,16 +1,9 @@
-'use client'
-
-import { useTranslations } from '@/lib/i18n'
+import { LoginForm } from '@/components/auth/LoginForm'
 
 export default function LoginPage() {
-  const { t } = useTranslations()
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <h1 className="text-3xl font-bold text-[#171717] mb-6">{t('login.title')}</h1>
-        <p className="text-[#666666] mb-6">{t('login.description')}</p>
-      </div>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <LoginForm />
     </div>
   )
 }

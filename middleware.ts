@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
+// Only exact matches below are public. Everything else — including all
+// `/company/*`, `/teacher/*` (except `/teacher/login`), `/admin/*`, and
+// `/dashboard` routes — is protected by default and requires a session.
 const PUBLIC_EXACT = new Set([
   '/',
   '/login',

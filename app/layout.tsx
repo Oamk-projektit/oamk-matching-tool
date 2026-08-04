@@ -9,6 +9,7 @@ import {
   type Locale,
 } from "@/lib/i18n/config";
 import { I18nProvider } from "@/lib/i18n/provider";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import fi from "@/messages/fi.json";
 import "./globals.css";
 
@@ -47,8 +48,10 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <I18nProvider initialLocale={locale}>
-          <Navbar />
-          <main className="flex-1">{children}</main>
+          <AuthProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+          </AuthProvider>
         </I18nProvider>
       </body>
     </html>
