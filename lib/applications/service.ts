@@ -8,6 +8,7 @@ import type {
 import type { ApplicantListItem, ApplicationWithProject } from '@/types/api'
 import { ApiHttpError, isStaff } from '@/lib/api/auth'
 import {
+  assertApplicationIsActive,
   assertApplicationWindow,
   assertCompanyStatusTransition,
   mapApplication,
@@ -159,6 +160,8 @@ export async function withdrawApplication(
     return existing
   }
 
+  assertApplicationIsActive(existing.status, 'withdraw')
+
   const { data, error } = await supabase
     .from('applications')
     .update({ status: 'withdrawn' })
@@ -190,6 +193,10 @@ export async function updateApplicationStatus(
       profileId: actor.profileId,
       role: actor.role,
     })
+  }
+
+  if (existing.status === 'withdrawn') {
+    assertApplicationIsActive(existing.status, 'process')
   }
 
   if (status === 'selected') {

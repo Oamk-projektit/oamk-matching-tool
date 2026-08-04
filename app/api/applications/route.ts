@@ -6,15 +6,16 @@ import {
   requireAuth,
 } from '@/lib/api/auth'
 import { jsonData } from '@/lib/api/response'
-import { parseCreateApplication } from '@/lib/applications/parse'
+import {
+  assertCanSubmitApplication,
+  parseCreateApplication,
+} from '@/lib/applications/parse'
 import { createApplication } from '@/lib/applications/service'
 
 export async function POST(request: Request) {
   try {
     const ctx = await requireAuth()
-    if (ctx.role !== 'student') {
-      throw new ApiHttpError(403, 'FORBIDDEN', 'Only students can apply')
-    }
+    assertCanSubmitApplication(ctx.role)
 
     const studentId = await getCallerStudentId(ctx.supabase, ctx.profileId)
     if (!studentId) {
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
     }
 
     const body = parseCreateApplication(await parseJsonBody(request))
+    // studentId always comes from the authenticated session, never the body.
     const application = await createApplication(ctx.supabase, studentId, body)
     return jsonData(application, {}, { status: 201 })
   } catch (error) {

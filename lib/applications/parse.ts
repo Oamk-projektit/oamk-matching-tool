@@ -1,4 +1,9 @@
-import type { Application, ApplicationStatus, Project } from '@/types/domain'
+import type {
+  Application,
+  ApplicationStatus,
+  Project,
+  UserRole,
+} from '@/types/domain'
 import type { CreateApplicationRequest } from '@/types/api'
 import {
   assertApplicationStatus,
@@ -7,8 +12,38 @@ import {
 import { isUuid, ValidationError } from '@/lib/validation'
 import { ApiHttpError } from '@/lib/api/auth'
 
+/** Statuses that still allow student withdrawal. */
+export const ACTIVE_APPLICATION_STATUSES: ApplicationStatus[] = [
+  'submitted',
+  'under_review',
+  'shortlisted',
+]
+
+/** Company may set processing statuses; final selected goes through selection API. */
+export const COMPANY_ALLOWED_STATUSES: ApplicationStatus[] = [
+  'under_review',
+  'shortlisted',
+  'not_selected',
+]
+
+export const APPLICATION_AUDIT_ACTIONS = [
+  'application_created',
+  'application_status_changed',
+  'application_withdrawn',
+] as const
+
 export function parseCreateApplication(body: unknown): CreateApplicationRequest {
   const raw = requireObject(body)
+  // studentId is never accepted from the body — identity comes from the session.
+  if (raw.studentId !== undefined) {
+    throw new ValidationError('studentId must not be provided', [
+      {
+        field: 'studentId',
+        message:
+          'Applications can only be submitted for the authenticated student',
+      },
+    ])
+  }
   if (!isUuid(raw.projectId)) {
     throw new ValidationError('projectId must be a UUID', [
       { field: 'projectId', message: 'Must be a UUID' },
@@ -30,12 +65,10 @@ export function parseUpdateApplicationStatus(body: unknown): {
   return { status: assertApplicationStatus(raw.status) }
 }
 
-/** Company may set processing statuses; final selected goes through selection API. */
-export const COMPANY_ALLOWED_STATUSES: ApplicationStatus[] = [
-  'under_review',
-  'shortlisted',
-  'not_selected',
-]
+export function assertCanSubmitApplication(role: UserRole): void {
+  if (role === 'student') return
+  throw new ApiHttpError(403, 'FORBIDDEN', 'Only students can apply')
+}
 
 export function assertCompanyStatusTransition(
   status: ApplicationStatus
@@ -45,6 +78,28 @@ export function assertCompanyStatusTransition(
       400,
       'VALIDATION_ERROR',
       'Company may set under_review, shortlisted, or not_selected; use selection API for final selected'
+    )
+  }
+}
+
+export function assertApplicationIsActive(
+  status: ApplicationStatus,
+  action: 'withdraw' | 'process' = 'withdraw'
+): void {
+  if (status === 'withdrawn') {
+    throw new ApiHttpError(
+      400,
+      'VALIDATION_ERROR',
+      action === 'process'
+        ? 'Withdrawn applications cannot be processed for selection'
+        : 'Application is already withdrawn'
+    )
+  }
+  if (action === 'withdraw' && !ACTIVE_APPLICATION_STATUSES.includes(status)) {
+    throw new ApiHttpError(
+      400,
+      'VALIDATION_ERROR',
+      'Only active applications can be withdrawn'
     )
   }
 }
