@@ -13,6 +13,15 @@ import {
   weightsToSnake,
 } from '@/lib/projects/parse'
 
+export function assertCanCreateProject(role: UserRole): void {
+  if (role === 'company' || role === 'admin') return
+  throw new ApiHttpError(
+    403,
+    'FORBIDDEN',
+    'Only company users can create projects'
+  )
+}
+
 export function assertCanManageProject(params: {
   role: UserRole
   projectCompanyId: string
@@ -29,12 +38,16 @@ export function assertCanManageProject(params: {
   throw new ApiHttpError(403, 'FORBIDDEN', 'Cannot manage this project')
 }
 
-export function canViewProjectDraft(params: {
+/** Students see only published projects; drafts never leak to them. */
+export function canViewProject(params: {
   role: UserRole
   projectStatus: ProjectStatus
   projectCompanyId: string
   callerCompanyId: string | null
 }): boolean {
+  if (params.role === 'student') {
+    return params.projectStatus === 'published'
+  }
   if (params.projectStatus !== 'draft') return true
   if (isStaff(params.role)) return true
   if (
@@ -44,6 +57,16 @@ export function canViewProjectDraft(params: {
     return true
   }
   return false
+}
+
+/** @deprecated Prefer canViewProject — kept for existing call sites/tests. */
+export function canViewProjectDraft(params: {
+  role: UserRole
+  projectStatus: ProjectStatus
+  projectCompanyId: string
+  callerCompanyId: string | null
+}): boolean {
+  return canViewProject(params)
 }
 
 export async function getProjectDetailById(
@@ -79,11 +102,14 @@ export async function listProjects(
   if (options.projectType) {
     query = query.eq('project_type', options.projectType)
   }
+
   if (options.status) {
+    if (options.role === 'student' && options.status !== 'published') {
+      return []
+    }
     query = query.eq('status', options.status)
   } else if (options.role === 'student') {
-    // Drafts never visible to students
-    query = query.neq('status', 'draft')
+    query = query.eq('status', 'published')
   }
 
   if (options.q) {
@@ -100,14 +126,11 @@ export async function listProjects(
     mapProjectRow(row as Parameters<typeof mapProjectRow>[0])
   )
 
-  // Extra filter: students only published (and closed for visibility)
   if (options.role === 'student') {
-    return rows.filter(
-      (p) => p.status === 'published' || p.status === 'closed'
-    )
+    return rows.filter((p) => p.status === 'published')
   }
 
-  // Company: own projects (all statuses) + others' published
+  // Company: own projects (all statuses) + others' published/closed
   if (options.role === 'company') {
     return rows.filter(
       (p) =>
@@ -117,7 +140,38 @@ export async function listProjects(
     )
   }
 
+  // teacher / admin: full list
   return rows
+}
+
+function projectPatchToSnake(input: UpdateProjectRequest): Record<string, unknown> {
+  const patch: Record<string, unknown> = {}
+  if (input.title !== undefined) patch.title = input.title
+  if (input.description !== undefined) patch.description = input.description
+  if (input.projectType !== undefined) patch.project_type = input.projectType
+  if (input.status !== undefined) patch.status = input.status
+  if (input.positions !== undefined) patch.positions = input.positions
+  if (input.applicationStart !== undefined) {
+    patch.application_start = input.applicationStart
+  }
+  if (input.applicationDeadline !== undefined) {
+    patch.application_deadline = input.applicationDeadline
+  }
+  if (input.projectStart !== undefined) patch.project_start = input.projectStart
+  if (input.projectEnd !== undefined) patch.project_end = input.projectEnd
+  if (input.workMode !== undefined) patch.work_mode = input.workMode
+  if (input.location !== undefined) patch.location = input.location
+  if (input.remoteAllowed !== undefined) {
+    patch.remote_allowed = input.remoteAllowed
+  }
+  if (input.minimumStudyCredits !== undefined) {
+    patch.minimum_study_credits = input.minimumStudyCredits
+  }
+  if (input.requiredLanguage !== undefined) {
+    patch.required_language = input.requiredLanguage
+  }
+  if (input.department !== undefined) patch.department = input.department
+  return patch
 }
 
 export async function createProject(
@@ -172,66 +226,42 @@ export async function updateProject(
   id: string,
   input: UpdateProjectRequest
 ): Promise<ProjectDetail> {
-  const patch: Record<string, unknown> = {}
-  if (input.title !== undefined) patch.title = input.title
-  if (input.description !== undefined) patch.description = input.description
-  if (input.projectType !== undefined) patch.project_type = input.projectType
-  if (input.status !== undefined) patch.status = input.status
-  if (input.positions !== undefined) patch.positions = input.positions
-  if (input.applicationStart !== undefined) {
-    patch.application_start = input.applicationStart
-  }
-  if (input.applicationDeadline !== undefined) {
-    patch.application_deadline = input.applicationDeadline
-  }
-  if (input.projectStart !== undefined) patch.project_start = input.projectStart
-  if (input.projectEnd !== undefined) patch.project_end = input.projectEnd
-  if (input.workMode !== undefined) patch.work_mode = input.workMode
-  if (input.location !== undefined) patch.location = input.location
-  if (input.remoteAllowed !== undefined) {
-    patch.remote_allowed = input.remoteAllowed
-  }
-  if (input.minimumStudyCredits !== undefined) {
-    patch.minimum_study_credits = input.minimumStudyCredits
-  }
-  if (input.requiredLanguage !== undefined) {
-    patch.required_language = input.requiredLanguage
-  }
-  if (input.department !== undefined) patch.department = input.department
+  const projectPatch = projectPatchToSnake(input)
+  const payload: Record<string, unknown> = {}
 
-  if (Object.keys(patch).length > 0) {
-    const { error } = await supabase.from('projects').update(patch).eq('id', id)
-    if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+  if (Object.keys(projectPatch).length > 0) {
+    payload.project = projectPatch
   }
-
-  const reqPayload: Record<string, unknown> = {}
   if (input.weights !== undefined) {
-    reqPayload.weights = weightsToSnake(input.weights)
+    payload.weights = weightsToSnake(input.weights)
   }
   if (input.requiredCourseIds !== undefined) {
-    reqPayload.required_course_ids = input.requiredCourseIds
+    payload.required_course_ids = input.requiredCourseIds
   }
   if (input.recommendedCourseIds !== undefined) {
-    reqPayload.recommended_course_ids = input.recommendedCourseIds
+    payload.recommended_course_ids = input.recommendedCourseIds
   }
   if (input.requiredSkillIds !== undefined) {
-    reqPayload.required_skill_ids = input.requiredSkillIds
+    payload.required_skill_ids = input.requiredSkillIds
   }
   if (input.recommendedSkillIds !== undefined) {
-    reqPayload.recommended_skill_ids = input.recommendedSkillIds
+    payload.recommended_skill_ids = input.recommendedSkillIds
   }
   if (input.interestIds !== undefined) {
-    reqPayload.interest_ids = input.interestIds
+    payload.interest_ids = input.interestIds
   }
 
-  if (Object.keys(reqPayload).length > 0) {
-    const { error } = await supabase.rpc('replace_project_requirements', {
+  if (Object.keys(payload).length > 0) {
+    const { error } = await supabase.rpc('update_project_bundle', {
       p_project_id: id,
-      payload: reqPayload,
+      payload,
     })
     if (error) {
       if (error.message?.includes('forbidden')) {
-        throw new ApiHttpError(403, 'FORBIDDEN', 'Cannot update project requirements')
+        throw new ApiHttpError(403, 'FORBIDDEN', 'Cannot update this project')
+      }
+      if (error.message?.toLowerCase().includes('not found')) {
+        throw new ApiHttpError(404, 'NOT_FOUND', 'Project not found')
       }
       throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
     }

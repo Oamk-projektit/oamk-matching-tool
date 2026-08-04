@@ -8,7 +8,11 @@ import {
 import { jsonData } from '@/lib/api/response'
 import { assertProjectStatus, assertProjectType } from '@/lib/validation/domain'
 import { parseCreateProject } from '@/lib/projects/parse'
-import { createProject, listProjects } from '@/lib/projects/service'
+import {
+  assertCanCreateProject,
+  createProject,
+  listProjects,
+} from '@/lib/projects/service'
 import type { ProjectStatus, ProjectType } from '@/types/domain'
 
 export async function GET(request: Request) {
@@ -41,13 +45,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const ctx = await requireAuth()
-    if (ctx.role !== 'company' && ctx.role !== 'admin') {
-      throw new ApiHttpError(
-        403,
-        'FORBIDDEN',
-        'Only company users (or admins) can create projects'
-      )
-    }
+    assertCanCreateProject(ctx.role)
 
     const raw = await parseJsonBody(request)
     const body = parseCreateProject(raw)

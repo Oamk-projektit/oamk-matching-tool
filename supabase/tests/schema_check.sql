@@ -92,6 +92,22 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_proc p
     JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.proname = 'update_project_bundle'
+  ) THEN
+    RAISE EXCEPTION 'Missing function update_project_bundle';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.proname = 'replace_project_requirements'
+  ) THEN
+    RAISE EXCEPTION 'Missing function replace_project_requirements';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
     WHERE n.nspname = 'public' AND p.proname = 'is_company_role'
   ) THEN
     RAISE EXCEPTION 'Missing function is_company_role';

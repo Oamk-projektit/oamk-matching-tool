@@ -185,6 +185,15 @@ describe('projects', () => {
 
     expect(
       canViewProjectDraft({
+        role: 'student',
+        projectStatus: 'closed',
+        projectCompanyId: 'c1',
+        callerCompanyId: null,
+      })
+    ).toBe(false)
+
+    expect(
+      canViewProjectDraft({
         role: 'company',
         projectStatus: 'draft',
         projectCompanyId: 'c1',

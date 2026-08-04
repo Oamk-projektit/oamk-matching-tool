@@ -10,7 +10,7 @@ import { isUuid } from '@/lib/validation'
 import { parseUpdateProject } from '@/lib/projects/parse'
 import {
   assertCanManageProject,
-  canViewProjectDraft,
+  canViewProject,
   deleteProject,
   getProjectDetailById,
   updateProject,
@@ -31,7 +31,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
     const companyId = await getCallerCompanyId(ctx.supabase, ctx.profileId)
     if (
-      !canViewProjectDraft({
+      !canViewProject({
         role: ctx.role,
         projectStatus: project.status,
         projectCompanyId: project.companyId,
