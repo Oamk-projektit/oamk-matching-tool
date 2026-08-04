@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 /**
  * Service-role Supabase client for privileged Route Handlers.
- * Never import this from client components or shared browser code.
+ * Server-only: never import from client components or shared browser code.
  */
 export function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -18,6 +18,7 @@ export function createAdminClient() {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
+      detectSessionInUrl: false,
     },
   })
 }
@@ -33,5 +34,17 @@ export function isSupabaseAdminConfigured(): boolean {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
       process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
+}
+
+/**
+ * Canonical app base URL (server). Prefer `APP_URL`; fall back to the
+ * legacy `NEXT_PUBLIC_APP_URL` so existing `.env.local` files keep working.
+ */
+export function getAppUrl(): string {
+  return (
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    'http://localhost:3000'
   )
 }

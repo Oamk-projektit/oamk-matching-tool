@@ -13,12 +13,13 @@ Create `.env.local` (never commit secrets):
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Anon/public key (browser + RLS-scoped server) |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes (API) | Service role key for privileged Route Handlers only |
-| `NEXT_PUBLIC_APP_URL` | recommended | Canonical app URL, e.g. `http://localhost:3000` |
+| `APP_URL` | recommended | Canonical app URL, e.g. `http://localhost:3000` |
 
 Optional:
 
 | Variable | Description |
 |----------|-------------|
+| `NEXT_PUBLIC_APP_URL` | Legacy alias for `APP_URL` (still accepted by `getAppUrl()`) |
 | `MATCHING_DEFAULT_LIMIT` | Default match list size (default `10`) |
 
 ### Rules
@@ -28,6 +29,7 @@ Optional:
 - Route Handlers that must bypass RLS use `lib/supabase/admin.ts` (service role).
 - Prefer the cookie-based server client (`lib/supabase/server.ts`) when acting as the signed-in user.
 - Middleware refreshes the Auth session via `lib/supabase/middleware.ts`.
+- Resolve the app base URL with `getAppUrl()` (`APP_URL`, then `NEXT_PUBLIC_APP_URL`).
 
 Example `.env.local`:
 
@@ -35,7 +37,7 @@ Example `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+APP_URL=http://localhost:3000
 ```
 
 ---
@@ -119,7 +121,7 @@ Full contract: `docs/API.md`.
 2. Apply all files in `supabase/migrations/` in timestamp order.
 3. Deploy Next.js to Vercel (or similar).
 4. Set env vars in the host dashboard (same names as `.env.example`).
-5. Set Supabase Auth redirect URL to `NEXT_PUBLIC_APP_URL`.
+5. Set Supabase Auth redirect URL to `APP_URL` (e.g. `http://localhost:3000`).
 6. Verify `GET /api/health` and `GET /api/me` after login.
 
 Do **not** run `supabase/seed.sql` in production.
