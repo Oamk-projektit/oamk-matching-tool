@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Student } from '@/types/domain'
-import type { CreateStudentRequest, UpdateStudentRequest } from '@/types/api'
+import type { Student } from '@/types/legacy'
+import type { CreateStudentRequest, UpdateStudentRequest } from '@/types/legacy'
 import { ApiHttpError } from '@/lib/api/auth'
 import { mapStudentRow, STUDENT_SELECT } from '@/lib/students/parse'
 

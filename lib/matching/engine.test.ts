@@ -8,7 +8,7 @@ import {
   scheduleScore,
   splitRequired,
 } from '@/lib/matching/engine'
-import { DEFAULT_MATCHING_WEIGHTS } from '@/types/domain'
+import { DEFAULT_MATCHING_WEIGHTS } from '@/types/legacy'
 
 const studentBase = {
   id: 'b0000000-0000-4000-8000-000000000011',

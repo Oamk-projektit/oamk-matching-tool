@@ -1,7 +1,14 @@
 # Database Schema
 
-Canonical Supabase schema for the OAMK Matching Tool.  
-Aligned with `docs/API.md` and `types/domain.ts`.
+> **Status:** This document describes the **currently deployed** Supabase schema
+> (`opportunities`, teacher-owned rows, snake_case API legacy).
+>
+> Canonical target models are locked in `types/domain.ts`, `types/api.ts`, and
+> `docs/API.md` (`projects`, `company` role, applications statuses, selection
+> decisions, weights summing to 100). A schema migration will rewrite this file.
+
+Canonical Supabase schema for the OAMK Matching Tool (runtime).  
+Target contract: `docs/API.md` and `types/domain.ts`. Legacy runtime types: `types/legacy.ts`.
 
 Migrations live in `supabase/migrations/`. Seed data: `supabase/seed.sql`.
 

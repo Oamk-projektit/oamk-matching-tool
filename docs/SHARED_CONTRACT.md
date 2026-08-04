@@ -2,64 +2,65 @@
 
 <!--
 SHARED — Tommi + Venla
-Issues: #101, #102, #103, #104, #143
+Canonical contract locked before projects-model schema migration.
 -->
 
-Tämä dokumentti kokoaa Epic 0 -sopimuksen. Kanoninen totuus on koodissa ja API-dokumentissa:
+Tämä dokumentti kokoaa yhteisen sopimuksen. Kanoninen totuus:
 
 | Aihe | Lähde |
 |------|--------|
-| Opiskelija (#101) | `types/domain.ts` → `Student` |
-| Opportunity (#102) | `types/domain.ts` → `Opportunity` |
-| Matching-tulos (#103) | `types/domain.ts` → `MatchResult` |
-| API-polut (#104) | `docs/API.md` + `lib/shared/api-client.ts` |
-| Skeema | `docs/SCHEMA.md` |
+| Domain-mallit | `types/domain.ts` |
+| API-tyypit | `types/api.ts` |
+| REST-sopimus | `docs/API.md` |
+| Skeema (nykyinen runtime) | `docs/SCHEMA.md` — **migraatio tulossa** |
+| Legacy runtime -tyypit | `types/legacy.ts` (väliaikainen) |
 
-## Esimerkkiopiskelija (JSON)
+## Kanoniset päätökset
+
+- Päätaulu: **`projects`** (`projectType`: `company_project` \| `internship`)
+- Opinnäytetyöt eivät ole ensimmäisessä MVP:ssä
+- **`applications`** on pakollinen
+- Roolilähde: **`profiles.role`** (`student` \| `company` \| `teacher` \| `admin`)
+- Yritys tekee lopullisen valinnan (`SelectionDecision`); matching ei autovalitse
+- Top 3 vain company / teacher / admin
+- Opiskelija näkee vain oman matching-tuloksen (+ painot)
+- Painojen summa = **100**
+- JSON-kentät: **camelCase**; yhtenäinen vastaus `{ data, meta }`
+
+## Esimerkkiopiskelija
 
 ```json
 {
-  "id": "b0000000-0000-4000-8000-000000000011",
-  "user_id": "a0000000-0000-4000-8000-000000000011",
-  "name": "Aino Virtanen",
-  "email": "aino.virtanen@students.oamk.fi",
-  "degree_program": "Tietotekniikka",
-  "credits": 160,
-  "language": "FI",
-  "availability": "Full-time",
-  "completed_courses": ["Web-ohjelmointi", "Tietokannat"],
-  "skills": ["React", "TypeScript", "SQL"],
-  "interests": ["Web development", "UX"],
-  "project_preferences": ["project"],
-  "created_at": "2026-08-01T10:00:00.000Z",
-  "updated_at": "2026-08-01T10:00:00.000Z"
+  "id": "s0000000-0000-4000-8000-000000000001",
+  "profileId": "p0000000-0000-4000-8000-000000000001",
+  "degreeProgramme": "Tietotekniikka",
+  "department": "ICT",
+  "studyCredits": 160,
+  "availabilityStart": "2026-09-01",
+  "availabilityEnd": "2026-12-15",
+  "preferredProjectTypes": ["company_project"],
+  "createdAt": "2026-08-01T10:00:00.000Z",
+  "updatedAt": "2026-08-01T10:00:00.000Z"
 }
 ```
 
-## Esimerkki opportunity (project)
+## Esimerkki project (company_project)
 
 ```json
 {
-  "id": "c0000000-0000-4000-8000-000000000001",
-  "teacher_id": "a0000000-0000-4000-8000-000000000001",
-  "name": "Campus portal renewal",
+  "id": "pr000000-0000-4000-8000-000000000001",
+  "companyId": "c0000000-0000-4000-8000-000000000001",
+  "title": "Campus portal renewal",
   "description": "Rebuild the student-facing campus portal UI.",
-  "type": "project",
-  "required_courses": ["Web-ohjelmointi"],
-  "recommended_courses": ["Käyttöliittymäsuunnittelu"],
-  "minimum_credits": 60,
-  "required_language": "FI",
-  "schedule": "Flexible",
-  "duration": "3 months",
-  "required_skills": ["React", "TypeScript"],
-  "student_slots": 2,
-  "weights": {
-    "courses": 0.3,
-    "skills": 0.4,
-    "language": 0.1,
-    "schedule": 0.1,
-    "credits": 0.1
-  }
+  "projectType": "company_project",
+  "status": "published",
+  "positions": 2,
+  "workMode": "hybrid",
+  "location": "Oulu",
+  "remoteAllowed": true,
+  "minimumStudyCredits": 60,
+  "requiredLanguage": "fi",
+  "department": "ICT"
 }
 ```
 
@@ -67,17 +68,18 @@ Tämä dokumentti kokoaa Epic 0 -sopimuksen. Kanoninen totuus on koodissa ja API
 
 ```json
 {
-  "score": 88,
-  "matched_courses": ["Web-ohjelmointi"],
-  "missing_courses": [],
-  "matched_skills": ["React", "TypeScript"],
-  "missing_skills": [],
-  "explanation": "Strong overall fit for this opportunity. Matched skills: React, TypeScript.",
-  "recommendation": "Ready to apply; review the opportunity description and schedule."
+  "totalScore": 88,
+  "matchedCourses": ["Web-ohjelmointi"],
+  "missingRequiredCourses": [],
+  "matchedSkills": ["React", "TypeScript"],
+  "missingRequiredSkills": [],
+  "explanation": "Strong overall fit for this project. Matched skills: React, TypeScript."
 }
 ```
 
 ## Frontend-integraatio
 
-Venla käyttää `lib/shared/api-client.ts` -kerrosta mockien korvaamiseen (#143).  
-Älä rakenna rinnakkaisia kenttänimiä UI:hin — mapaa vain näyttötekstit.
+Venla käyttää service-kerrosta (päivitetty `api-client` reittimigraation jälkeen).  
+Älä rakenna rinnakkaisia kenttänimiä — mapaa vain näyttötekstit.
+
+Nykyinen live-API käyttää vielä `opportunities`-polkuja (`types/legacy.ts`) kunnes skeema + reitit migrataan.

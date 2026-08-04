@@ -1,9 +1,9 @@
-import type { MatchingWeights, Opportunity } from '@/types/domain'
-import { DEFAULT_MATCHING_WEIGHTS } from '@/types/domain'
+import type { MatchingWeights, Opportunity } from '@/types/legacy'
+import { DEFAULT_MATCHING_WEIGHTS } from '@/types/legacy'
 import type {
   CreateOpportunityRequest,
   UpdateOpportunityRequest,
-} from '@/types/api'
+} from '@/types/legacy'
 import {
   assertLanguage,
   assertNonNegativeInt,

@@ -1,4 +1,4 @@
-import type { HealthResponse } from '@/types/api'
+import type { HealthResponse } from '@/types/legacy'
 import {
   createAdminClient,
   isSupabaseAdminConfigured,

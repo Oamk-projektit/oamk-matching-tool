@@ -1,7 +1,7 @@
 import { createClient as createSupabaseJsClient } from '@supabase/supabase-js'
 import type { User, SupabaseClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
-import type { UserRole } from '@/types/domain'
+import type { UserRole } from '@/types/legacy'
 import type { ApiErrorCode, ApiFieldError } from '@/types/api'
 import { createClient } from '@/lib/supabase/server'
 import { ValidationError } from '@/lib/validation'

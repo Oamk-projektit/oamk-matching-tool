@@ -12,8 +12,8 @@ import type {
   MatchingWeights,
   Opportunity,
   Student,
-} from '@/types/domain'
-import { DEFAULT_MATCHING_WEIGHTS } from '@/types/domain'
+} from '@/types/legacy'
+import { DEFAULT_MATCHING_WEIGHTS } from '@/types/legacy'
 
 export function normalizeLabel(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ')

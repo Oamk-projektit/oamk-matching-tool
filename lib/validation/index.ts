@@ -3,9 +3,9 @@ import type {
   MatchingWeights,
   OpportunityType,
   UserRole,
-} from '@/types/domain'
-import { DEFAULT_MATCHING_WEIGHTS } from '@/types/domain'
-import type { ApiFieldError } from '@/types/api'
+  ApiFieldError,
+} from '@/types/legacy'
+import { DEFAULT_MATCHING_WEIGHTS } from '@/types/legacy'
 
 export class ValidationError extends Error {
   readonly fields: ApiFieldError[]

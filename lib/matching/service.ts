@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { MatchResult } from '@/types/domain'
+import type { MatchResult } from '@/types/legacy'
 import { ApiHttpError } from '@/lib/api/auth'
 import { isUuid, ValidationError } from '@/lib/validation'
 import { getStudentById } from '@/lib/students/service'

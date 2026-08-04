@@ -1,6 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Application, ApplicationStatus, MatchResult } from '@/types/domain'
-import type { ApplicantListItem, ApplicationWithOpportunity } from '@/types/api'
+import type {
+  Application,
+  ApplicationStatus,
+  ApplicantListItem,
+  ApplicationWithOpportunity,
+  MatchResult,
+} from '@/types/legacy'
 import { ApiHttpError } from '@/lib/api/auth'
 import { isUuid, ValidationError } from '@/lib/validation'
 import { getStudentById } from '@/lib/students/service'

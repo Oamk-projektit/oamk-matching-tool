@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Notification } from '@/types/domain'
+import type { Notification } from '@/types/legacy'
 import { ApiHttpError } from '@/lib/api/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {

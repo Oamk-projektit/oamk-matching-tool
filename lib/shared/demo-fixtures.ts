@@ -12,8 +12,8 @@ import type {
   MatchResult,
   Opportunity,
   Student,
-} from '@/types/domain'
-import { DEFAULT_MATCHING_WEIGHTS } from '@/types/domain'
+} from '@/types/legacy'
+import { DEFAULT_MATCHING_WEIGHTS } from '@/types/legacy'
 
 /** Seed auth password for local demo users (see supabase/seed.sql). */
 export const DEMO_PASSWORD = 'Passw0rd!'

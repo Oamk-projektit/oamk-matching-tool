@@ -2,14 +2,13 @@
 
 <!--
 SHARED — Tommi + Venla
-Issues: #104, #143
+Canonical contract locked before the projects-model schema migration.
 -->
 
 Shared REST contract for Tommi (backend) and Venla (frontend).  
-All routes live under the Next.js App Router prefix `/api`.
+Canonical TypeScript: `types/domain.ts`, `types/api.ts`.
 
-Typed client for frontend services: `lib/shared/api-client.ts`.
-
+**Runtime note:** Live handlers still expose the previous `/api/opportunities` surface via `types/legacy.ts`. This document is the **target** contract. Route migration follows schema migration.
 
 Base URL (local): `http://localhost:3000/api`
 
@@ -21,11 +20,24 @@ Base URL (local): `http://localhost:3000/api`
 |--------|------|
 | Format | JSON request and response bodies |
 | IDs | UUID strings |
-| Timestamps | ISO 8601 UTC (`timestamptz`) |
+| Timestamps | ISO 8601 UTC |
 | Auth | Supabase Auth cookie **or** `Authorization: Bearer <access_token>` |
-| Roles | `student` \| `teacher` \| `admin` (from `profiles.role`) |
-| Errors | Uniform envelope (see below) |
-| Naming | English field names, snake_case in JSON to match DB |
+| Roles | `student` \| `company` \| `teacher` \| `admin` from `profiles.role` |
+| Naming | camelCase in JSON and TypeScript; DB columns stay snake_case |
+| Success | Always `{ "data": ..., "meta": ... }` |
+| Errors | Uniform `{ "error": { "code", "message", "details?" } }` |
+
+### Success envelope
+
+```json
+{
+  "data": {},
+  "meta": {}
+}
+```
+
+- Single resource: `data` is an object; `meta` may be `{}`.
+- List: `data` is an array; `meta` includes at least `{ "count": n }`.
 
 ### Error envelope
 
@@ -33,8 +45,8 @@ Base URL (local): `http://localhost:3000/api`
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "name is required",
-    "details": [{ "field": "name", "message": "Required" }]
+    "message": "title is required",
+    "details": [{ "field": "title", "message": "Required" }]
   }
 }
 ```
@@ -48,30 +60,76 @@ Base URL (local): `http://localhost:3000/api`
 | 409 | `CONFLICT` |
 | 500 | `INTERNAL_ERROR` |
 
-### Success list envelope (optional for list endpoints)
+---
 
-```json
-{
-  "data": [],
-  "meta": { "count": 0 }
-}
-```
+## Roles and permissions
 
-Single-resource endpoints may return the resource object directly.
+Canonical role source: **`profiles.role`**.
+
+| Role | Purpose |
+|------|---------|
+| `student` | Profile, browse projects, apply, see own match only |
+| `company` | Own projects, see Top 3 / applicants, final student selection |
+| `teacher` | Oversight: projects, applicants, Top 3, matches (no final selection) |
+| `admin` | Full access |
+
+| Action | student | company | teacher | admin |
+|--------|---------|---------|---------|-------|
+| Read/update own profile | yes | yes | yes | yes |
+| CRUD own student profile | yes | — | — | yes |
+| Browse published projects | yes | yes | yes | yes |
+| Create/update own projects | — | yes | —* | yes |
+| Apply to project | yes | — | — | — |
+| See own match result | yes | — | —* | yes |
+| See Top 3 / ranked applicants | — | own projects | yes | yes |
+| Final selection decision | — | own projects | — | yes |
+| Run matching | own | own projects | yes | yes |
+
+\* Teachers may create projects only if product rules later allow; MVP ownership of project rows is `companyId`. Teachers may inspect matches for oversight.
+
+### Privacy model
+
+- Matching **never** auto-selects a student.
+- **Company** makes the final `SelectionDecision`.
+- **Top 3** (and ranked applicant lists) are visible only to **company**, **teacher**, and **admin**.
+- A **student** sees only their **own** match result for a project.
+- Students may see **criteria and weights** for transparency.
+- Students must **not** see other applicants’ scores, ranks, or identities.
 
 ---
 
-## Domain summary
+## Domain models
 
-Canonical TypeScript types: `types/domain.ts`, `types/api.ts`.  
-Database: `docs/SCHEMA.md`.
+| Model | Notes |
+|-------|--------|
+| **Profile** | Auth-linked identity + `role` |
+| **Student** | Study metadata linked via `profileId` |
+| **Course / Skill / Interest** | Shared catalogs for matching inputs |
+| **Project** | Canonical table for company projects and internships (`projectType`) |
+| **ProjectWeights** | Integer percentages; **must sum to 100** |
+| **Application** | Student application to a project |
+| **Match** | Deterministic score 0–100 + breakdown + explanation |
+| **SelectionDecision** | Company’s final choice |
+| **Notification** | In-app notification |
 
-| Concept | Description |
-|---------|-------------|
-| **Student** | Profile + courses, skills, interests, preferences |
-| **Opportunity** | Project or internship (`type`) with requirements and weights |
-| **Application** | Student applies to an opportunity |
-| **Match** | Deterministic score 0–100 with explanation fields |
+MVP `projectType` values: `company_project` \| `internship`.  
+Thesis topics are **out of** the first MVP.
+
+Application statuses: `submitted` \| `under_review` \| `shortlisted` \| `selected` \| `not_selected` \| `withdrawn`.
+
+Default weights (`DEFAULT_PROJECT_WEIGHTS`):
+
+| Criterion | Weight |
+|-----------|--------|
+| studyCredits | 10 |
+| requiredCourses | 20 |
+| recommendedCourses | 10 |
+| skills | 25 |
+| language | 10 |
+| availability | 10 |
+| interests | 10 |
+| degreeProgramme | 5 |
+| **Total** | **100** |
 
 ---
 
@@ -79,25 +137,23 @@ Database: `docs/SCHEMA.md`.
 
 ### `GET /api/health`
 
-No auth required.
+No auth.
 
 **Response `200`**
 
 ```json
 {
-  "status": "ok",
-  "service": "oamk-matching-tool",
-  "timestamp": "2026-08-03T12:00:00.000Z",
-  "supabase": "configured"
+  "data": {
+    "status": "ok",
+    "service": "oamk-matching-tool",
+    "timestamp": "2026-08-04T12:00:00.000Z",
+    "supabase": "configured"
+  },
+  "meta": {}
 }
 ```
 
-`supabase` is `"configured"` when env vars are present, otherwise `"missing"`.
-
-### Deep check
-
-`GET /api/health?deep=1` also probes the database (service role).  
-`database` may be `ok` | `error` | `skipped`. On DB failure `status` becomes `degraded`.
+`GET /api/health?deep=1` adds `database`: `ok` \| `error` \| `skipped`. On DB failure `status` becomes `degraded`.
 
 ---
 
@@ -105,19 +161,45 @@ No auth required.
 
 ### `GET /api/me`
 
-**Auth:** required  
-**Response `200`**
+**Auth:** required
 
 ```json
 {
-  "user_id": "33333333-3333-3333-3333-333333333333",
-  "email": "aino.virtanen@students.oamk.fi",
-  "role": "student",
-  "student_id": "22222222-2222-2222-2222-222222222222"
+  "data": {
+    "profile": {
+      "id": "p0000000-0000-4000-8000-000000000001",
+      "role": "student",
+      "displayName": "Aino Virtanen",
+      "email": "aino.virtanen@students.oamk.fi",
+      "preferredLanguage": "fi",
+      "createdAt": "2026-08-01T10:00:00.000Z",
+      "updatedAt": "2026-08-01T10:00:00.000Z"
+    },
+    "studentId": "s0000000-0000-4000-8000-000000000001",
+    "companyId": null
+  },
+  "meta": {}
 }
 ```
 
-`student_id` is `null` until a student profile row exists.
+---
+
+## Catalogs
+
+### `GET /api/courses`
+
+**Auth:** authenticated  
+**Response:** `{ "data": [ Course ], "meta": { "count": n } }`
+
+### `GET /api/skills`
+
+**Auth:** authenticated  
+**Response:** `{ "data": [ Skill ], "meta": { "count": n } }`
+
+### `GET /api/interests`
+
+**Auth:** authenticated  
+**Response:** `{ "data": [ Interest ], "meta": { "count": n } }`
 
 ---
 
@@ -126,109 +208,101 @@ No auth required.
 ### `GET /api/students`
 
 **Auth:** teacher or admin  
-**Response `200`:** `{ "data": [ Student ], "meta": { "count": n } }`
+**Response:** list envelope of `Student`
 
 ### `GET /api/students/:id`
 
-**Auth:** owning student, teacher, or admin  
-**Response `200`:** `Student`  
-**Errors:** `404` if missing
+**Auth:** owning student, teacher, or admin
 
 ### `POST /api/students`
 
-**Auth:** authenticated user creating own student profile (role student), or admin  
-**Body:** `CreateStudentRequest`
+**Auth:** authenticated student (own profile) or admin
 
 ```json
 {
-  "name": "Aino Virtanen",
-  "email": "aino.virtanen@students.oamk.fi",
-  "degree_program": "Tietotekniikka",
-  "credits": 120,
-  "language": "FI",
-  "availability": "Full-time",
-  "completed_courses": ["Web-ohjelmointi", "Tietokannat"],
-  "skills": ["React", "TypeScript", "SQL"],
-  "interests": ["Web development", "UX"],
-  "project_preferences": ["project", "internship"]
+  "degreeProgramme": "Tietotekniikka",
+  "department": "ICT",
+  "studyCredits": 120,
+  "availabilityStart": "2026-09-01",
+  "availabilityEnd": "2026-12-15",
+  "preferredProjectTypes": ["company_project", "internship"],
+  "courseIds": ["..."],
+  "skillIds": ["..."],
+  "interestIds": ["..."]
 }
 ```
 
-**Response `201`:** `Student`
+**Response `201`:** `{ "data": Student, "meta": {} }`
 
 ### `PUT /api/students/:id`
 
 **Auth:** owning student or admin  
-**Body:** `UpdateStudentRequest` (partial allowed)  
-**Response `200`:** `Student`
-
-Nested arrays (`completed_courses`, `skills`, `interests`, `project_preferences`), when present, **replace** the previous set.
+Partial body allowed. Present ID arrays **replace** previous links.
 
 ---
 
-## Opportunities (projects & internships)
+## Projects
 
-Unified resource. Field `type` is `"project"` or `"internship"`.
+Canonical resource for company projects and internships. Field `projectType` is `company_project` or `internship`.
 
-### `GET /api/opportunities`
-
-**Auth:** any authenticated user (students may browse)  
-**Query (optional):**
-
-| Param | Description |
-|-------|-------------|
-| `type` | `project` \| `internship` |
-| `q` | Case-insensitive search in name/description |
-
-**Response `200`:** `{ "data": [ Opportunity ], "meta": { "count": n } }`
-
-### `GET /api/opportunities/:id`
+### `GET /api/projects`
 
 **Auth:** authenticated  
-**Response `200`:** `Opportunity`
+**Query:** `projectType`, `status`, `q` (title/description search)
 
-### `POST /api/opportunities`
+### `GET /api/projects/:id`
 
-**Auth:** teacher or admin  
-**Body:** `CreateOpportunityRequest`
+**Auth:** authenticated  
+Returns `ProjectDetail` (project + weights + related catalog IDs).
+
+### `POST /api/projects`
+
+**Auth:** company (own) or admin
 
 ```json
 {
-  "name": "Campus portal renewal",
+  "title": "Campus portal renewal",
   "description": "Rebuild student-facing portal UI.",
-  "type": "project",
-  "required_courses": ["Web-ohjelmointi"],
-  "recommended_courses": ["Käyttöliittymäsuunnittelu"],
-  "minimum_credits": 60,
-  "required_language": "FI",
-  "schedule": "Flexible",
-  "duration": "3 months",
-  "required_skills": ["React", "TypeScript"],
-  "student_slots": 2,
+  "projectType": "company_project",
+  "positions": 2,
+  "applicationStart": "2026-08-01",
+  "applicationDeadline": "2026-09-15",
+  "projectStart": "2026-10-01",
+  "projectEnd": "2026-12-15",
+  "workMode": "hybrid",
+  "location": "Oulu",
+  "remoteAllowed": true,
+  "minimumStudyCredits": 60,
+  "requiredLanguage": "fi",
+  "department": "ICT",
+  "requiredCourseIds": ["..."],
+  "recommendedCourseIds": ["..."],
+  "requiredSkillIds": ["..."],
+  "interestIds": ["..."],
   "weights": {
-    "courses": 0.3,
-    "skills": 0.4,
-    "language": 0.1,
-    "schedule": 0.1,
-    "credits": 0.1
+    "studyCredits": 10,
+    "requiredCourses": 20,
+    "recommendedCourses": 10,
+    "skills": 25,
+    "language": 10,
+    "availability": 10,
+    "interests": 10,
+    "degreeProgramme": 5
   }
 }
 ```
 
-**Response `201`:** `Opportunity`
+**Response `201`:** `{ "data": ProjectDetail, "meta": {} }`  
+Weights must sum to **100** or the request fails with `VALIDATION_ERROR`.
 
-Default weights (must sum to 1.0): courses 0.3, skills 0.4, language 0.1, schedule 0.1, credits 0.1.
+### `PUT /api/projects/:id`
 
-### `PUT /api/opportunities/:id`
+**Auth:** owning company or admin
 
-**Auth:** owning teacher or admin  
-**Body:** `UpdateOpportunityRequest`  
-**Response `200`:** `Opportunity`
+### `DELETE /api/projects/:id`
 
-### `DELETE /api/opportunities/:id`
-
-**Auth:** owning teacher or admin  
-**Response `204`:** empty body
+**Auth:** owning company or admin  
+**Response `204`:** empty body (no JSON envelope)
 
 ---
 
@@ -236,230 +310,341 @@ Default weights (must sum to 1.0): courses 0.3, skills 0.4, language 0.1, schedu
 
 ### `POST /api/applications`
 
-**Auth:** student (own profile)  
-**Body:**
+**Auth:** student
 
 ```json
 {
-  "opportunity_id": "11111111-1111-1111-1111-111111111111",
+  "projectId": "pr000000-0000-4000-8000-000000000001",
   "message": "I am interested in this project."
 }
 ```
 
-**Response `201`:** `Application`  
-**Errors:** `409` if duplicate application for same pair
+**Response `201`:** `{ "data": Application, "meta": {} }`  
+**Errors:** `409` if duplicate `(studentId, projectId)`
 
-### `GET /api/opportunities/:id/applicants`
+### `GET /api/applications/me`
 
-**Auth:** opportunity owner (teacher) or admin  
-**Response `200`:**
+**Auth:** student  
+**Response:** list of `ApplicationWithProject`
+
+### `GET /api/projects/:id/applicants`
+
+**Auth:** project company owner, teacher, or admin  
+Sorted by match `totalScore` desc when a match exists.
 
 ```json
 {
   "data": [
     {
-      "application": { "id": "...", "status": "pending", "created_at": "..." },
-      "student": { "id": "...", "name": "...", "email": "..." },
-      "match": { "score": 85, "explanation": "..." }
+      "application": {
+        "id": "...",
+        "status": "submitted",
+        "message": "...",
+        "submittedAt": "2026-08-02T10:00:00.000Z"
+      },
+      "student": {
+        "id": "...",
+        "degreeProgramme": "Tietotekniikka",
+        "department": "ICT",
+        "studyCredits": 120
+      },
+      "profile": {
+        "displayName": "Aino Virtanen",
+        "email": "aino.virtanen@students.oamk.fi"
+      },
+      "match": {
+        "totalScore": 85,
+        "explanation": "...",
+        "scoreBreakdown": {
+          "studyCredits": 10,
+          "requiredCourses": 20,
+          "recommendedCourses": 8,
+          "skills": 25,
+          "language": 10,
+          "availability": 7,
+          "interests": 5,
+          "degreeProgramme": 0
+        }
+      }
+    }
+  ],
+  "meta": { "count": 1, "topN": 3 }
+}
+```
+
+### `PATCH /api/applications/:id`
+
+**Auth:** company owner / admin (status transitions), or owning student (`withdrawn` only)
+
+```json
+{ "status": "under_review" }
+```
+
+---
+
+## Matching
+
+Score is an integer **0–100**. Same inputs → same score, breakdown, and explanation.  
+Matching **does not** create a `SelectionDecision`.
+
+### `POST /api/matches/run`
+
+**Auth:** student (own), company (own projects), teacher, or admin
+
+```json
+{
+  "projectIds": ["pr000000-0000-4000-8000-000000000001"],
+  "locale": "fi"
+}
+```
+
+**Response `200`:** `{ "data": [ Match ], "meta": { "count": n } }`
+
+### `GET /api/matches/me`
+
+**Auth:** student  
+Own matches only (student-safe). May include weights for transparency.
+
+```json
+{
+  "data": [
+    {
+      "match": {
+        "id": "...",
+        "projectId": "...",
+        "studentId": "...",
+        "totalScore": 85,
+        "scoreBreakdown": { "...": 0 },
+        "matchedCourses": ["Web-ohjelmointi"],
+        "missingRequiredCourses": ["Tietokannat"],
+        "matchedSkills": ["React", "TypeScript"],
+        "missingRequiredSkills": ["Supabase"],
+        "explanation": "Strong skill overlap; one required course missing.",
+        "weightsSnapshot": {
+          "studyCredits": 10,
+          "requiredCourses": 20,
+          "recommendedCourses": 10,
+          "skills": 25,
+          "language": 10,
+          "availability": 10,
+          "interests": 10,
+          "degreeProgramme": 5
+        },
+        "calculatedAt": "2026-08-04T12:00:00.000Z"
+      },
+      "weights": { "...": 0 },
+      "project": {
+        "id": "...",
+        "title": "Campus portal renewal",
+        "projectType": "company_project"
+      }
     }
   ],
   "meta": { "count": 1 }
 }
 ```
 
-Applicants are sorted by match score descending when a match exists; otherwise by `created_at`.
+### `GET /api/projects/:id/matches`
 
-### `GET /api/applications/me`
+**Auth:** company owner, teacher, or admin  
+Full match list for the project (not student-visible).
 
-**Auth:** student  
-**Response `200`:** `{ "data": [ ApplicationWithOpportunity ], "meta": { "count": n } }`
+### `GET /api/projects/:id/matches/top`
 
-### `PATCH /api/applications/:id`
+**Auth:** company owner, teacher, or admin only  
+**Query:** `limit` (default **3**, max 10)
 
-**Auth:** opportunity owner / admin (any status), or owning student (`withdrawn` only)  
-**Body:** `{ "status": "accepted" | "rejected" | "pending" | "withdrawn" }`  
-**Response `200`:** `Application`
+```json
+{
+  "data": [
+    {
+      "rank": 1,
+      "match": { "totalScore": 92, "...": "..." },
+      "student": {
+        "id": "...",
+        "degreeProgramme": "Tietotekniikka",
+        "studyCredits": 160
+      },
+      "profile": {
+        "displayName": "Aino Virtanen",
+        "email": "aino.virtanen@students.oamk.fi"
+      },
+      "applicationId": "..."
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "projectId": "pr000000-0000-4000-8000-000000000001",
+    "limit": 3
+  }
+}
+```
 
-When status becomes `accepted` or `rejected`, the student receives an in-app notification.
+Students calling this endpoint receive `403 FORBIDDEN`.
+
+---
+
+## Selection (company final choice)
+
+### `POST /api/projects/:id/selections`
+
+**Auth:** owning company or admin
+
+```json
+{
+  "studentId": "s0000000-0000-4000-8000-000000000001",
+  "applicationId": "a0000000-0000-4000-8000-000000000001",
+  "decision": "selected",
+  "reason": "Strong React fit and availability."
+}
+```
+
+**Response `201`:** `{ "data": SelectionDecision, "meta": {} }`
+
+Effects (MVP):
+
+- Selected application → `selected`
+- Other active applications for the same project may move to `not_selected` when positions are filled (implementation detail in selection service)
+- Student receives `selection_decided` notification
+
+### `GET /api/projects/:id/selections`
+
+**Auth:** owning company, teacher, or admin
 
 ---
 
 ## Notifications
 
-In-app notification store (email sending is out of MVP scope).
-
 ### `GET /api/notifications`
 
-**Auth:** required (own inbox)  
-**Query:** `unread=true` (optional), `limit` (default 50, max 100)  
-**Response `200`:**
+**Auth:** own inbox  
+**Query:** `unread=true`, `limit` (default 50, max 100)
 
 ```json
 {
   "data": [
     {
       "id": "...",
-      "recipient_user_id": "...",
+      "profileId": "...",
       "type": "application_received",
-      "content": "Aino Virtanen applied to \"Campus portal renewal\".",
-      "read": false,
-      "created_at": "..."
+      "language": "fi",
+      "title": "New application",
+      "body": "Aino Virtanen applied to \"Campus portal renewal\".",
+      "readAt": null,
+      "createdAt": "2026-08-04T12:00:00.000Z"
     }
   ],
-  "meta": { "count": 1, "unread_count": 1 }
+  "meta": { "count": 1, "unreadCount": 1 }
 }
 ```
 
 ### `PATCH /api/notifications/:id`
 
-**Auth:** recipient  
-Marks one notification as read. **Response `200`:** `Notification`
+Mark one as read. **Response:** `{ "data": Notification, "meta": {} }`
 
 ### `POST /api/notifications/read-all`
 
-**Auth:** required  
-**Response `200`:** `{ "updated": 3 }`
+**Response:** `{ "data": { "updated": 3 }, "meta": {} }`
 
-### Automatic events
+### Notification types
 
 | Event | Recipient | `type` |
 |-------|-----------|--------|
-| New application | Opportunity teacher | `application_received` |
-| Application accepted/rejected | Student | `application_status_changed` |
+| New application | Company (project owner) | `application_received` |
+| Application status change | Student | `application_status_changed` |
 | Matching run finished | Student | `match_ready` |
+| Selection decided | Student | `selection_decided` |
+| Project published | Interested students (optional) | `project_published` |
 
----
-
-## Matching
-
-Score is an integer **0–100**. Algorithm is deterministic: same inputs → same score and explanation.
-
-### `POST /api/matches/run/:studentId`
-
-**Auth:** owning student, teacher, or admin  
-Runs matching against all opportunities (or filtered set) and upserts `matches` rows.
-
-**Optional body:**
-
-```json
-{
-  "opportunity_ids": ["..."],
-  "locale": "fi"
-}
-```
-
-`locale` is `en` (default) or `fi` for explanation/recommendation language.
-**Response `200`:**
-
-```json
-{
-  "data": [ MatchResult ],
-  "meta": { "count": 3, "student_id": "..." }
-}
-```
-
-Results sorted by `score` descending. MVP UIs typically show top 3.
-
-### `GET /api/matches/:studentId`
-
-**Auth:** owning student, teacher, or admin  
-**Query:** `limit` (default 10, max 50)  
-**Response `200`:** `{ "data": [ MatchResult ], "meta": { "count": n } }`
-
-### `GET /api/opportunities/:id/matches`
-
-**Auth:** opportunity owner or admin  
-**Response `200`:** `{ "data": [ MatchResult ], "meta": { "count": n } }`
-
-### `MatchResult` shape
-
-```json
-{
-  "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-  "student_id": "...",
-  "opportunity_id": "...",
-  "score": 85,
-  "matched_courses": ["Web-ohjelmointi"],
-  "missing_courses": ["Tietokannat"],
-  "matched_skills": ["React", "TypeScript"],
-  "missing_skills": ["Supabase"],
-  "explanation": "Strong skill overlap; one required course missing.",
-  "recommendation": "Complete Tietokannat before the project starts.",
-  "created_at": "2026-08-03T12:00:00.000Z",
-  "updated_at": "2026-08-03T12:00:00.000Z"
-}
-```
-
----
-
-## Auth & roles (backend)
-
-| Action | student | teacher | admin |
-|--------|---------|---------|-------|
-| Read own student profile | yes | — | yes |
-| Read all students | no | yes | yes |
-| Create/update own student | yes | no | yes |
-| Browse opportunities | yes | yes | yes |
-| Create/update/delete own opportunities | no | yes | yes |
-| Apply to opportunity | yes | no | no |
-| See applicants for own opportunity | no | yes | yes |
-| Run/read own matches | yes | yes* | yes |
-
-\* Teachers may run/read matches for students in context of their opportunities.
-
-Role source of truth: `profiles.role`. Legacy `roles` table is not used.
+Email sending remains out of MVP (in-app + stub only).
 
 ---
 
 ## Example resources
 
+### Profile
+
+```json
+{
+  "id": "p0000000-0000-4000-8000-000000000001",
+  "role": "student",
+  "displayName": "Aino Virtanen",
+  "email": "aino.virtanen@students.oamk.fi",
+  "preferredLanguage": "fi",
+  "createdAt": "2026-08-01T10:00:00.000Z",
+  "updatedAt": "2026-08-01T10:00:00.000Z"
+}
+```
+
 ### Student
 
 ```json
 {
-  "id": "22222222-2222-2222-2222-222222222222",
-  "user_id": "33333333-3333-3333-3333-333333333333",
-  "name": "Aino Virtanen",
-  "email": "aino.virtanen@students.oamk.fi",
-  "degree_program": "Tietotekniikka",
-  "credits": 120,
-  "language": "FI",
-  "availability": "Full-time",
-  "completed_courses": ["Web-ohjelmointi", "Tietokannat"],
-  "skills": ["React", "TypeScript", "SQL"],
-  "interests": ["Web development"],
-  "project_preferences": ["project"],
-  "created_at": "2026-08-01T10:00:00.000Z",
-  "updated_at": "2026-08-01T10:00:00.000Z"
+  "id": "s0000000-0000-4000-8000-000000000001",
+  "profileId": "p0000000-0000-4000-8000-000000000001",
+  "degreeProgramme": "Tietotekniikka",
+  "department": "ICT",
+  "studyCredits": 120,
+  "availabilityStart": "2026-09-01",
+  "availabilityEnd": "2026-12-15",
+  "preferredProjectTypes": ["company_project"],
+  "createdAt": "2026-08-01T10:00:00.000Z",
+  "updatedAt": "2026-08-01T10:00:00.000Z"
 }
 ```
 
-### Opportunity
+### Project
 
 ```json
 {
-  "id": "44444444-4444-4444-4444-444444444444",
-  "teacher_id": "55555555-5555-5555-5555-555555555555",
-  "name": "Campus portal renewal",
+  "id": "pr000000-0000-4000-8000-000000000001",
+  "companyId": "c0000000-0000-4000-8000-000000000001",
+  "title": "Campus portal renewal",
   "description": "Rebuild student-facing portal UI.",
-  "type": "project",
-  "required_courses": ["Web-ohjelmointi"],
-  "recommended_courses": ["Käyttöliittymäsuunnittelu"],
-  "minimum_credits": 60,
-  "required_language": "FI",
-  "schedule": "Flexible",
-  "duration": "3 months",
-  "required_skills": ["React", "TypeScript"],
-  "student_slots": 2,
-  "weights": {
-    "courses": 0.3,
-    "skills": 0.4,
-    "language": 0.1,
-    "schedule": 0.1,
-    "credits": 0.1
-  },
-  "created_at": "2026-08-01T10:00:00.000Z",
-  "updated_at": "2026-08-01T10:00:00.000Z"
+  "projectType": "company_project",
+  "status": "published",
+  "positions": 2,
+  "applicationStart": "2026-08-01",
+  "applicationDeadline": "2026-09-15",
+  "projectStart": "2026-10-01",
+  "projectEnd": "2026-12-15",
+  "workMode": "hybrid",
+  "location": "Oulu",
+  "remoteAllowed": true,
+  "minimumStudyCredits": 60,
+  "requiredLanguage": "fi",
+  "department": "ICT",
+  "createdAt": "2026-08-01T10:00:00.000Z",
+  "updatedAt": "2026-08-01T10:00:00.000Z"
+}
+```
+
+### Application
+
+```json
+{
+  "id": "a0000000-0000-4000-8000-000000000001",
+  "projectId": "pr000000-0000-4000-8000-000000000001",
+  "studentId": "s0000000-0000-4000-8000-000000000001",
+  "status": "submitted",
+  "message": "I am interested in this project.",
+  "submittedAt": "2026-08-02T10:00:00.000Z",
+  "updatedAt": "2026-08-02T10:00:00.000Z"
+}
+```
+
+### SelectionDecision
+
+```json
+{
+  "id": "d0000000-0000-4000-8000-000000000001",
+  "projectId": "pr000000-0000-4000-8000-000000000001",
+  "studentId": "s0000000-0000-4000-8000-000000000001",
+  "applicationId": "a0000000-0000-4000-8000-000000000001",
+  "decision": "selected",
+  "decidedBy": "p0000000-0000-4000-8000-000000000099",
+  "reason": "Strong React fit and availability.",
+  "decidedAt": "2026-08-10T14:00:00.000Z"
 }
 ```
 
@@ -467,8 +652,10 @@ Role source of truth: `profiles.role`. Legacy `roles` table is not used.
 
 ## Frontend integration notes
 
-- Venla should call these `/api/*` paths from a thin service layer.
-- Sprint 1 UI still uses “projects” wording; map UI “project” ↔ API `Opportunity` with `type`.
-- Temporary adapters (if ever needed) belong under `lib/integration/` and must be listed in `docs/VENLA_TASKS.md`.
+- Venla should call these paths from a thin service layer (`lib/shared/api-client.ts` will be updated in the route-migration phase).
+- Map UI wording carefully:
+  - UI “project” / “internship” → `projectType`: `company_project` / `internship`
+  - Do **not** show Top 3 or peer ranks in student views
+- Temporary adapters (if required) belong under `lib/integration/venla-*`, marked `VENLA-OWNED TEMPORARY INTEGRATION FILE`, listed in `docs/VENLA_TASKS.md`, and committed separately as `chore(venla): ...`.
 
-See also: `docs/SCHEMA.md`, `docs/BACKEND.md`, `types/domain.ts`, `types/api.ts`.
+See also: `types/domain.ts`, `types/api.ts`, `docs/SCHEMA.md` (pending migration), `docs/SHARED_CONTRACT.md`.

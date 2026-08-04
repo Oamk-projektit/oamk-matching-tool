@@ -4,6 +4,27 @@ Tähän tiedostoon kirjataan Tommin tekemät väliaikaiset frontend-yhteensopivu
 
 ---
 
+## VENLA-05 — Kanoninen projects-sopimus (lukittu)
+
+Tommi lukitsi uuden sopimuksen:
+
+- `types/domain.ts`, `types/api.ts` — kanoniset mallit (camelCase, `projects`, `company`-rooli)
+- `docs/API.md`, `docs/SHARED_CONTRACT.md`, `docs/MVP_SCOPE.md`
+- `types/legacy.ts` — nykyinen live `/api/opportunities` -pinta kunnes migraatio
+
+Muutokset Venlalle:
+
+1. Älä sido uutta UI:ta `Opportunity` / `type: "project"` -malliin pitkällä aikavälillä.
+2. Target: `Project.projectType` = `company_project` \| `internship`.
+3. Top 3 / hakijoiden ranking vain company-, teacher- ja admin-näkymissä.
+4. Opiskelija: vain oma match + painot; ei muiden sijoituksia.
+5. Yritys tekee lopullisen valinnan (`SelectionDecision`); matching ei autovalitse.
+6. Kun reittimigraatio tulee, päivitä service-kerros `createSharedApiClient()`-polkuihin.
+
+Tila: sopimus lukittu; odottaa skeema- + API-migraatiota ja Venlan UI-kytkentää.
+
+---
+
 ## VENLA-00 — Yhdistä frontend kanoniseen API-sopimukseen
 
 Tommi lisäsi / päivitti:
@@ -19,10 +40,10 @@ Sprintti 1:n UI käyttää vielä placeholdereita ja projektisanastoa.
 Poistaminen / integraatio:
 1. Luo frontend service-kerros, joka kutsuu `createSharedApiClient()` (älä fetchöi URL:eja komponenteissa).
 2. Korvaa mock-data vaiheittain API-kutsuilla.
-3. Mapaa UI-teksti "Projects" → API `opportunities`.
-4. Käytä `client.me()` roolin ja `student_id`:n lukemiseen.
+3. Mapaa UI-teksti "Projects" → API `projects` (väliaikaisesti legacy `opportunities`).
+4. Käytä `client.me()` roolin ja `studentId` / `companyId` lukemiseen.
 
-Tila: odottaa Venlan integraatiota.
+Tila: odottaa Venlan integraatiota; katso myös VENLA-05.
 
 ---
 

@@ -1,4 +1,4 @@
-import type { Notification } from '@/types/domain'
+import type { Notification } from '@/types/legacy'
 
 export type NotificationType =
   | 'application_received'

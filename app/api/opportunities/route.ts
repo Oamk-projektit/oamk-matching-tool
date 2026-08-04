@@ -11,7 +11,7 @@ import {
   createOpportunity,
   listOpportunities,
 } from '@/lib/opportunities/service'
-import type { OpportunityType } from '@/types/domain'
+import type { OpportunityType } from '@/types/legacy'
 
 export async function GET(request: Request) {
   try {

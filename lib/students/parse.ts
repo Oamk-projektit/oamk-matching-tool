@@ -1,5 +1,5 @@
-import type { OpportunityType, Student } from '@/types/domain'
-import type { CreateStudentRequest, UpdateStudentRequest } from '@/types/api'
+import type { OpportunityType, Student } from '@/types/legacy'
+import type { CreateStudentRequest, UpdateStudentRequest } from '@/types/legacy'
 import {
   assertEmail,
   assertLanguage,

@@ -1,9 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { MatchingWeights, Opportunity, OpportunityType } from '@/types/domain'
+import type { MatchingWeights, Opportunity, OpportunityType } from '@/types/legacy'
 import type {
   CreateOpportunityRequest,
   UpdateOpportunityRequest,
-} from '@/types/api'
+} from '@/types/legacy'
 import { ApiHttpError } from '@/lib/api/auth'
 import {
   mapOpportunityRow,

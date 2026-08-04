@@ -31,8 +31,8 @@ import type {
   UpdateOpportunityRequest,
   UpdateStudentRequest,
   ApiErrorBody,
-} from '@/types/api'
-import type { Notification } from '@/types/domain'
+  Notification,
+} from '@/types/legacy'
 
 export class SharedApiError extends Error {
   readonly status: number
