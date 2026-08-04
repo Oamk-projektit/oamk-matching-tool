@@ -1,24 +1,26 @@
+import 'server-only'
+
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 import {
-  getSupabasePublishableKey,
-  getSupabaseUrl,
+  getAppUrl as resolveAppUrl,
+  isSupabaseAdminConfigured as adminConfigured,
+  isSupabaseConfigured as publicConfigured,
+  requireSupabaseAdminEnv,
 } from '@/lib/supabase/env'
 
 /**
- * Service-role Supabase client for privileged Route Handlers.
- * Server-only: never import from client components or shared browser code.
+ * Service-role Supabase client for privileged server work only.
+ *
+ * Rules:
+ * - Never import from Client Components or shared browser bundles.
+ * - Do not use to bypass RLS for ordinary user operations.
+ * - Reserve for health checks, migrations/jobs, and explicit admin tasks.
  */
 export function createAdminClient() {
-  const url = getSupabaseUrl()
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  const { url, serviceRoleKey } = requireSupabaseAdminEnv()
 
-  if (!url || !serviceRoleKey) {
-    throw new Error(
-      'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
-    )
-  }
-
-  return createClient(url, serviceRoleKey, {
+  return createClient<Database>(url, serviceRoleKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -28,14 +30,11 @@ export function createAdminClient() {
 }
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(getSupabaseUrl() && getSupabasePublishableKey())
+  return publicConfigured()
 }
 
 export function isSupabaseAdminConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-  )
+  return adminConfigured()
 }
 
 /**
@@ -43,9 +42,5 @@ export function isSupabaseAdminConfigured(): boolean {
  * legacy `NEXT_PUBLIC_APP_URL` so existing `.env.local` files keep working.
  */
 export function getAppUrl(): string {
-  return (
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    'http://localhost:3000'
-  )
+  return resolveAppUrl()
 }

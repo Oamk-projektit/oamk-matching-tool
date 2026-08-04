@@ -20,7 +20,6 @@ import type {
   CreateApplicationRequest,
   CreateOpportunityRequest,
   CreateStudentRequest,
-  HealthResponse,
   ListResponse,
   MatchResultResponse,
   MeResponse,
@@ -31,8 +30,9 @@ import type {
   UpdateOpportunityRequest,
   UpdateStudentRequest,
   ApiErrorBody,
-  Notification,
 } from '@/types/legacy'
+import type { HealthResponse } from '@/types/api'
+import type { Notification } from '@/types/domain'
 
 export class SharedApiError extends Error {
   readonly status: number

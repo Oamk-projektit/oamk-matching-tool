@@ -140,7 +140,7 @@ Default weights (`DEFAULT_PROJECT_WEIGHTS`):
 
 ### `GET /api/health`
 
-No auth.
+No auth. Always probes database connectivity with a cheap privileged query.
 
 **Response `200`**
 
@@ -149,14 +149,25 @@ No auth.
   "data": {
     "status": "ok",
     "service": "oamk-matching-tool",
-    "timestamp": "2026-08-04T12:00:00.000Z",
-    "supabase": "configured"
+    "database": "connected",
+    "timestamp": "2026-08-04T12:00:00.000Z"
   },
   "meta": {}
 }
 ```
 
-`GET /api/health?deep=1` adds `database`: `ok` \| `error` \| `skipped`. On DB failure `status` becomes `degraded`.
+**Response `503`** when env is missing or the database is unreachable:
+
+```json
+{
+  "error": {
+    "code": "SERVICE_UNAVAILABLE",
+    "message": "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY..."
+  }
+}
+```
+
+(`DATABASE_ERROR` is used when env is present but the database probe fails.)
 
 ---
 

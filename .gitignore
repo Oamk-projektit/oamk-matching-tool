@@ -44,3 +44,5 @@ next-env.d.ts
 # supabase local CLI artifacts (may contain secrets)
 supabase/.temp/
 supabase/.branches/
+.branches/
+.branches/

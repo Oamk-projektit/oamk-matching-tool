@@ -40,6 +40,8 @@ export type ApiErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'DATABASE_ERROR'
+  | 'SERVICE_UNAVAILABLE'
   | 'INTERNAL_ERROR'
 
 export interface ApiFieldError {
@@ -72,12 +74,10 @@ export interface ListMeta {
 export type ListResponse<T> = ApiSuccess<T[], ListMeta>
 
 export interface HealthData {
-  status: 'ok' | 'degraded'
+  status: 'ok'
   service: string
+  database: 'connected'
   timestamp: string
-  supabase: 'configured' | 'missing'
-  database?: 'ok' | 'error' | 'skipped'
-  databaseError?: string
 }
 
 export type HealthResponse = ApiSuccess<HealthData>

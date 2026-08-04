@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Notification } from '@/types/legacy'
-import { ApiHttpError } from '@/lib/api/auth'
+import type { Database } from '@/types/database'
+import type { Notification } from '@/types/domain'
+import { ApiHttpError } from '@/lib/api/errors'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   mapNotificationRow,
@@ -8,19 +9,25 @@ import {
 } from '@/lib/notifications/messages'
 import { simulateNotificationEmail } from '@/lib/notifications/email-stub'
 
+type DbClient = SupabaseClient<Database>
+
 export async function createNotification(input: {
   recipientUserId: string
   type: NotificationType
   content: string
+  title?: string
+  language?: 'fi' | 'en'
 }): Promise<Notification> {
   const admin = createAdminClient()
+  const title = input.title ?? input.type.replace(/_/g, ' ')
   const { data, error } = await admin
     .from('notifications')
     .insert({
-      recipient_user_id: input.recipientUserId,
+      profile_id: input.recipientUserId,
       type: input.type,
-      content: input.content,
-      read: false,
+      language: input.language ?? 'fi',
+      title,
+      body: input.content,
     })
     .select('*')
     .single()
@@ -38,7 +45,7 @@ export async function createNotification(input: {
 }
 
 export async function listNotifications(
-  supabase: SupabaseClient,
+  supabase: DbClient,
   userId: string,
   options?: { unreadOnly?: boolean; limit?: number }
 ): Promise<Notification[]> {
@@ -46,12 +53,12 @@ export async function listNotifications(
   let query = supabase
     .from('notifications')
     .select('*')
-    .eq('recipient_user_id', userId)
+    .eq('profile_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit)
 
   if (options?.unreadOnly) {
-    query = query.eq('read', false)
+    query = query.is('read_at', null)
   }
 
   const { data, error } = await query
@@ -60,29 +67,29 @@ export async function listNotifications(
 }
 
 export async function countUnread(
-  supabase: SupabaseClient,
+  supabase: DbClient,
   userId: string
 ): Promise<number> {
   const { count, error } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
-    .eq('recipient_user_id', userId)
-    .eq('read', false)
+    .eq('profile_id', userId)
+    .is('read_at', null)
 
   if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
   return count ?? 0
 }
 
 export async function markNotificationRead(
-  supabase: SupabaseClient,
+  supabase: DbClient,
   userId: string,
   notificationId: string
 ): Promise<Notification> {
   const { data, error } = await supabase
     .from('notifications')
-    .update({ read: true })
+    .update({ read_at: new Date().toISOString() })
     .eq('id', notificationId)
-    .eq('recipient_user_id', userId)
+    .eq('profile_id', userId)
     .select('*')
     .maybeSingle()
 
@@ -92,14 +99,14 @@ export async function markNotificationRead(
 }
 
 export async function markAllNotificationsRead(
-  supabase: SupabaseClient,
+  supabase: DbClient,
   userId: string
 ): Promise<number> {
   const { data, error } = await supabase
     .from('notifications')
-    .update({ read: true })
-    .eq('recipient_user_id', userId)
-    .eq('read', false)
+    .update({ read_at: new Date().toISOString() })
+    .eq('profile_id', userId)
+    .is('read_at', null)
     .select('id')
 
   if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)

@@ -1,9 +1,15 @@
-import type { Notification } from '@/types/legacy'
+import type { Notification, NotificationType as DomainNotificationType } from '@/types/domain'
+import type { Tables } from '@/types/database'
 
 export type NotificationType =
+  | DomainNotificationType
   | 'application_received'
   | 'application_status_changed'
   | 'match_ready'
+  | 'selection_decided'
+  | 'project_published'
+
+type NotificationRow = Tables<'notifications'>
 
 export function buildApplicationReceivedContent(input: {
   studentName: string
@@ -26,20 +32,16 @@ export function buildMatchReadyContent(input: {
   return `Matching finished: ${n} opportunit${n === 1 ? 'y' : 'ies'} scored for you.`
 }
 
-export function mapNotificationRow(row: {
-  id: string
-  recipient_user_id: string
-  type: string
-  content: string
-  read: boolean
-  created_at: string
-}): Notification {
+export function mapNotificationRow(row: NotificationRow): Notification {
+  const type = row.type as DomainNotificationType
   return {
     id: row.id,
-    recipient_user_id: row.recipient_user_id,
-    type: row.type,
-    content: row.content,
-    read: row.read,
-    created_at: row.created_at,
+    profileId: row.profile_id,
+    type,
+    language: row.language === 'en' ? 'en' : 'fi',
+    title: row.title,
+    body: row.body,
+    readAt: row.read_at,
+    createdAt: row.created_at,
   }
 }
