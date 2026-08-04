@@ -10,7 +10,7 @@ export function getSupabaseUrl(): string | undefined {
 
 /**
  * Browser / user-scoped API key (RLS applies).
- * Dashboard “Publishable key” or legacy “anon” JWT.
+ * Dashboard "Publishable key" or legacy "anon" JWT.
  */
 export function getSupabasePublishableKey(): string | undefined {
   const key =
