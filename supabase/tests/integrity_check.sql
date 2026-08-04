@@ -66,6 +66,79 @@ BEGIN
       RAISE NOTICE 'OK: mismatched selection blocked (% )', SQLERRM;
   END;
 
+  -- Selection capacity: project 001 has positions=2 and 1 selected (Aino).
+  -- Select Mikko as well (fills capacity), then refuse lowering positions to 1.
+  INSERT INTO public.selection_decisions (
+    project_id, student_id, application_id, decision, decided_by
+  ) VALUES (
+    '90000000-0000-4000-8000-000000000001',
+    'b0000000-0000-4000-8000-000000000012',
+    'd0000000-0000-4000-8000-000000000002',
+    'selected',
+    'a0000000-0000-4000-8000-000000000003'
+  );
+
+  BEGIN
+    UPDATE public.projects
+    SET positions = 1
+    WHERE id = '90000000-0000-4000-8000-000000000001';
+    RAISE EXCEPTION 'fail_test: expected positions below selected count to fail';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM LIKE 'fail_test:%' THEN
+        RAISE;
+      END IF;
+      RAISE NOTICE 'OK: positions below selected count blocked';
+  END;
+
+  -- Project 007 has positions=1. Fill it, then a second selected must fail.
+  INSERT INTO public.selection_decisions (
+    project_id, student_id, application_id, decision, decided_by
+  ) VALUES (
+    '90000000-0000-4000-8000-000000000007',
+    'b0000000-0000-4000-8000-000000000015',
+    'd0000000-0000-4000-8000-000000000003',
+    'selected',
+    'a0000000-0000-4000-8000-000000000004'
+  );
+
+  INSERT INTO public.applications (
+    id, project_id, student_id, status
+  ) VALUES (
+    'd0000000-0000-4000-8000-00000000ff01',
+    '90000000-0000-4000-8000-000000000007',
+    'b0000000-0000-4000-8000-000000000011',
+    'submitted'
+  );
+
+  BEGIN
+    INSERT INTO public.selection_decisions (
+      project_id, student_id, application_id, decision, decided_by
+    ) VALUES (
+      '90000000-0000-4000-8000-000000000007',
+      'b0000000-0000-4000-8000-000000000011',
+      'd0000000-0000-4000-8000-00000000ff01',
+      'selected',
+      'a0000000-0000-4000-8000-000000000004'
+    );
+    RAISE EXCEPTION 'fail_test: expected over-capacity selection to fail';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM LIKE 'fail_test:%' THEN
+        RAISE;
+      END IF;
+      RAISE NOTICE 'OK: over-capacity selection blocked';
+  END;
+
+  -- Cleanup probe rows so re-runs stay deterministic
+  DELETE FROM public.selection_decisions
+  WHERE application_id IN (
+    'd0000000-0000-4000-8000-000000000002',
+    'd0000000-0000-4000-8000-000000000003'
+  );
+  DELETE FROM public.applications
+  WHERE id = 'd0000000-0000-4000-8000-00000000ff01';
+
   RAISE NOTICE 'Integrity checks completed';
 END $$;
 
