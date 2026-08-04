@@ -4,7 +4,7 @@ import {
   buildApplicationStatusContent,
   buildMatchReadyContent,
 } from '@/lib/notifications/messages'
-import { parseUpdateApplicationStatus } from '@/lib/applications/service'
+import { parseUpdateApplicationStatus } from '@/lib/applications/parse'
 import { ValidationError } from '@/lib/validation'
 
 describe('notification messages', () => {
@@ -36,8 +36,8 @@ describe('notification messages', () => {
 
 describe('parseUpdateApplicationStatus', () => {
   it('accepts valid statuses', () => {
-    expect(parseUpdateApplicationStatus({ status: 'accepted' })).toEqual({
-      status: 'accepted',
+    expect(parseUpdateApplicationStatus({ status: 'under_review' })).toEqual({
+      status: 'under_review',
     })
   })
 
