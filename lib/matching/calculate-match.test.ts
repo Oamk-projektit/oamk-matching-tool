@@ -16,6 +16,7 @@ import {
 import { explainMatch } from '@/lib/matching/explain-match'
 import { canViewProjectMatchLists } from '@/lib/matching/load-inputs'
 import { rankMatches, topCandidates } from '@/lib/matching/rank-matches'
+import { calculatedToPersistPayload } from '@/lib/matching/service'
 import type {
   CalculatedMatch,
   MatchProjectInput,
@@ -184,6 +185,27 @@ describe('skills', () => {
     expect(result.ratios.skills).toBeGreaterThan(0)
     expect(result.ratios.skills).toBeLessThan(1)
   })
+
+  it('penalizes a completely missing required skill set', () => {
+    const result = match(
+      { ...baseStudent, skills: ['Finnish'] },
+      baseProject
+    )
+    expect(result.missingRequiredSkills).toEqual(['React', 'TypeScript'])
+    expect(result.missingRequirements).toEqual(
+      expect.arrayContaining(['skill:React', 'skill:TypeScript'])
+    )
+    expect(result.ratios.skills).toBeLessThan(1)
+  })
+
+  it('gives full skills ratio when both skill lists are empty', () => {
+    const result = match(baseStudent, {
+      ...baseProject,
+      requiredSkills: [],
+      recommendedSkills: [],
+    })
+    expect(result.ratios.skills).toBe(1)
+  })
 })
 
 describe('language', () => {
@@ -196,6 +218,7 @@ describe('language', () => {
     expect(result.language.matched).toBe(false)
     expect(result.ratios.language).toBe(0)
     expect(result.scoreBreakdown.language).toBe(0)
+    expect(result.missingRequirements).toContain('language:fi')
   })
 
   it('does not treat empty languages as a match', () => {
@@ -228,6 +251,31 @@ describe('availability', () => {
     )
     expect(result.availability.status).toBe('none')
     expect(result.ratios.availability).toBe(0)
+    expect(result.missingRequirements).toContain('availability')
+  })
+})
+
+describe('interests', () => {
+  it('scores interest overlap without hurting when project list is empty', () => {
+    const withInterests = match()
+    expect(withInterests.matchedInterests).toEqual(['Web development'])
+    expect(withInterests.ratios.interests).toBe(1)
+
+    const emptyOptional = match(baseStudent, {
+      ...baseProject,
+      interests: [],
+    })
+    expect(emptyOptional.ratios.interests).toBe(1)
+    expect(emptyOptional.scoreBreakdown.interests).toBe(
+      DEFAULT_PROJECT_WEIGHTS.interests
+    )
+  })
+
+  it('reduces interest ratio when student lacks project interests', () => {
+    const result = match({ ...baseStudent, interests: [] }, baseProject)
+    expect(result.missingInterests).toEqual(['Web development'])
+    expect(result.ratios.interests).toBe(0)
+    expect(result.scoreBreakdown.interests).toBe(0)
   })
 })
 
@@ -356,5 +404,36 @@ describe('Top 3 privacy', () => {
     expect(canViewProjectMatchLists('company')).toBe(true)
     expect(canViewProjectMatchLists('teacher')).toBe(true)
     expect(canViewProjectMatchLists('admin')).toBe(true)
+  })
+
+  it('does not expose peer rank on the student-facing match payload', () => {
+    const result = match()
+    expect(result).not.toHaveProperty('rank')
+    // Student list API returns Match (score + breakdown), never TopMatchItem.rank
+    expect('rank' in result).toBe(false)
+  })
+})
+
+describe('matching side effects', () => {
+  it('persists only match fields — never application status', () => {
+    const payload = calculatedToPersistPayload(match())
+    expect(payload).not.toHaveProperty('status')
+    expect(payload).not.toHaveProperty('application_status')
+    expect(payload).not.toHaveProperty('application_id')
+    expect(Object.keys(payload).sort()).toEqual(
+      [
+        'calculated_at',
+        'explanation',
+        'matched_courses',
+        'matched_skills',
+        'missing_required_courses',
+        'missing_required_skills',
+        'project_id',
+        'score_breakdown',
+        'student_id',
+        'total_score',
+        'weights_snapshot',
+      ].sort()
+    )
   })
 })
