@@ -48,8 +48,16 @@ export type SelectionDecisionValue = 'selected' | 'not_selected'
 export type NotificationType =
   | 'application_received'
   | 'application_status_changed'
-  | 'match_ready'
+  | 'application_shortlisted'
+  | 'student_selected'
+  | 'student_not_selected'
+  | 'project_updated'
+  | 'application_deadline_approaching'
+  | 'new_application_for_company'
+  | 'selection_completed_for_teacher'
+  /** @deprecated prefer student_selected / student_not_selected */
   | 'selection_decided'
+  | 'match_ready'
   | 'project_published'
 
 /**
@@ -244,6 +252,17 @@ export interface Match {
   calculatedAt: string
 }
 
+/** Matching outcome frozen onto a selection decision. */
+export interface SelectionMatchSnapshot {
+  totalScore: number
+  scoreBreakdown: ScoreBreakdown
+  explanation: string
+  matchedCourses?: string[]
+  missingRequiredCourses?: string[]
+  matchedSkills?: string[]
+  missingRequiredSkills?: string[]
+}
+
 /**
  * Company's final student choice for a project.
  * Matching rankings inform, but do not decide.
@@ -257,6 +276,10 @@ export interface SelectionDecision {
   decidedBy: string
   reason: string | null
   decidedAt: string
+  matchId: string | null
+  matchSnapshot: SelectionMatchSnapshot | null
+  weightsSnapshot: ProjectWeights | null
+  algorithmRank: number | null
 }
 
 export interface Notification {
@@ -268,6 +291,7 @@ export interface Notification {
   body: string
   readAt: string | null
   createdAt: string
+  idempotencyKey?: string | null
 }
 
 /** Append-only audit row for sensitive actions. */
@@ -277,6 +301,19 @@ export interface AuditEvent {
   action: string
   entityType: string
   entityId: string
-  payload: Record<string, unknown>
+  oldValues: Record<string, unknown> | null
+  newValues: Record<string, unknown> | null
   createdAt: string
 }
+
+/** Explicit audit action names for selection / shortlist workflows. */
+export const SELECTION_AUDIT_ACTIONS = [
+  'application_shortlisted',
+  'application_unshortlisted',
+  'selection_selected',
+  'selection_not_selected',
+  'selection_changed',
+  'selection_reason_changed',
+] as const
+
+export type SelectionAuditAction = (typeof SELECTION_AUDIT_ACTIONS)[number]

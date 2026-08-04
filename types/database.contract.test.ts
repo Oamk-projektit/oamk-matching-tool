@@ -72,10 +72,16 @@ describe('Database ↔ domain contract', () => {
       'project_id',
       'decision',
       'decided_by',
+      'match_id',
+      'match_snapshot',
+      'weights_snapshot',
+      'algorithm_rank',
     ]
     expect(keys).toContain('application_id')
     expect(keys).toContain('project_id')
     expect(keys).toContain('student_id')
+    expect(keys).toContain('match_snapshot')
+    expect(keys).toContain('algorithm_rank')
   })
 
   it('matches use student_id + project_id and weights have sum-100 criteria', () => {

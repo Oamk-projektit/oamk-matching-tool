@@ -301,6 +301,8 @@ describe('application workflow', () => {
       'application_created',
       'application_status_changed',
       'application_withdrawn',
+      'application_shortlisted',
+      'application_unshortlisted',
     ])
   })
 })

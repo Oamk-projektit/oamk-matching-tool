@@ -30,6 +30,8 @@ export const APPLICATION_AUDIT_ACTIONS = [
   'application_created',
   'application_status_changed',
   'application_withdrawn',
+  'application_shortlisted',
+  'application_unshortlisted',
 ] as const
 
 export function parseCreateApplication(body: unknown): CreateApplicationRequest {

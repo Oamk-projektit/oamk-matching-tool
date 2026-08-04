@@ -312,6 +312,7 @@ export type Database = {
           body: string
           read_at: string | null
           created_at: string
+          idempotency_key: string | null
         }
         Insert: {
           id?: string
@@ -322,6 +323,7 @@ export type Database = {
           body: string
           read_at?: string | null
           created_at?: string
+          idempotency_key?: string | null
         }
         Update: {
           id?: string
@@ -332,6 +334,7 @@ export type Database = {
           body?: string
           read_at?: string | null
           created_at?: string
+          idempotency_key?: string | null
         }
         Relationships: [
           {
@@ -697,6 +700,10 @@ export type Database = {
           decided_by: string
           reason: string | null
           decided_at: string
+          match_id: string | null
+          match_snapshot: Json | null
+          weights_snapshot: Json | null
+          algorithm_rank: number | null
         }
         Insert: {
           id?: string
@@ -707,6 +714,10 @@ export type Database = {
           decided_by: string
           reason?: string | null
           decided_at?: string
+          match_id?: string | null
+          match_snapshot?: Json | null
+          weights_snapshot?: Json | null
+          algorithm_rank?: number | null
         }
         Update: {
           id?: string
@@ -717,6 +728,10 @@ export type Database = {
           decided_by?: string
           reason?: string | null
           decided_at?: string
+          match_id?: string | null
+          match_snapshot?: Json | null
+          weights_snapshot?: Json | null
+          algorithm_rank?: number | null
         }
         Relationships: [
           {
