@@ -16,9 +16,31 @@ import {
   isAdmin,
 } from '@/lib/permissions/roles'
 import { assertCanManageProject } from '@/lib/projects/service'
+import { requireRole, type AuthContext } from '@/lib/api/auth'
+import type { UserRole } from '@/types/domain'
+import type { User } from '@supabase/supabase-js'
 
 async function readJson(response: Response) {
   return response.json()
+}
+
+function fakeAuthContext(role: UserRole): AuthContext {
+  const profileId = `00000000-0000-4000-8000-${role.padEnd(12, '0').slice(0, 12)}`
+  return {
+    user: { id: profileId } as User,
+    role,
+    profileId,
+    profile: {
+      id: profileId,
+      role,
+      displayName: role,
+      email: `${role}@example.test`,
+      preferredLanguage: 'fi',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z',
+    },
+    supabase: {} as AuthContext['supabase'],
+  }
 }
 
 describe('API response helpers', () => {
@@ -31,7 +53,7 @@ describe('API response helpers', () => {
     })
   })
 
-  it('builds an error envelope without leaking internals', async () => {
+  it('builds a uniform error envelope without leaking internals', async () => {
     const res = apiError('FORBIDDEN', 'Nope', 403)
     expect(res.status).toBe(403)
     const body = await readJson(res)
@@ -71,6 +93,83 @@ describe('API response helpers', () => {
     expect(body.error.message).toBe('Unexpected server error')
     expect(body.error.message).not.toContain('secret')
     spy.mockRestore()
+  })
+})
+
+describe('requireRole', () => {
+  it('allows an authorized role', () => {
+    expect(() =>
+      requireRole(fakeAuthContext('teacher'), ['teacher', 'admin'])
+    ).not.toThrow()
+    expect(() =>
+      requireRole(fakeAuthContext('company'), ['company'])
+    ).not.toThrow()
+  })
+
+  it('rejects a wrong role with FORBIDDEN', () => {
+    try {
+      requireRole(fakeAuthContext('student'), ['company', 'admin'])
+      expect.unreachable('expected requireRole to throw')
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiHttpError)
+      expect((error as ApiHttpError).status).toBe(403)
+      expect((error as ApiHttpError).code).toBe('FORBIDDEN')
+    }
+  })
+})
+
+describe('missing session', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.doUnmock('next/headers')
+    vi.doUnmock('@/lib/supabase/server')
+    vi.doUnmock('@/lib/supabase/env')
+  })
+
+  it('requireUser throws UNAUTHORIZED when no session exists', async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://example.supabase.local'
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-test-key'
+
+    vi.doMock('next/headers', () => ({
+      headers: async () => ({
+        get: () => null,
+      }),
+    }))
+    vi.doMock('@/lib/supabase/env', async () => {
+      const actual = await vi.importActual<typeof import('@/lib/supabase/env')>(
+        '@/lib/supabase/env'
+      )
+      return {
+        ...actual,
+        requireSupabasePublicEnv: () => ({
+          url: 'http://example.supabase.local',
+          key: 'anon-test-key',
+        }),
+      }
+    })
+    vi.doMock('@/lib/supabase/server', () => ({
+      createClient: async () => ({
+        auth: {
+          getUser: async () => ({ data: { user: null }, error: null }),
+        },
+      }),
+    }))
+
+    const { requireUser, requireProfile } = await import('@/lib/api/auth')
+
+    await expect(requireUser()).rejects.toMatchObject({
+      name: 'ApiHttpError',
+      status: 401,
+      code: 'UNAUTHORIZED',
+    })
+    await expect(requireProfile()).rejects.toMatchObject({
+      name: 'ApiHttpError',
+      status: 401,
+      code: 'UNAUTHORIZED',
+    })
   })
 })
 
