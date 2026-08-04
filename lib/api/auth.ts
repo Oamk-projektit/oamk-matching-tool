@@ -1,7 +1,12 @@
+/**
+ * Auth helpers for API routes.
+ * Roles follow the locked projects-model contract (includes `company`).
+ */
+
 import { createClient as createSupabaseJsClient } from '@supabase/supabase-js'
 import type { User, SupabaseClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
-import type { UserRole } from '@/types/legacy'
+import type { UserRole } from '@/types/domain'
 import type { ApiErrorCode, ApiFieldError } from '@/types/api'
 import { createClient } from '@/lib/supabase/server'
 import { ValidationError } from '@/lib/validation'
@@ -30,20 +35,36 @@ export class ApiHttpError extends Error {
 export type AuthContext = {
   user: User
   role: UserRole
+  /** Same as `user.id` — `profiles.id` = `auth.users.id`. */
+  profileId: string
   supabase: SupabaseClient
 }
 
 function roleFromMetadata(user: User): UserRole {
   const raw = user.user_metadata?.role
-  if (raw === 'student' || raw === 'teacher' || raw === 'admin') {
+  if (
+    raw === 'student' ||
+    raw === 'company' ||
+    raw === 'teacher' ||
+    raw === 'admin'
+  ) {
     return raw
   }
   return 'student'
 }
 
+function isKnownRole(role: unknown): role is UserRole {
+  return (
+    role === 'student' ||
+    role === 'company' ||
+    role === 'teacher' ||
+    role === 'admin'
+  )
+}
+
 /**
  * Ensures a profiles row exists for the authenticated user.
- * Uses auth metadata role on first insert (default: student).
+ * Canonical schema: `profiles.id` = `auth.users.id`.
  */
 export async function ensureProfile(
   supabase: SupabaseClient,
@@ -52,25 +73,35 @@ export async function ensureProfile(
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('role')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .maybeSingle()
 
   if (error) {
     throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
   }
 
-  if (
-    profile?.role === 'student' ||
-    profile?.role === 'teacher' ||
-    profile?.role === 'admin'
-  ) {
+  if (isKnownRole(profile?.role)) {
     return profile.role
   }
 
   const role = roleFromMetadata(user)
+  const displayName =
+    (typeof user.user_metadata?.display_name === 'string' &&
+      user.user_metadata.display_name) ||
+    user.email ||
+    'User'
+  const preferredLanguage =
+    user.user_metadata?.preferred_language === 'en' ? 'en' : 'fi'
+
   const { error: upsertError } = await supabase.from('profiles').upsert(
-    { user_id: user.id, role },
-    { onConflict: 'user_id' }
+    {
+      id: user.id,
+      role,
+      display_name: displayName,
+      email: user.email ?? `${user.id}@users.local`,
+      preferred_language: preferredLanguage,
+    },
+    { onConflict: 'id' }
   )
 
   if (upsertError) {
@@ -126,7 +157,7 @@ export async function requireAuth(): Promise<AuthContext> {
     }
 
     const role = await ensureProfile(supabase, user)
-    return { user, role, supabase }
+    return { user, role, profileId: user.id, supabase }
   }
 
   const supabase = await createClient()
@@ -140,7 +171,7 @@ export async function requireAuth(): Promise<AuthContext> {
   }
 
   const role = await ensureProfile(supabase, user)
-  return { user, role, supabase }
+  return { user, role, profileId: user.id, supabase }
 }
 
 export function requireRole(
@@ -176,4 +207,34 @@ export async function parseJsonBody(request: Request): Promise<unknown> {
       { field: 'body', message: 'Must be valid JSON' },
     ])
   }
+}
+
+/** Resolves the caller's company membership (MVP: one company per profile). */
+export async function getCallerCompanyId(
+  supabase: SupabaseClient,
+  profileId: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('company_users')
+    .select('company_id')
+    .eq('profile_id', profileId)
+    .maybeSingle()
+
+  if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+  return data?.company_id ?? null
+}
+
+/** Resolves the caller's student row id when present. */
+export async function getCallerStudentId(
+  supabase: SupabaseClient,
+  profileId: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('students')
+    .select('id')
+    .eq('profile_id', profileId)
+    .maybeSingle()
+
+  if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
+  return data?.id ?? null
 }

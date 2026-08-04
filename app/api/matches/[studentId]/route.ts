@@ -4,9 +4,9 @@ import {
   isStaff,
   requireAuth,
 } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
+import { jsonData } from '@/lib/api/response'
 import { isUuid } from '@/lib/validation'
-import { getStudentById } from '@/lib/students/service'
+import { loadMatchStudent } from '@/lib/matching/load-inputs'
 import { listMatchesForStudent } from '@/lib/matching/service'
 
 type RouteContext = { params: Promise<{ studentId: string }> }
@@ -19,10 +19,11 @@ export async function GET(request: Request, context: RouteContext) {
       throw new ApiHttpError(400, 'VALIDATION_ERROR', 'Invalid student id')
     }
 
-    const student = await getStudentById(ctx.supabase, studentId)
+    const student = await loadMatchStudent(ctx.supabase, studentId)
     if (!student) throw new ApiHttpError(404, 'NOT_FOUND', 'Student not found')
 
-    if (!isStaff(ctx.role) && student.user_id !== ctx.user.id) {
+    // Students may only read their own matches (no peer scores/ranks).
+    if (!isStaff(ctx.role) && student.profileId !== ctx.user.id) {
       throw new ApiHttpError(
         403,
         'FORBIDDEN',
@@ -36,13 +37,17 @@ export async function GET(request: Request, context: RouteContext) {
     if (limitRaw !== null) {
       const parsed = Number(limitRaw)
       if (!Number.isInteger(parsed) || parsed < 1) {
-        throw new ApiHttpError(400, 'VALIDATION_ERROR', 'limit must be a positive integer')
+        throw new ApiHttpError(
+          400,
+          'VALIDATION_ERROR',
+          'limit must be a positive integer'
+        )
       }
       limit = Math.min(parsed, 50)
     }
 
     const data = await listMatchesForStudent(ctx.supabase, studentId, limit)
-    return jsonOk({ data, meta: { count: data.length } })
+    return jsonData(data, { count: data.length })
   } catch (error) {
     return handleRouteError(error)
   }

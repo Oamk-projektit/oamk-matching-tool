@@ -4,9 +4,9 @@ import {
   isStaff,
   requireAuth,
 } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
+import { jsonData } from '@/lib/api/response'
 import { isUuid, ValidationError } from '@/lib/validation'
-import { getStudentById } from '@/lib/students/service'
+import { loadMatchStudent } from '@/lib/matching/load-inputs'
 import {
   parseRunMatchesBody,
   runMatchingForStudent,
@@ -22,10 +22,10 @@ export async function POST(request: Request, context: RouteContext) {
       throw new ApiHttpError(400, 'VALIDATION_ERROR', 'Invalid student id')
     }
 
-    const student = await getStudentById(ctx.supabase, studentId)
+    const student = await loadMatchStudent(ctx.supabase, studentId)
     if (!student) throw new ApiHttpError(404, 'NOT_FOUND', 'Student not found')
 
-    if (!isStaff(ctx.role) && student.user_id !== ctx.user.id) {
+    if (!isStaff(ctx.role) && student.profileId !== ctx.user.id) {
       throw new ApiHttpError(
         403,
         'FORBIDDEN',
@@ -45,18 +45,15 @@ export async function POST(request: Request, context: RouteContext) {
       }
     }
 
-    const { opportunity_ids, locale } = parseRunMatchesBody(rawBody)
+    const { projectIds, locale } = parseRunMatchesBody(rawBody)
     const data = await runMatchingForStudent(
       ctx.supabase,
       studentId,
-      opportunity_ids,
+      projectIds,
       locale
     )
 
-    return jsonOk({
-      data,
-      meta: { count: data.length, student_id: studentId },
-    })
+    return jsonData(data, { count: data.length, studentId })
   } catch (error) {
     return handleRouteError(error)
   }
