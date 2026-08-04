@@ -2,13 +2,13 @@
 
 <!--
 SHARED — Tommi + Venla
-Canonical contract locked before the projects-model schema migration.
+Canonical contract for the live projects-model schema (MVP complete).
 -->
 
 Shared REST contract for Tommi (backend) and Venla (frontend).  
 Canonical TypeScript: `types/domain.ts`, `types/api.ts`.
 
-**Runtime note:** Live handlers still expose the previous `/api/opportunities` surface via `types/legacy.ts`. This document is the **target** contract. Route migration follows schema migration.
+**Runtime note:** The **projects model is live**. All routes documented below run against the current schema (`supabase/migrations/20260804*`). The legacy `/api/opportunities` surface (`types/legacy.ts`) still exists in the codebase for backward compatibility but targets a table dropped by `20260804140000_drop_legacy_opportunity_schema.sql` — treat it as deprecated/non-functional and use the `/api/projects` equivalents below instead.
 
 Base URL (local): `http://localhost:3000/api`
 
@@ -341,6 +341,15 @@ Weights must sum to **100** or the request fails with `VALIDATION_ERROR`.
 **Auth:** student  
 **Response:** list of `ApplicationWithProject`
 
+### `GET /api/applications/:id`
+
+**Auth:** owning student, owning company, teacher, or admin
+
+### `GET /api/students/:id/applications`
+
+**Auth:** owning student, teacher, or admin  
+**Response:** list of `ApplicationWithProject` for that student.
+
 ### `GET /api/projects/:id/applicants`
 
 **Auth:** project company owner, teacher, or admin  
@@ -386,13 +395,39 @@ Sorted by match `totalScore` desc when a match exists.
 }
 ```
 
-### `PATCH /api/applications/:id`
+### `PATCH /api/applications/:id/status`
 
-**Auth:** company owner / admin (status transitions), or owning student (`withdrawn` only)
+**Auth:** owning company or admin  
+Sets a status other than `withdrawn` (student self-service uses the withdraw endpoint below).
 
 ```json
 { "status": "under_review" }
 ```
+
+### `POST /api/applications/:id/withdraw`
+
+**Auth:** owning student or admin  
+Sets status to `withdrawn`. Withdrawn applications can never be shortlisted or selected afterward.
+
+### `POST /api/applications/:id/shortlist`
+
+**Auth:** owning company or admin  
+Moves the application to `shortlisted` and notifies the student (`application_shortlisted`). Idempotent — calling again while already shortlisted returns the unchanged application.
+
+**Response `201`:** `{ "data": Application, "meta": {} }`  
+**Errors:** `409` if the application is `withdrawn` or already `selected`.
+
+### `DELETE /api/applications/:id/shortlist`
+
+**Auth:** owning company or admin  
+Reverts a `shortlisted` application back to `under_review`.  
+**Errors:** `409` if the application is not currently `shortlisted`.
+
+### `GET /api/applications/:id/decision`
+
+**Auth:** owning student, owning company, teacher, or admin  
+Returns the `SelectionDecision` for this application, if any.  
+**Errors:** `404` if no decision has been made yet.
 
 ---
 
@@ -463,7 +498,7 @@ Own matches only (student-safe). May include weights for transparency.
 **Auth:** company owner, teacher, or admin  
 Full match list for the project (not student-visible).
 
-### `GET /api/projects/:id/matches/top`
+### `GET /api/projects/:id/top-candidates`
 
 **Auth:** company owner, teacher, or admin only  
 **Query:** `limit` (default **3**, max 10)
@@ -513,13 +548,29 @@ Students calling this endpoint receive `403 FORBIDDEN`.
 }
 ```
 
-**Response `201`:** `{ "data": SelectionDecision, "meta": {} }`
+**Response `201`:** `{ "data": SelectionDecision, "meta": {} }` — includes a frozen snapshot of the match at decision time:
+
+```json
+{
+  "matchId": "m0000000-0000-4000-8000-000000000001",
+  "matchSnapshot": {
+    "totalScore": 85,
+    "scoreBreakdown": { "...": 0 },
+    "explanation": "..."
+  },
+  "weightsSnapshot": { "...": 0 },
+  "algorithmRank": 1
+}
+```
+
+`matchSnapshot` / `weightsSnapshot` / `algorithmRank` are captured once, at decision time, and are **not** recomputed if the project's weights or matches change later (see `docs/MATCHING_ALGORITHM.md`).
 
 Effects (MVP):
 
-- Selected application → `selected`
-- Other active applications for the same project may move to `not_selected` when positions are filled (implementation detail in selection service)
-- Student receives `selection_decided` notification
+- Application referenced by `applicationId` → status `selected` or `not_selected`
+- A project cannot have more `selected` decisions than `projects.positions` (enforced by a DB trigger; `409 CONFLICT` if full)
+- Withdrawn applications cannot be selected (`409 CONFLICT`)
+- Student receives a `student_selected` or `student_not_selected` notification; teachers receive `selection_completed_for_teacher` when a student is selected
 
 ### `GET /api/projects/:id/selections`
 
@@ -552,25 +603,64 @@ Effects (MVP):
 }
 ```
 
-### `PATCH /api/notifications/:id`
+### `PATCH /api/notifications/:id/read`
 
-Mark one as read. **Response:** `{ "data": Notification, "meta": {} }`
+Mark one as read. **Response:** `{ "data": Notification, "meta": {} }`  
+(`PATCH /api/notifications/:id` is kept as a legacy alias for the same behavior.)
 
-### `POST /api/notifications/read-all`
+### `POST /api/notifications/mark-all-read`
 
-**Response:** `{ "data": { "updated": 3 }, "meta": {} }`
+**Response:** `{ "data": { "updated": 3 }, "meta": {} }`  
+(`POST /api/notifications/read-all` is kept as a legacy alias for the same behavior.)
 
 ### Notification types
 
+Canonical values (`types/domain.ts` `NotificationType`); `selection_decided` is retained only for older rows and is superseded by the `student_selected` / `student_not_selected` pair.
+
 | Event | Recipient | `type` |
 |-------|-----------|--------|
-| New application | Company (project owner) | `application_received` |
+| New application | Company (project owner) | `new_application_for_company` (also `application_received`) |
 | Application status change | Student | `application_status_changed` |
+| Application shortlisted | Student | `application_shortlisted` |
+| Student selected | Student | `student_selected` |
+| Student not selected | Student | `student_not_selected` |
+| Selection completed | Teachers | `selection_completed_for_teacher` |
+| Project updated | Interested students (optional) | `project_updated` (also `project_published`) |
+| Application deadline approaching | Student | `application_deadline_approaching` |
 | Matching run finished | Student | `match_ready` |
-| Selection decided | Student | `selection_decided` |
-| Project published | Interested students (optional) | `project_published` |
 
-Email sending remains out of MVP (in-app + stub only).
+Notifications are created idempotently (`idempotencyKey` — see `docs/SCHEMA.md`), so retried side effects never duplicate a notification. Email sending remains out of MVP (in-app only).
+
+---
+
+## Audit
+
+### `GET /api/audit`
+
+**Auth:** teacher or admin only  
+**Query:** `limit` (default 100, max 200)
+
+Read-only history of sensitive writes, captured automatically by database triggers (never client-writable). See `docs/SCHEMA.md` and `docs/SECURITY.md` for the full action vocabulary.
+
+```json
+{
+  "data": [
+    {
+      "id": "...",
+      "actorProfileId": "90000000-0000-4000-8000-000000000099",
+      "action": "selection_selected",
+      "entityType": "selection_decision",
+      "entityId": "d0000000-0000-4000-8000-000000000001",
+      "oldValues": null,
+      "newValues": { "...": "..." },
+      "createdAt": "2026-08-10T14:00:00.000Z"
+    }
+  ],
+  "meta": { "count": 1 }
+}
+```
+
+Students and companies receive `403 FORBIDDEN`.
 
 ---
 
@@ -672,4 +762,4 @@ Email sending remains out of MVP (in-app + stub only).
   - Do **not** show Top 3 or peer ranks in student views
 - Temporary adapters (if required) belong under `lib/integration/venla-*`, marked `VENLA-OWNED TEMPORARY INTEGRATION FILE`, listed in `docs/VENLA_TASKS.md`, and committed separately as `chore(venla): ...`.
 
-See also: `types/domain.ts`, `types/api.ts`, `docs/SCHEMA.md` (pending migration), `docs/SHARED_CONTRACT.md`.
+See also: `types/domain.ts`, `types/api.ts`, `docs/SCHEMA.md`, `docs/SHARED_CONTRACT.md`, `docs/MATCHING_ALGORITHM.md`, `docs/SECURITY.md`.

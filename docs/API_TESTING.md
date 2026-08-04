@@ -18,7 +18,7 @@ Backend smoke tests for issue-style verification before frontend integration.
 
 ### Option A — Supabase JS (browser console / script)
 
-Sign in with a seed user (local seed password `Passw0rd!`):
+Sign in with a seed user (local seed password `LocalDemoOnly!1`):
 
 ```js
 const { createClient } = supabase
@@ -28,7 +28,7 @@ const client = createClient(
 )
 const { data, error } = await client.auth.signInWithPassword({
   email: 'aino.virtanen@students.oamk.fi',
-  password: 'Passw0rd!',
+  password: 'LocalDemoOnly!1',
 })
 console.log(data.session.access_token)
 ```
@@ -39,7 +39,7 @@ console.log(data.session.access_token)
 curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/token?grant_type=password" \
   -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"email":"aino.virtanen@students.oamk.fi","password":"Passw0rd!"}'
+  -d '{"email":"aino.virtanen@students.oamk.fi","password":"LocalDemoOnly!1"}'
 ```
 
 Copy `access_token` into the Postman collection variable.

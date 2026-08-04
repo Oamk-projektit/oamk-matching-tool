@@ -27,9 +27,9 @@ Issues: #147, #153
 
 | Rooli | Email | Salasana |
 |-------|-------|----------|
-| Teacher | `teacher.demo@oamk.fi` | `Passw0rd!` |
-| Student (vahva match) | `aino.virtanen@students.oamk.fi` | `Passw0rd!` |
-| Student | `mikko.korhonen@students.oamk.fi` | `Passw0rd!` |
+| Teacher | `teacher.demo@oamk.fi` | `LocalDemoOnly!1` |
+| Student (vahva match) | `aino.virtanen@students.oamk.fi` | `LocalDemoOnly!1` |
+| Student | `mikko.korhonen@students.oamk.fi` | `LocalDemoOnly!1` |
 
 Kiinteät ID:t: `lib/shared/demo-fixtures.ts`.
 

@@ -5,10 +5,11 @@ Aligned with `docs/API.md` and `types/domain.ts` (projects model).
 
 Migrations: `supabase/migrations/`. Seed: `supabase/seed.sql`.
 
-> **Runtime note:** Live Next.js `/api/opportunities` handlers still use
-> `types/legacy.ts` against the previous opportunities vocabulary until route
-> migration. After `supabase db reset`, the database is the **projects** model
-> documented here.
+> **Runtime note:** The **projects model is live**. After `supabase db reset`,
+> the database is exactly the schema documented here. The legacy
+> `/api/opportunities` Next.js handlers (`types/legacy.ts`) remain in the
+> codebase but target the `opportunities` table, which this schema drops —
+> treat that surface as deprecated/non-functional in favor of `/api/projects`.
 
 ---
 
@@ -47,7 +48,7 @@ Legacy `opportunities` tables are dropped by
 | Work mode | `onsite`, `hybrid`, `remote` |
 | Application status | `submitted`, `under_review`, `shortlisted`, `selected`, `not_selected`, `withdrawn` |
 | Selection decision | `selected`, `not_selected` |
-| Notification type | `application_received`, `application_status_changed`, `match_ready`, `selection_decided`, `project_published` |
+| Notification type | `application_received`, `application_status_changed`, `application_shortlisted`, `student_selected`, `student_not_selected`, `project_updated`, `application_deadline_approaching`, `new_application_for_company`, `selection_completed_for_teacher`, plus retained legacy values `match_ready`, `selection_decided`, `project_published` |
 
 ---
 
@@ -118,18 +119,42 @@ UNIQUE `(student_id, project_id)` — one current result per pair.
 
 Links to `application_id` (UNIQUE). Trigger enforces application’s
 `student_id` / `project_id` match. Teachers cannot INSERT (RLS); admin may.
+A trigger (`enforce_selection_capacity`) blocks `selected` decisions once
+`positions` is reached; a companion trigger blocks lowering a project's
+`positions` below its current selected count.
+
+Snapshot columns (added by `20260804141300_selection_snapshots_and_notifications.sql`),
+frozen at decision time and never rewritten by later rematches or weight edits:
+
+| Column | Notes |
+|--------|-------|
+| `match_id` | FK → `matches(id)`, `ON DELETE SET NULL` |
+| `match_snapshot` | jsonb — score, breakdown, explanation at decision time |
+| `weights_snapshot` | jsonb — `ProjectWeights` used for that match |
+| `algorithm_rank` | 1-based rank among project matches at decision time (informational; CHECK ≥ 1) |
 
 ### `notifications`
 
-`profile_id`, typed `type`, bilingual `title`/`body`, optional `read_at`.
+`profile_id`, typed `type` (see enum above), bilingual `title`/`body`, optional `read_at`.
+
+`idempotency_key` (text, nullable) plus a unique index where non-null
+(`notifications_idempotency_key_uidx`) let notification emitters call
+`createNotificationIdempotent()` safely on retries without creating duplicates.
 
 ### `audit_events`
 
 `actor_profile_id`, `action`, `entity_type`, `entity_id`, `old_values`,
 `new_values`, `created_at`.
 
-Automatic actions include: project create/update/publish, application create/
-shortlist/update, match save/update, selection decide/change, notification create.
+Automatic actions (via `SECURITY DEFINER` triggers, never client-writable) include:
+
+- `project_created`, `project_updated`, `project_published`
+- `application_created`, `application_status_changed`, `application_shortlisted`,
+  `application_unshortlisted`, `application_withdrawn`
+- `match_saved`, `match_updated`
+- `selection_selected`, `selection_not_selected`, `selection_changed`,
+  `selection_reason_changed`
+- `notification_created`
 
 ---
 
