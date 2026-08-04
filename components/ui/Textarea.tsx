@@ -1,29 +1,34 @@
 import React, { useId } from 'react'
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Every field needs a visible label; it is programmatically linked via htmlFor/id. */
   label: string
   error?: string
   helperText?: string
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Textarea: React.FC<TextareaProps> = ({
   label,
   error,
   helperText,
   id,
   className = '',
   required,
+  rows = 4,
   ...props
 }) => {
   const generatedId = useId()
-  const inputId = id ?? generatedId
-  const errorId = `${inputId}-error`
-  const helperId = `${inputId}-helper`
+  const textareaId = id ?? generatedId
+  const errorId = `${textareaId}-error`
+  const helperId = `${textareaId}-helper`
 
   return (
     <div className="w-full">
-      <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-foreground">
+      <label
+        htmlFor={textareaId}
+        className="mb-1.5 block text-sm font-medium text-foreground"
+      >
         {label}
         {required && (
           <span className="text-error" aria-hidden="true">
@@ -32,9 +37,10 @@ export const Input: React.FC<InputProps> = ({
           </span>
         )}
       </label>
-      <input
-        id={inputId}
+      <textarea
+        id={textareaId}
         required={required}
+        rows={rows}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : helperText ? helperId : undefined}
         className={`w-full rounded-md border bg-surface px-3 py-2 text-foreground placeholder:text-foreground-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-foreground-disabled ${

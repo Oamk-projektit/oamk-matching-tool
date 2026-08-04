@@ -1,38 +1,70 @@
 @import "tailwindcss";
 
-/* OAMK Design System - Colors, Spacing, Typography */
+/* OAMK Design System - Colors, Spacing, Typography (light-only, see DESIGN.md) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary-blue: #005EB8;
-  --primary-blue-hover: #004A94;
-  --gray-light: #f5f5f5;
-  --gray-medium: #e0e0e0;
-  --success: #22c55e;
-  --error: #ef4444;
-  --warning: #f59e0b;
+  /* Primary */
+  --primary: #005EB8;
+  --primary-hover: #004A94;
+  --primary-soft: #EAF3FC;
+
+  /* Surfaces */
+  --background: #F7F9FC;
+  --surface: #FFFFFF;
+  --surface-muted: #F1F5F9;
+  --border: #D8E0EA;
+  --border-soft: #E5EAF0;
+
+  /* Text */
+  --foreground: #111827;
+  --foreground-secondary: #4B5563;
+  --foreground-muted: #6B7280;
+  --foreground-disabled: #9CA3AF;
+
+  /* Status */
+  --success: #15803D;
+  --success-soft: #DCFCE7;
+  --warning: #B45309;
+  --warning-soft: #FEF3C7;
+  --error: #B91C1C;
+  --error-soft: #FEE2E2;
+  --info: #0369A1;
+  --info-soft: #E0F2FE;
 }
 
 @theme inline {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+
   --color-foreground: var(--foreground);
-  --color-primary: var(--primary-blue);
-  --color-primary-hover: var(--primary-blue-hover);
-  --font-sans: var(--font-geist-sans);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-disabled: var(--foreground-disabled);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --font-sans: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
   line-height: 1.5;
 }
 

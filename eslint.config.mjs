@@ -16,6 +16,14 @@ const eslintConfig = defineConfig([
     "supabase/.temp/**",
     "supabase/.branches/**",
   ]),
+  {
+    // Client pages fetch on mount via useEffect → setState; allowed for MVP
+    // data loading until a shared Suspense/data library is adopted.
+    files: ["app/**/page.tsx", "components/**/*.tsx"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
