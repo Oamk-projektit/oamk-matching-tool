@@ -1,24 +1,50 @@
-import { handleRouteError, requireAuth } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
+import {
+  getCallerCompanyId,
+  getCallerStudentId,
+  handleRouteError,
+  requireAuth,
+} from '@/lib/api/auth'
+import { jsonData } from '@/lib/api/response'
+import type { Profile } from '@/types/domain'
 
 /**
- * Returns the authenticated user, role, and linked student id when present.
+ * Returns the authenticated profile plus linked student/company ids.
  */
 export async function GET() {
   try {
     const ctx = await requireAuth()
 
-    const { data: student } = await ctx.supabase
-      .from('students')
-      .select('id')
-      .eq('user_id', ctx.user.id)
-      .maybeSingle()
+    const { data: profileRow, error } = await ctx.supabase
+      .from('profiles')
+      .select(
+        'id, role, display_name, email, preferred_language, created_at, updated_at'
+      )
+      .eq('id', ctx.profileId)
+      .single()
 
-    return jsonOk({
-      user_id: ctx.user.id,
-      email: ctx.user.email ?? null,
-      role: ctx.role,
-      student_id: student?.id ?? null,
+    if (error) {
+      throw error
+    }
+
+    const profile: Profile = {
+      id: profileRow.id,
+      role: profileRow.role,
+      displayName: profileRow.display_name,
+      email: profileRow.email,
+      preferredLanguage: profileRow.preferred_language,
+      createdAt: profileRow.created_at,
+      updatedAt: profileRow.updated_at,
+    }
+
+    const [studentId, companyId] = await Promise.all([
+      getCallerStudentId(ctx.supabase, ctx.profileId),
+      getCallerCompanyId(ctx.supabase, ctx.profileId),
+    ])
+
+    return jsonData({
+      profile,
+      studentId,
+      companyId,
     })
   } catch (error) {
     return handleRouteError(error)

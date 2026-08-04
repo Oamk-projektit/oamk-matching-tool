@@ -14,6 +14,7 @@ import type {
   Application,
   ApplicationStatus,
   Course,
+  CourseCompletionStatus,
   Interest,
   Match,
   Notification,
@@ -28,6 +29,7 @@ import type {
   SelectionDecisionValue,
   Skill,
   Student,
+  StudentCourse,
   UserRole,
   WorkMode,
 } from './domain'
@@ -102,8 +104,43 @@ export interface CreateStudentRequest {
 
 export type UpdateStudentRequest = Partial<CreateStudentRequest>
 
+export interface StudentDetail extends Student {
+  courseIds: string[]
+  skillIds: string[]
+  interestIds: string[]
+}
+
+/** Limited student fields for company applicants (no private extras). */
+export type StudentCompanyView = Pick<
+  Student,
+  'id' | 'degreeProgramme' | 'department' | 'studyCredits' | 'preferredProjectTypes'
+>
+
 export type StudentResponse = ApiSuccess<Student>
+export type StudentDetailResponse = ApiSuccess<StudentDetail>
 export type StudentListResponse = ListResponse<Student>
+
+export interface AddStudentCourseRequest {
+  courseId: string
+  completionStatus?: CourseCompletionStatus
+  completedAt?: string | null
+  grade?: string | null
+  verified?: boolean
+}
+
+export type StudentCourseResponse = ApiSuccess<StudentCourse>
+export type StudentCourseListResponse = ListResponse<StudentCourse>
+
+export interface AddStudentSkillRequest {
+  /** Catalog skill id, or omit and pass `name` to find-or-create. */
+  skillId?: string
+  name?: string
+}
+
+export interface AddStudentInterestRequest {
+  interestId?: string
+  name?: string
+}
 
 export interface CreateProjectRequest {
   title: string
@@ -124,6 +161,7 @@ export interface CreateProjectRequest {
   requiredCourseIds?: string[]
   recommendedCourseIds?: string[]
   requiredSkillIds?: string[]
+  recommendedSkillIds?: string[]
   interestIds?: string[]
   weights?: ProjectWeights
 }
@@ -138,6 +176,7 @@ export interface ProjectDetail extends Project {
   requiredCourseIds: string[]
   recommendedCourseIds: string[]
   requiredSkillIds: string[]
+  recommendedSkillIds: string[]
   interestIds: string[]
 }
 

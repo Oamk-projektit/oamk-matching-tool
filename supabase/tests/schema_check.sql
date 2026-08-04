@@ -63,5 +63,39 @@ BEGIN
     RAISE EXCEPTION 'Legacy table opportunities still present';
   END IF;
 
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'companies'
+      AND column_name = 'business_id'
+  ) THEN
+    RAISE EXCEPTION 'Missing companies.business_id';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'company_users'
+      AND column_name = 'company_role'
+  ) THEN
+    RAISE EXCEPTION 'Missing company_users.company_role';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.proname = 'create_project_bundle'
+  ) THEN
+    RAISE EXCEPTION 'Missing function create_project_bundle';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.proname = 'is_company_role'
+  ) THEN
+    RAISE EXCEPTION 'Missing function is_company_role';
+  END IF;
+
   RAISE NOTICE 'Schema check OK: projects-model tables and helpers present';
 END $$;

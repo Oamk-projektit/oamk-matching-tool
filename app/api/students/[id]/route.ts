@@ -1,14 +1,21 @@
 import {
   ApiHttpError,
+  getCallerCompanyId,
   handleRouteError,
-  isStaff,
   parseJsonBody,
   requireAuth,
 } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
+import { jsonData } from '@/lib/api/response'
 import { isUuid } from '@/lib/validation'
 import { parseUpdateStudent } from '@/lib/students/parse'
-import { getStudentById, updateStudent } from '@/lib/students/service'
+import {
+  assertCanUpdateStudent,
+  assertCanViewStudent,
+  companyHasApplicant,
+  getStudentDetailById,
+  shapeStudentForViewer,
+  updateStudent,
+} from '@/lib/students/service'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -20,14 +27,29 @@ export async function GET(_request: Request, context: RouteContext) {
       throw new ApiHttpError(400, 'VALIDATION_ERROR', 'Invalid student id')
     }
 
-    const student = await getStudentById(ctx.supabase, id)
+    const student = await getStudentDetailById(ctx.supabase, id)
     if (!student) throw new ApiHttpError(404, 'NOT_FOUND', 'Student not found')
 
-    if (!isStaff(ctx.role) && student.user_id !== ctx.user.id) {
-      throw new ApiHttpError(403, 'FORBIDDEN', 'Cannot view this student')
+    let appliedToCallerProject = false
+    if (ctx.role === 'company') {
+      const companyId = await getCallerCompanyId(ctx.supabase, ctx.profileId)
+      if (companyId) {
+        appliedToCallerProject = await companyHasApplicant(
+          ctx.supabase,
+          id,
+          companyId
+        )
+      }
     }
 
-    return jsonOk(student)
+    const access = assertCanViewStudent({
+      role: ctx.role,
+      profileId: ctx.profileId,
+      studentProfileId: student.profileId,
+      appliedToCallerProject,
+    })
+
+    return jsonData(shapeStudentForViewer(student, access))
   } catch (error) {
     return handleRouteError(error)
   }
@@ -41,16 +63,18 @@ export async function PUT(request: Request, context: RouteContext) {
       throw new ApiHttpError(400, 'VALIDATION_ERROR', 'Invalid student id')
     }
 
-    const existing = await getStudentById(ctx.supabase, id)
+    const existing = await getStudentDetailById(ctx.supabase, id)
     if (!existing) throw new ApiHttpError(404, 'NOT_FOUND', 'Student not found')
 
-    if (ctx.role !== 'admin' && existing.user_id !== ctx.user.id) {
-      throw new ApiHttpError(403, 'FORBIDDEN', 'Cannot update this student')
-    }
+    assertCanUpdateStudent({
+      role: ctx.role,
+      profileId: ctx.profileId,
+      studentProfileId: existing.profileId,
+    })
 
     const body = parseUpdateStudent(await parseJsonBody(request))
     const student = await updateStudent(ctx.supabase, id, body)
-    return jsonOk(student)
+    return jsonData(student)
   } catch (error) {
     return handleRouteError(error)
   }

@@ -5,10 +5,12 @@ import {
   normalizeWeights,
   ValidationError,
 } from '@/lib/validation'
-import { parseCreateStudent } from '@/lib/students/parse'
 import { parseCreateOpportunity } from '@/lib/opportunities/parse'
+import { normalizeCatalogLabel } from '@/lib/catalogs/normalize'
+import { normalizeProjectWeights } from '@/lib/validation/domain'
+import { DEFAULT_PROJECT_WEIGHTS } from '@/types/domain'
 
-describe('validation', () => {
+describe('validation (legacy helpers)', () => {
   it('requires name and valid email', () => {
     expect(assertRequiredName(' Aino ')).toBe('Aino')
     expect(assertEmail('Aino@Students.oamk.fi')).toBe(
@@ -17,7 +19,7 @@ describe('validation', () => {
     expect(() => assertEmail('nope')).toThrow(ValidationError)
   })
 
-  it('requires weights to sum to 1', () => {
+  it('requires legacy weights to sum to 1', () => {
     expect(() =>
       normalizeWeights({
         courses: 0.5,
@@ -30,19 +32,22 @@ describe('validation', () => {
   })
 })
 
-describe('request parsers', () => {
-  it('parses create student payload', () => {
-    const parsed = parseCreateStudent({
-      name: 'Aino Virtanen',
-      email: 'aino@students.oamk.fi',
-      credits: 120,
-      skills: ['React', 'React'],
-      project_preferences: ['project'],
-    })
-    expect(parsed.skills).toEqual(['React'])
-    expect(parsed.language).toBe('FI')
+describe('catalog / project validation', () => {
+  it('normalizes skill labels', () => {
+    expect(normalizeCatalogLabel('SQL  Server')).toBe('sql server')
   })
 
+  it('requires project weights to sum to 100', () => {
+    expect(normalizeProjectWeights(DEFAULT_PROJECT_WEIGHTS)).toEqual(
+      DEFAULT_PROJECT_WEIGHTS
+    )
+    expect(() =>
+      normalizeProjectWeights({ ...DEFAULT_PROJECT_WEIGHTS, language: 0 })
+    ).toThrow(ValidationError)
+  })
+})
+
+describe('legacy opportunity parser', () => {
   it('parses create opportunity payload', () => {
     const parsed = parseCreateOpportunity({
       name: 'Portal',

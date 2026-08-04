@@ -11,7 +11,7 @@ Tähän listataan **vain** Venlan myöhemmät UI-tehtävät. Älä toteuta näit
 |----|---------|--------|
 | VENLA-UI-01 | Opiskelijaprofiilin lomake | degreeProgramme, department, studyCredits, availability, preferredProjectTypes, kurssit/taidot/kiinnostukset |
 | VENLA-UI-02 | Projektin luonti- ja muokkauslomake | `projectType`: `company_project` \| `internship`; ei opinnäytetyötä MVP:ssä |
-| VENLA-UI-03 | Kurssihaku | Katalogi `GET /api/courses` (kun reitti on migrattu) |
+| VENLA-UI-03 | Kurssihaku | Backend valmis: `GET /api/courses?search=` (koodi, name_fi, name_en, department). Tee vain UI-komponentti. |
 | VENLA-UI-04 | Painotusten säätönäkymä | `ProjectWeights` summa = 100; näytä kriteerit opiskelijalle vain luettavana tarvittaessa |
 | VENLA-UI-05 | Matching-tuloksen kortti | Opiskelija: vain oma tulos + selitys; ei muiden sijoituksia |
 | VENLA-UI-06 | Top 3 -näkymä yritykselle ja opettajalle | Ei opiskelijalle; company / teacher / admin |
@@ -26,7 +26,8 @@ Tähän listataan **vain** Venlan myöhemmät UI-tehtävät. Älä toteuta näit
 - Domain: `types/domain.ts`
 - API: `docs/API.md` — vastaus `{ data, meta }`, virhe `{ error: { code, message, details } }`
 - Skeema (target): `docs/SCHEMA.md`
-- Live legacy API (kunnes migraatio): `types/legacy.ts`, `/api/opportunities`
+- Projects-model CRUD (students/courses/projects/applications): live `/api/*`
+- Legacy opportunities surface still present for older demos: `types/legacy.ts`, `/api/opportunities`
 
 ### Yksityisyys (UI:ssa pakollista)
 

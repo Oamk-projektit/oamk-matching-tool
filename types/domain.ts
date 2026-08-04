@@ -149,6 +149,20 @@ export interface Course {
   active: boolean
 }
 
+export type CourseCompletionStatus = 'planned' | 'in_progress' | 'completed'
+
+/** Student ↔ course link with optional completion metadata. */
+export interface StudentCourse {
+  id: string
+  studentId: string
+  courseId: string
+  completionStatus: CourseCompletionStatus
+  completedAt: string | null
+  grade: string | null
+  verified: boolean
+  createdAt: string
+}
+
 export interface Skill {
   id: string
   nameFi: string
