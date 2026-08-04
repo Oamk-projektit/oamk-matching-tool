@@ -60,14 +60,14 @@ export function I18nProvider({
   initialLocale?: Locale
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale)
-  const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
     const stored = readStoredLocale()
-    setLocaleState(stored)
     document.documentElement.lang = stored
-    setHydrated(true)
-  }, [])
+    if (stored === initialLocale) return
+    const id = window.setTimeout(() => setLocaleState(stored), 0)
+    return () => window.clearTimeout(id)
+  }, [initialLocale])
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next)
@@ -86,11 +86,6 @@ export function I18nProvider({
     () => ({ locale, messages, setLocale, t }),
     [locale, messages, setLocale, t]
   )
-
-  // Avoid flashing wrong locale labels before storage is read
-  if (!hydrated && typeof window !== 'undefined') {
-    // still render with initialLocale (fi) — fine as default
-  }
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }

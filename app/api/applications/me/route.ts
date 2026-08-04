@@ -1,11 +1,13 @@
 import {
   ApiHttpError,
+  getCallerStudentId,
   handleRouteError,
   requireAuth,
 } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
-import { listMyApplications } from '@/lib/applications/service'
+import { jsonData } from '@/lib/api/response'
+import { listStudentApplications } from '@/lib/applications/service'
 
+/** Convenience: own applications for the authenticated student. */
 export async function GET() {
   try {
     const ctx = await requireAuth()
@@ -17,19 +19,13 @@ export async function GET() {
       )
     }
 
-    const { data: student, error } = await ctx.supabase
-      .from('students')
-      .select('id')
-      .eq('user_id', ctx.user.id)
-      .maybeSingle()
-
-    if (error) throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
-    if (!student) {
-      throw new ApiHttpError(404, 'NOT_FOUND', 'Student profile not found')
+    const studentId = await getCallerStudentId(ctx.supabase, ctx.profileId)
+    if (!studentId) {
+      return jsonData([], { count: 0 })
     }
 
-    const data = await listMyApplications(ctx.supabase, student.id)
-    return jsonOk({ data, meta: { count: data.length } })
+    const data = await listStudentApplications(ctx.supabase, studentId)
+    return jsonData(data, { count: data.length })
   } catch (error) {
     return handleRouteError(error)
   }

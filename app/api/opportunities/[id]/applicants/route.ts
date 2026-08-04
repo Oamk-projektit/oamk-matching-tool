@@ -3,13 +3,15 @@ import {
   handleRouteError,
   requireAuth,
 } from '@/lib/api/auth'
-import { jsonOk } from '@/lib/api/response'
 import { isUuid } from '@/lib/validation'
-import { listApplicantsForOpportunity } from '@/lib/applications/service'
 import { getOpportunityById } from '@/lib/opportunities/service'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
+/**
+ * Legacy opportunities applicants route.
+ * Prefer `GET /api/projects/:id/applicants` after the projects-model migration.
+ */
 export async function GET(_request: Request, context: RouteContext) {
   try {
     const ctx = await requireAuth()
@@ -30,8 +32,11 @@ export async function GET(_request: Request, context: RouteContext) {
       )
     }
 
-    const data = await listApplicantsForOpportunity(ctx.supabase, id)
-    return jsonOk({ data, meta: { count: data.length } })
+    throw new ApiHttpError(
+      404,
+      'NOT_FOUND',
+      'Legacy opportunities applicants API retired — use GET /api/projects/:id/applicants'
+    )
   } catch (error) {
     return handleRouteError(error)
   }
