@@ -1,7 +1,6 @@
 /**
- * ============================================================================
- * TOMMI — Run student + teacher API flows (#148 regression)
- * ============================================================================
+ * Run student + company + teacher API flows.
+ *
  *   npm run smoke:flows
  */
 
@@ -27,6 +26,7 @@ function run(script) {
 
 async function main() {
   await run('flow-student.mjs')
+  await run('flow-company.mjs')
   await run('flow-teacher.mjs')
   console.log('All API flows passed.')
 }

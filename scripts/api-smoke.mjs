@@ -1,15 +1,8 @@
 /**
- * ============================================================================
- * TOMMI — Basic health smoke (issue #140)
- * ============================================================================
+ * Basic health + auth smoke against the projects-model API.
  *
- * Usage (dev server running, .env.local present):
  *   npm run smoke
- *
- * For full paths use:
- *   npm run smoke:student
- *   npm run smoke:teacher
- *   npm run smoke:flows
+ * Requires: npm run dev, .env.local, seed applied
  */
 
 import {
@@ -21,7 +14,7 @@ import {
 } from './lib/smoke-helpers.mjs'
 
 const email = process.env.SMOKE_EMAIL ?? 'aino.virtanen@students.oamk.fi'
-const password = process.env.SMOKE_PASSWORD ?? 'Passw0rd!'
+const password = process.env.SMOKE_PASSWORD ?? 'LocalDemoOnly!1'
 
 async function main() {
   const baseUrl = getBaseUrl()
@@ -29,7 +22,7 @@ async function main() {
 
   const health = await api(baseUrl, '/api/health')
   assertOk('GET /api/health', health, [200])
-  if (health.json?.status !== 'ok') {
+  if (health.json?.data?.status !== 'ok') {
     throw new Error('health status not ok')
   }
   logOk('GET /api/health')
@@ -39,11 +32,19 @@ async function main() {
 
   const me = await api(baseUrl, '/api/me', { token })
   assertOk('GET /api/me', me)
-  logOk('GET /api/me', `${me.json.role} ${me.json.student_id ?? ''}`)
+  logOk(
+    'GET /api/me',
+    `${me.json?.data?.profile?.role} studentId=${me.json?.data?.studentId ?? ''}`
+  )
 
-  const opps = await api(baseUrl, '/api/opportunities', { token })
-  assertOk('GET /api/opportunities', opps)
-  logOk('GET /api/opportunities', `count=${opps.json?.meta?.count ?? '?'}`)
+  const projects = await api(baseUrl, '/api/projects?status=published', {
+    token,
+  })
+  assertOk('GET /api/projects', projects)
+  logOk(
+    'GET /api/projects',
+    `count=${projects.json?.meta?.count ?? projects.json?.data?.length ?? '?'}`
+  )
 
   console.log('Smoke passed. Run npm run smoke:flows for full paths.')
 }

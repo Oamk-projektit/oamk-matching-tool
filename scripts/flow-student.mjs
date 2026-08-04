@@ -1,12 +1,9 @@
 /**
- * ============================================================================
- * TOMMI / SHARED testing — Student API usage path (#144 backend)
- * ============================================================================
- * Verifies the student journey against live API (no UI):
- * login → me → opportunities → matching → apply → my applications → notifications
+ * Student API journey (projects model):
+ * login → me → projects → matching → apply → my applications → notifications
+ * Also asserts Top 3 is forbidden for students.
  *
  *   npm run smoke:student
- * Requires: npm run dev, .env.local, seed data
  */
 
 import {
@@ -19,8 +16,8 @@ import {
 
 const email =
   process.env.SMOKE_STUDENT_EMAIL ?? 'aino.virtanen@students.oamk.fi'
-const password = process.env.SMOKE_PASSWORD ?? 'Passw0rd!'
-const campusPortalId = 'c0000000-0000-4000-8000-000000000001'
+const password = process.env.SMOKE_PASSWORD ?? 'LocalDemoOnly!1'
+const campusPortalId = '90000000-0000-4000-8000-000000000001'
 
 async function main() {
   const baseUrl = getBaseUrl()
@@ -35,39 +32,51 @@ async function main() {
 
   const me = await api(baseUrl, '/api/me', { token })
   assertOk('GET /api/me', me)
-  if (me.json.role !== 'student' && me.json.role !== 'admin') {
-    throw new Error(`Expected student role, got ${me.json.role}`)
+  const role = me.json?.data?.profile?.role
+  if (role !== 'student' && role !== 'admin') {
+    throw new Error(`Expected student role, got ${role}`)
   }
-  logOk('me', `role=${me.json.role} student_id=${me.json.student_id}`)
+  let studentId = me.json?.data?.studentId
+  logOk('me', `role=${role} studentId=${studentId}`)
 
-  let studentId = me.json.student_id
   if (!studentId) {
     const created = await api(baseUrl, '/api/students', {
       token,
       method: 'POST',
       body: {
-        name: 'Smoke Student',
-        email,
-        degree_program: 'Tietotekniikka',
-        credits: 100,
-        language: 'FI',
-        skills: ['React'],
-        completed_courses: ['Web-ohjelmointi'],
+        degreeProgramme: 'Tietotekniikka',
+        department: 'ICT',
+        studyCredits: 100,
+        preferredProjectTypes: ['company_project'],
       },
     })
     assertOk('POST /api/students', created, [201, 409])
     const again = await api(baseUrl, '/api/me', { token })
     assertOk('GET /api/me (retry)', again)
-    studentId = again.json.student_id
-    if (!studentId) throw new Error('No student_id after create')
+    studentId = again.json?.data?.studentId
+    if (!studentId) throw new Error('No studentId after create')
   }
 
-  const opps = await api(baseUrl, '/api/opportunities', { token })
-  assertOk('GET /api/opportunities', opps)
-  if (!opps.json?.data?.length) {
-    throw new Error('No opportunities — run seed.sql')
+  const projects = await api(baseUrl, '/api/projects?status=published', {
+    token,
+  })
+  assertOk('GET /api/projects', projects)
+  if (!projects.json?.data?.length) {
+    throw new Error('No published projects — run supabase db reset / seed')
   }
-  logOk('list opportunities', `count=${opps.json.meta.count}`)
+  logOk('list projects', `count=${projects.json.meta?.count}`)
+
+  const topForbidden = await api(
+    baseUrl,
+    `/api/projects/${campusPortalId}/top-candidates`,
+    { token }
+  )
+  if (topForbidden.status !== 403) {
+    throw new Error(
+      `Student must not see Top 3 (expected 403, got ${topForbidden.status})`
+    )
+  }
+  logOk('Top 3 forbidden for student')
 
   const run = await api(baseUrl, `/api/matches/run/${studentId}`, {
     token,
@@ -75,43 +84,47 @@ async function main() {
     body: { locale: 'fi' },
   })
   assertOk('POST /api/matches/run/:id', run)
-  logOk('run matching', `count=${run.json.meta.count}`)
+  logOk('run matching', `count=${run.json?.meta?.count ?? run.json?.data?.length}`)
 
-  const matches = await api(
-    baseUrl,
-    `/api/matches/${studentId}?limit=3`,
-    { token }
-  )
+  const matches = await api(baseUrl, `/api/matches/${studentId}?limit=3`, {
+    token,
+  })
   assertOk('GET /api/matches/:id', matches)
   if (!matches.json?.data?.length) {
     throw new Error('Expected match results')
   }
+  const first = matches.json.data[0]
+  if (first && ('rank' in first || 'peerRank' in first)) {
+    throw new Error('Student match payload must not include rank')
+  }
   logOk(
-    'top matches',
-    matches.json.data.map((m) => m.score).join(',')
+    'own matches',
+    matches.json.data.map((m) => m.totalScore ?? m.score).join(',')
   )
 
   const apply = await api(baseUrl, '/api/applications', {
     token,
     method: 'POST',
     body: {
-      opportunity_id: campusPortalId,
+      projectId: campusPortalId,
       message: 'Smoke test application',
     },
   })
-  // Seed may already contain this pair
   assertOk('POST /api/applications', apply, [201, 409])
-  logOk('apply', `status=${apply.status}`)
+  logOk('apply')
 
   const mine = await api(baseUrl, '/api/applications/me', { token })
   assertOk('GET /api/applications/me', mine)
-  logOk('my applications', `count=${mine.json.meta.count}`)
+  logOk('my applications', `count=${mine.json?.meta?.count ?? mine.json?.data?.length}`)
 
   const notes = await api(baseUrl, '/api/notifications', { token })
   assertOk('GET /api/notifications', notes)
-  logOk('notifications', `unread=${notes.json.meta.unread_count}`)
+  logOk(
+    'notifications',
+    `unread=${notes.json?.meta?.unreadCount ?? notes.json?.meta?.unread_count ?? 0}`
+  )
 
-  console.log('Student API flow passed (#144 backend).')
+  console.log('Student flow passed.')
 }
 
 main().catch((err) => {
