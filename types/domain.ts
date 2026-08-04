@@ -106,6 +106,26 @@ export interface Profile {
   updatedAt: string
 }
 
+export type CompanyUserRole = 'owner' | 'member'
+
+export interface Company {
+  id: string
+  name: string
+  businessId: string | null
+  description: string | null
+  website: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CompanyUser {
+  id: string
+  companyId: string
+  profileId: string
+  companyRole: CompanyUserRole
+  createdAt: string
+}
+
 export interface Student {
   id: string
   profileId: string
@@ -233,5 +253,16 @@ export interface Notification {
   title: string
   body: string
   readAt: string | null
+  createdAt: string
+}
+
+/** Append-only audit row for sensitive actions. */
+export interface AuditEvent {
+  id: string
+  actorProfileId: string | null
+  action: string
+  entityType: string
+  entityId: string
+  payload: Record<string, unknown>
   createdAt: string
 }

@@ -1,41 +1,54 @@
-# Database Schema
+# Database Schema (canonical target)
 
-> **Status:** This document describes the **currently deployed** Supabase schema
-> (`opportunities`, teacher-owned rows, snake_case API legacy).
->
-> Canonical target models are locked in `types/domain.ts`, `types/api.ts`, and
-> `docs/API.md` (`projects`, `company` role, applications statuses, selection
-> decisions, weights summing to 100). A schema migration will rewrite this file.
+<!--
+TOMMI — Locked with types/domain.ts and docs/API.md.
+Migrations are intentionally NOT applied in this documentation phase.
+-->
 
-Canonical Supabase schema for the OAMK Matching Tool (runtime).  
-Target contract: `docs/API.md` and `types/domain.ts`. Legacy runtime types: `types/legacy.ts`.
+Target Supabase schema for the OAMK Matching Tool.  
+Aligned with `types/domain.ts` and `docs/API.md`.
 
-Migrations live in `supabase/migrations/`. Seed data: `supabase/seed.sql`.
+| Layer | Status |
+|-------|--------|
+| Domain + API contract | Locked |
+| This SCHEMA document | Locked (target) |
+| SQL migrations | **Not in this phase** |
+| Live DB | Still on legacy `opportunities` (`types/legacy.ts`) |
 
----
-
-## Design decisions (vs Sprint 1 draft)
-
-| Old (Sprint 1) | New (MVP contract) | Reason |
-|----------------|--------------------|--------|
-| `projects` + `project_skills` | `opportunities` + related tables | Unified project/internship model |
-| `skills` / `interests` | `student_skills` / `student_interests` | Clear ownership naming |
-| — | `student_courses`, `student_project_preferences` | Matching inputs from #101 |
-| — | `applications` | Student applications (#126 / #133) |
-| `matches.score` float 0–1 | integer 0–100 + explanation fields | Shared matching contract (#103) |
-| `roles` table | dropped; use `profiles.role` | Single source of truth |
-| `timestamp` | `timestamptz` + `updated_at` | Consistent UTC auditing |
+DB columns use **snake_case**. JSON/API uses **camelCase**.
 
 ---
 
-## Enums (check constraints)
+## Naming decisions
+
+| Decision | Value |
+|----------|--------|
+| Canonical project table | `projects` |
+| Type discriminator | `project_type` |
+| MVP types | `company_project`, `internship` |
+| Thesis | Out of first MVP |
+| Applications | Required (`applications`) |
+| Role source | `profiles.role` |
+| Roles | `student`, `company`, `teacher`, `admin` |
+| Final student choice | Company via `selection_decisions` |
+| Matching | Scores only — never auto-selects |
+| Top 3 visibility | company, teacher, admin |
+| Student match visibility | Own result only (+ criteria/weights) |
+
+---
+
+## Enums (check constraints / enums)
 
 | Name | Values |
 |------|--------|
-| Role | `student`, `teacher`, `admin` |
-| Language | `FI`, `EN` |
-| Opportunity type | `project`, `internship` |
-| Application status | `pending`, `accepted`, `rejected`, `withdrawn` |
+| Role | `student`, `company`, `teacher`, `admin` |
+| Preferred language | `fi`, `en` |
+| Project type | `company_project`, `internship` |
+| Project status | `draft`, `published`, `closed`, `archived` |
+| Work mode | `onsite`, `hybrid`, `remote` |
+| Application status | `submitted`, `under_review`, `shortlisted`, `selected`, `not_selected`, `withdrawn` |
+| Selection decision | `selected`, `not_selected` |
+| Company user role | `owner`, `member` |
 
 ---
 
@@ -43,30 +56,93 @@ Migrations live in `supabase/migrations/`. Seed data: `supabase/seed.sql`.
 
 ### `profiles`
 
-Auth-linked role metadata. One row per auth user.
+Auth-linked identity. One row per auth user. **`role` is the canonical role source.**
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| id | uuid | PK, `gen_random_uuid()` | Row id |
+| id | uuid | PK, default `gen_random_uuid()` | Profile id (= domain `Profile.id`) |
 | user_id | uuid | UNIQUE, NOT NULL, FK → `auth.users(id)` ON DELETE CASCADE | Auth user |
-| role | text | NOT NULL, DEFAULT `'student'`, CHECK role | App role |
-| created_at | timestamptz | NOT NULL, DEFAULT `now()` | Created |
-| updated_at | timestamptz | NOT NULL, DEFAULT `now()` | Updated |
+| role | text | NOT NULL, CHECK role | App role |
+| display_name | text | NOT NULL | Display name |
+| email | text | NOT NULL | Contact email |
+| preferred_language | text | NOT NULL, DEFAULT `'fi'`, CHECK | UI/content language |
+| created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+| updated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+
+### `companies`
+
+Organization that owns projects and makes final selections.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | uuid | PK | Company id |
+| name | text | NOT NULL | Legal / display name |
+| business_id | text | nullable | Y-tunnus or equivalent |
+| description | text | nullable | |
+| website | text | nullable | |
+| created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+| updated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+
+### `company_users`
+
+Links profiles with role `company` to a company.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | uuid | PK | |
+| company_id | uuid | NOT NULL, FK → `companies` CASCADE | |
+| profile_id | uuid | NOT NULL, FK → `profiles` CASCADE | |
+| company_role | text | NOT NULL, DEFAULT `'member'`, CHECK | `owner` \| `member` |
+| created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+
+UNIQUE `(company_id, profile_id)`.
 
 ### `students`
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| id | uuid | PK | Student id |
-| user_id | uuid | UNIQUE, NOT NULL, FK → `auth.users` | Owner |
-| name | text | NOT NULL | Display name |
-| email | text | NOT NULL | Contact email |
-| degree_program | text | | e.g. Tietotekniikka |
-| credits | integer | NOT NULL, DEFAULT 0, CHECK ≥ 0 | Completed credits |
-| language | text | NOT NULL, DEFAULT `'FI'`, CHECK | Preferred language |
-| availability | text | | e.g. Full-time |
+| id | uuid | PK | |
+| profile_id | uuid | UNIQUE, NOT NULL, FK → `profiles` CASCADE | Owner profile |
+| degree_programme | text | nullable | |
+| department | text | nullable | |
+| study_credits | integer | NOT NULL, DEFAULT 0, CHECK ≥ 0 | |
+| availability_start | date | nullable | |
+| availability_end | date | nullable | |
+| preferred_project_types | text[] | NOT NULL, DEFAULT `'{}'` | `company_project` / `internship` |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 | updated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+
+### `courses`
+
+Shared course catalog.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | uuid | PK | |
+| code | text | UNIQUE, NOT NULL | e.g. `TT00AA11` |
+| name_fi | text | NOT NULL | |
+| name_en | text | NOT NULL | |
+| credits | integer | NOT NULL, CHECK ≥ 0 | |
+| department | text | nullable | |
+| active | boolean | NOT NULL, DEFAULT true | |
+
+### `skills`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PK |
+| name_fi | text | NOT NULL |
+| name_en | text | NOT NULL |
+| normalized_name | text | UNIQUE, NOT NULL |
+
+### `interests`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PK |
+| name_fi | text | NOT NULL |
+| name_en | text | NOT NULL |
+| normalized_name | text | UNIQUE, NOT NULL |
 
 ### `student_courses`
 
@@ -74,10 +150,10 @@ Auth-linked role metadata. One row per auth user.
 |--------|------|-------------|
 | id | uuid | PK |
 | student_id | uuid | NOT NULL, FK → `students` CASCADE |
-| course_name | text | NOT NULL |
+| course_id | uuid | NOT NULL, FK → `courses` CASCADE |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` |
 
-UNIQUE `(student_id, course_name)`.
+UNIQUE `(student_id, course_id)`.
 
 ### `student_skills`
 
@@ -85,11 +161,11 @@ UNIQUE `(student_id, course_name)`.
 |--------|------|-------------|
 | id | uuid | PK |
 | student_id | uuid | NOT NULL, FK → `students` CASCADE |
-| skill_name | text | NOT NULL |
-| level | text | nullable skill level label |
+| skill_id | uuid | NOT NULL, FK → `skills` CASCADE |
+| level | text | nullable |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` |
 
-UNIQUE `(student_id, skill_name)`.
+UNIQUE `(student_id, skill_id)`.
 
 ### `student_interests`
 
@@ -97,114 +173,156 @@ UNIQUE `(student_id, skill_name)`.
 |--------|------|-------------|
 | id | uuid | PK |
 | student_id | uuid | NOT NULL, FK → `students` CASCADE |
-| interest_name | text | NOT NULL |
+| interest_id | uuid | NOT NULL, FK → `interests` CASCADE |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` |
 
-UNIQUE `(student_id, interest_name)`.
+UNIQUE `(student_id, interest_id)`.
 
-### `student_project_preferences`
+### `projects`
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| id | uuid | PK |
-| student_id | uuid | NOT NULL, FK → `students` CASCADE |
-| preference | text | NOT NULL, CHECK `project` \| `internship` |
-| created_at | timestamptz | NOT NULL, DEFAULT `now()` |
-
-UNIQUE `(student_id, preference)`.
-
-### `opportunities`
+Canonical table for company projects and internships.
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | uuid | PK | |
-| teacher_id | uuid | NOT NULL, FK → `auth.users` | Owner teacher |
-| name | text | NOT NULL | |
-| description | text | | |
-| type | text | NOT NULL, CHECK project/internship | |
-| minimum_credits | integer | NOT NULL, DEFAULT 0, CHECK ≥ 0 | |
-| required_language | text | NOT NULL, DEFAULT `'FI'` | |
-| schedule | text | | Full-time / Flexible / … |
-| duration | text | | e.g. 3 months |
-| student_slots | integer | NOT NULL, DEFAULT 1, CHECK ≥ 1 | |
+| company_id | uuid | NOT NULL, FK → `companies` | Owner company |
+| title | text | NOT NULL | |
+| description | text | NOT NULL | |
+| project_type | text | NOT NULL, CHECK | `company_project` \| `internship` |
+| status | text | NOT NULL, DEFAULT `'draft'`, CHECK | |
+| positions | integer | NOT NULL, DEFAULT 1, CHECK ≥ 1 | Open seats |
+| application_start | date | nullable | |
+| application_deadline | date | nullable | |
+| project_start | date | nullable | |
+| project_end | date | nullable | |
+| work_mode | text | NOT NULL, DEFAULT `'hybrid'`, CHECK | |
+| location | text | nullable | |
+| remote_allowed | boolean | NOT NULL, DEFAULT false | |
+| minimum_study_credits | integer | NOT NULL, DEFAULT 0, CHECK ≥ 0 | |
+| required_language | text | NOT NULL, DEFAULT `'fi'`, CHECK | |
+| department | text | nullable | |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 | updated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 
-### `opportunity_required_courses`
+### `project_required_courses`
 
-UNIQUE `(opportunity_id, course_name)`.
+UNIQUE `(project_id, course_id)`. FK → `projects`, `courses` CASCADE.
 
-### `opportunity_recommended_courses`
+### `project_recommended_courses`
 
-UNIQUE `(opportunity_id, course_name)`.
+UNIQUE `(project_id, course_id)`. FK → `projects`, `courses` CASCADE.
 
-### `opportunity_required_skills`
+### `project_required_skills`
 
-| Extra | `level` text nullable |
+UNIQUE `(project_id, skill_id)`. FK → `projects`, `skills` CASCADE. Optional `level` text.
 
-UNIQUE `(opportunity_id, skill_name)`.
+### `project_recommended_skills`
 
-### `opportunity_weights`
+UNIQUE `(project_id, skill_id)`. FK → `projects`, `skills` CASCADE.
 
-One row per opportunity (1:1).
+### `project_interests` (optional join)
+
+UNIQUE `(project_id, interest_id)`. Links project to catalog interests for matching.
+
+### `project_weights`
+
+One row per project (1:1). Integer percentages; **must sum to 100**.
 
 | Column | Type | Constraints |
 |--------|------|-------------|
 | id | uuid | PK |
-| opportunity_id | uuid | UNIQUE, NOT NULL, FK CASCADE |
-| weight_courses | numeric(4,3) | NOT NULL, DEFAULT 0.300 |
-| weight_skills | numeric(4,3) | NOT NULL, DEFAULT 0.400 |
-| weight_language | numeric(4,3) | NOT NULL, DEFAULT 0.100 |
-| weight_schedule | numeric(4,3) | NOT NULL, DEFAULT 0.100 |
-| weight_credits | numeric(4,3) | NOT NULL, DEFAULT 0.100 |
+| project_id | uuid | UNIQUE, NOT NULL, FK → `projects` CASCADE |
+| study_credits | integer | NOT NULL, DEFAULT 10, CHECK ≥ 0 |
+| required_courses | integer | NOT NULL, DEFAULT 20, CHECK ≥ 0 |
+| recommended_courses | integer | NOT NULL, DEFAULT 10, CHECK ≥ 0 |
+| skills | integer | NOT NULL, DEFAULT 25, CHECK ≥ 0 |
+| language | integer | NOT NULL, DEFAULT 10, CHECK ≥ 0 |
+| availability | integer | NOT NULL, DEFAULT 10, CHECK ≥ 0 |
+| interests | integer | NOT NULL, DEFAULT 10, CHECK ≥ 0 |
+| degree_programme | integer | NOT NULL, DEFAULT 5, CHECK ≥ 0 |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` |
 | updated_at | timestamptz | NOT NULL, DEFAULT `now()` |
 
-CHECK: weights ≥ 0 and sum ≈ 1.000 (tolerance via check on rounded sum = 1.000).
+CHECK: sum of weight columns = **100**.
 
 ### `applications`
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | uuid | PK | |
+| project_id | uuid | NOT NULL, FK → `projects` CASCADE | |
 | student_id | uuid | NOT NULL, FK → `students` CASCADE | |
-| opportunity_id | uuid | NOT NULL, FK → `opportunities` CASCADE | |
-| status | text | NOT NULL, DEFAULT `'pending'` | Application status |
-| message | text | | Optional cover note |
-| created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+| status | text | NOT NULL, DEFAULT `'submitted'`, CHECK | Application status |
+| message | text | nullable | Cover note |
+| submitted_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 | updated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 
-UNIQUE `(student_id, opportunity_id)`.
+UNIQUE `(project_id, student_id)`.
 
 ### `matches`
+
+Deterministic compatibility result. Does **not** imply selection.
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | uuid | PK | |
+| project_id | uuid | NOT NULL, FK → `projects` CASCADE | |
 | student_id | uuid | NOT NULL, FK → `students` CASCADE | |
-| opportunity_id | uuid | NOT NULL, FK → `opportunities` CASCADE | |
-| score | integer | NOT NULL, CHECK 0–100 | Compatibility |
+| total_score | integer | NOT NULL, CHECK 0–100 | |
+| score_breakdown | jsonb | NOT NULL | Per-criterion contributions |
 | matched_courses | text[] | NOT NULL, DEFAULT `'{}'` | |
-| missing_courses | text[] | NOT NULL, DEFAULT `'{}'` | |
+| missing_required_courses | text[] | NOT NULL, DEFAULT `'{}'` | |
 | matched_skills | text[] | NOT NULL, DEFAULT `'{}'` | |
-| missing_skills | text[] | NOT NULL, DEFAULT `'{}'` | |
-| explanation | text | NOT NULL, DEFAULT `''` | Human-readable |
-| recommendation | text | NOT NULL, DEFAULT `''` | Next step advice |
+| missing_required_skills | text[] | NOT NULL, DEFAULT `'{}'` | |
+| explanation | text | NOT NULL, DEFAULT `''` | |
+| weights_snapshot | jsonb | NOT NULL | Copy of weights at calculation time |
+| calculated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+
+UNIQUE `(project_id, student_id)`.
+
+### `selection_decisions`
+
+Company’s final student choice. Written only by company owner/member or admin.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | uuid | PK | |
+| project_id | uuid | NOT NULL, FK → `projects` CASCADE | |
+| student_id | uuid | NOT NULL, FK → `students` CASCADE | |
+| application_id | uuid | NOT NULL, FK → `applications` CASCADE | |
+| decision | text | NOT NULL, CHECK | `selected` \| `not_selected` |
+| decided_by | uuid | NOT NULL, FK → `profiles` | Actor profile |
+| reason | text | nullable | |
+| decided_at | timestamptz | NOT NULL, DEFAULT `now()` | |
+
+UNIQUE `(project_id, application_id)`.
+
+### `notifications`
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | uuid | PK | |
+| profile_id | uuid | NOT NULL, FK → `profiles` CASCADE | Recipient |
+| type | text | NOT NULL | Notification type |
+| language | text | NOT NULL, CHECK `fi`\|`en` | Body language |
+| title | text | NOT NULL | |
+| body | text | NOT NULL | |
+| read_at | timestamptz | nullable | Null = unread |
 | created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
-| updated_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 
-UNIQUE `(student_id, opportunity_id)`.
+### `audit_events`
 
-### `notifications` (MVP storage only)
+Append-only audit trail for sensitive actions (selection, status changes, weight changes).
 
-| Column | Type | Constraints |
-|--------|------|-------------|
-| id | uuid | PK |
-| recipient_user_id | uuid | NOT NULL, FK → `auth.users` CASCADE |
-| type | text | NOT NULL |
-| content | text | NOT NULL |
-| read | boolean | NOT NULL, DEFAULT false |
-| created_at | timestamptz | NOT NULL, DEFAULT `now()` |
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | uuid | PK | |
+| actor_profile_id | uuid | nullable, FK → `profiles` | Null if system |
+| action | text | NOT NULL | e.g. `selection.created` |
+| entity_type | text | NOT NULL | e.g. `project`, `application` |
+| entity_id | uuid | NOT NULL | |
+| payload | jsonb | NOT NULL, DEFAULT `'{}'` | |
+| created_at | timestamptz | NOT NULL, DEFAULT `now()` | |
 
 ---
 
@@ -212,100 +330,72 @@ UNIQUE `(student_id, opportunity_id)`.
 
 ```text
 auth.users 1──1 profiles
-auth.users 1──1 students
-auth.users 1──* opportunities (as teacher_id)
-
-students 1──* student_courses
-students 1──* student_skills
-students 1──* student_interests
-students 1──* student_project_preferences
-students 1──* applications
-students 1──* matches
-
-opportunities 1──* opportunity_required_courses
-opportunities 1──* opportunity_recommended_courses
-opportunities 1──* opportunity_required_skills
-opportunities 1──1 opportunity_weights
-opportunities 1──* applications
-opportunities 1──* matches
+profiles 1──1 students
+profiles *──* companies          via company_users
+companies 1──* projects
+projects 1──1 project_weights
+projects 1──* project_required_courses / project_recommended_courses
+projects 1──* project_required_skills / project_recommended_skills
+projects 1──* applications
+projects 1──* matches
+projects 1──* selection_decisions
+students 1──* student_courses / student_skills / student_interests
+students 1──* applications / matches
+profiles 1──* notifications
 ```
 
 ---
 
-## Indexes
+## Indexes (planned)
 
 | Index | Table | Columns |
 |-------|-------|---------|
 | `idx_profiles_user_id` | profiles | user_id |
 | `idx_profiles_role` | profiles | role |
-| `idx_students_user_id` | students | user_id |
-| `idx_students_email` | students | email |
-| `idx_student_courses_student_id` | student_courses | student_id |
-| `idx_student_skills_student_id` | student_skills | student_id |
-| `idx_student_interests_student_id` | student_interests | student_id |
-| `idx_opportunities_teacher_id` | opportunities | teacher_id |
-| `idx_opportunities_type` | opportunities | type |
+| `idx_company_users_profile_id` | company_users | profile_id |
+| `idx_company_users_company_id` | company_users | company_id |
+| `idx_students_profile_id` | students | profile_id |
+| `idx_courses_code` | courses | code |
+| `idx_skills_normalized_name` | skills | normalized_name |
+| `idx_interests_normalized_name` | interests | normalized_name |
+| `idx_projects_company_id` | projects | company_id |
+| `idx_projects_project_type` | projects | project_type |
+| `idx_projects_status` | projects | status |
+| `idx_applications_project_id` | applications | project_id |
 | `idx_applications_student_id` | applications | student_id |
-| `idx_applications_opportunity_id` | applications | opportunity_id |
 | `idx_applications_status` | applications | status |
+| `idx_matches_project_id` | matches | project_id |
 | `idx_matches_student_id` | matches | student_id |
-| `idx_matches_opportunity_id` | matches | opportunity_id |
-| `idx_matches_score` | matches | score DESC |
-| `idx_notifications_recipient` | notifications | recipient_user_id |
+| `idx_matches_total_score` | matches | total_score DESC |
+| `idx_selection_decisions_project_id` | selection_decisions | project_id |
+| `idx_notifications_profile_id` | notifications | profile_id |
+| `idx_audit_events_entity` | audit_events | entity_type, entity_id |
 
 ---
 
-## Triggers
+## RLS principles (planned)
 
-Shared function `public.set_updated_at()` sets `NEW.updated_at = now()` on UPDATE.
+RLS on all public tables. Helpers (SECURITY DEFINER): `current_user_role()`, `is_admin()`, `is_teacher()`, `is_company()`, `is_student()`, `user_company_ids()`.
 
-Applied to: `profiles`, `students`, `opportunities`, `opportunity_weights`, `applications`, `matches`.
+| Concern | Rule |
+|---------|------|
+| Profiles | Users read/update own; staff read as needed |
+| Students | Own CRUD; teacher/admin SELECT |
+| Companies / company_users | Members manage own company; teacher/admin read |
+| Projects | Published readable by authenticated; mutate by company members / admin |
+| Applications | Student inserts/reads own; company/teacher/admin read for relevant projects |
+| Matches | Student reads **own** rows only; company/teacher/admin read project matches + Top 3 |
+| Selection decisions | Company members / admin write; teacher/admin read |
+| Notifications | Recipient only |
+| Audit events | Admin read; inserts via service role / trusted API |
 
-Optional: `handle_new_user` trigger on `auth.users` inserts a default `profiles` row (`role = student`). Implemented in migrations.
-
----
-
-## Row Level Security
-
-RLS is enabled on all public tables. Helper functions (SECURITY DEFINER):
-
-| Function | Returns |
-|----------|---------|
-| `public.current_user_role()` | text role or null |
-| `public.is_admin()` | boolean |
-| `public.is_teacher()` | boolean |
-| `public.is_student()` | boolean |
-
-### Policy summary
-
-| Table | student | teacher | admin |
-|-------|---------|---------|-------|
-| profiles | read/update own | read/update own | all |
-| students | CRUD own | SELECT all | all |
-| student_* child tables | CRUD own via student | SELECT all | all |
-| opportunities | SELECT all | INSERT; UPDATE/DELETE own | all |
-| opportunity_* children | SELECT all | mutate when owns parent | all |
-| applications | INSERT own; SELECT own | SELECT for own opportunities | all |
-| matches | SELECT own | SELECT for own opportunities | all |
-| notifications | SELECT/UPDATE own | SELECT/UPDATE own | all |
-
-Service role (API server with `SUPABASE_SERVICE_ROLE_KEY`) bypasses RLS for privileged server-side operations. Prefer user-scoped clients when possible.
-
-Full SQL: `supabase/migrations/*_rls_policies.sql`.
+Service role bypasses RLS for privileged server routes.
 
 ---
 
-## Applying locally
+## Migration note
 
-```bash
-# With Supabase CLI
-supabase db reset   # applies migrations + seed.sql
-```
+Do **not** apply SQL in this documentation phase.  
+Next Tommi phase: write ordered migrations under `supabase/migrations/`, then rewrite seed and retire `types/legacy.ts` / `/api/opportunities`.
 
-Or run migration files in order in the Supabase SQL editor.
-
----
-
-## Seed data
-
-`supabase/seed.sql` inserts demo students, opportunities, applications, and sample matches for local/dev. It assumes local Auth users with fixed UUIDs (see seed file header).
+Legacy live schema (current DB) remains documented historically in git history prior to this lock; runtime still uses `opportunities` until migration.

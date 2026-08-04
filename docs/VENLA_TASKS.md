@@ -1,109 +1,59 @@
-# Venlan integraatiotehtävät
+# Venlan tehtävät (frontend)
 
-Tähän tiedostoon kirjataan Tommin tekemät väliaikaiset frontend-yhteensopivuusmuutokset ja muut Venlan hoidettavat integraatiotehtävät.
-
----
-
-## VENLA-05 — Kanoninen projects-sopimus (lukittu)
-
-Tommi lukitsi uuden sopimuksen:
-
-- `types/domain.ts`, `types/api.ts` — kanoniset mallit (camelCase, `projects`, `company`-rooli)
-- `docs/API.md`, `docs/SHARED_CONTRACT.md`, `docs/MVP_SCOPE.md`
-- `types/legacy.ts` — nykyinen live `/api/opportunities` -pinta kunnes migraatio
-
-Muutokset Venlalle:
-
-1. Älä sido uutta UI:ta `Opportunity` / `type: "project"` -malliin pitkällä aikavälillä.
-2. Target: `Project.projectType` = `company_project` \| `internship`.
-3. Top 3 / hakijoiden ranking vain company-, teacher- ja admin-näkymissä.
-4. Opiskelija: vain oma match + painot; ei muiden sijoituksia.
-5. Yritys tekee lopullisen valinnan (`SelectionDecision`); matching ei autovalitse.
-6. Kun reittimigraatio tulee, päivitä service-kerros `createSharedApiClient()`-polkuihin.
-
-Tila: sopimus lukittu; odottaa skeema- + API-migraatiota ja Venlan UI-kytkentää.
+Tommi lukitsi backend-sopimuksen (`types/domain.ts`, `types/api.ts`, `docs/API.md`, `docs/SCHEMA.md`).  
+Tähän listataan **vain** Venlan myöhemmät UI-tehtävät. Älä toteuta näitä backend-haarassa.
 
 ---
 
-## VENLA-00 — Yhdistä frontend kanoniseen API-sopimukseen
+## Frontend-tehtävät
 
-Tommi lisäsi / päivitti:
-
-- `docs/API.md`, `docs/SHARED_CONTRACT.md`, `docs/MVP_SCOPE.md`
-- `types/domain.ts`, `types/api.ts` (**SHARED**-otsikko tiedostoissa)
-- `GET /api/me`
-- `lib/shared/api-client.ts` (**SHARED**, issue #143)
-
-Syy:
-Sprintti 1:n UI käyttää vielä placeholdereita ja projektisanastoa.
-
-Poistaminen / integraatio:
-1. Luo frontend service-kerros, joka kutsuu `createSharedApiClient()` (älä fetchöi URL:eja komponenteissa).
-2. Korvaa mock-data vaiheittain API-kutsuilla.
-3. Mapaa UI-teksti "Projects" → API `projects` (väliaikaisesti legacy `opportunities`).
-4. Käytä `client.me()` roolin ja `studentId` / `companyId` lukemiseen.
-
-Tila: odottaa Venlan integraatiota; katso myös VENLA-05.
+| ID | Tehtävä | Huomio |
+|----|---------|--------|
+| VENLA-UI-01 | Opiskelijaprofiilin lomake | degreeProgramme, department, studyCredits, availability, preferredProjectTypes, kurssit/taidot/kiinnostukset |
+| VENLA-UI-02 | Projektin luonti- ja muokkauslomake | `projectType`: `company_project` \| `internship`; ei opinnäytetyötä MVP:ssä |
+| VENLA-UI-03 | Kurssihaku | Katalogi `GET /api/courses` (kun reitti on migrattu) |
+| VENLA-UI-04 | Painotusten säätönäkymä | `ProjectWeights` summa = 100; näytä kriteerit opiskelijalle vain luettavana tarvittaessa |
+| VENLA-UI-05 | Matching-tuloksen kortti | Opiskelija: vain oma tulos + selitys; ei muiden sijoituksia |
+| VENLA-UI-06 | Top 3 -näkymä yritykselle ja opettajalle | Ei opiskelijalle; company / teacher / admin |
+| VENLA-UI-07 | Valintapäätöksen käyttöliittymä | Yritys tekee `SelectionDecision`; matching ei autovalitse |
+| VENLA-UI-08 | Ilmoituskeskus | In-app lista + merkitse luetuksi |
+| VENLA-UI-09 | FI/EN-kielenvaihto | `preferredLanguage` / UI locale |
 
 ---
 
-## VENLA-01 — Huomioi middleware-autentikointi
+## Sopimusviitteet Venlalle
 
-Tommi päivitti:
+- Domain: `types/domain.ts`
+- API: `docs/API.md` — vastaus `{ data, meta }`, virhe `{ error: { code, message, details } }`
+- Skeema (target): `docs/SCHEMA.md`
+- Live legacy API (kunnes migraatio): `types/legacy.ts`, `/api/opportunities`
 
-- `middleware.ts`
-- `lib/supabase/middleware.ts`
+### Yksityisyys (UI:ssa pakollista)
 
-Syy:
-Sivusuojaus käyttää Supabase `getUser()`-sessiota.
+1. Top 3 / ranking vain company-, teacher- ja admin-näkymissä.
+2. Opiskelija näkee vain oman matchin; painot/kriteerit saa näyttää.
+3. Älä näytä muiden hakijoiden pisteitä tai henkilöllisyyttä opiskelijalle.
 
-Vaikutus:
-1. Kirjautuminen `@supabase/ssr` browser clientillä.
-2. Mock-login ilman sessiota ei ohita suojauksia.
-3. `/api/*` palauttaa JSON 401.
+### Väliaikaiset adapterit
 
-Tila: odottaa Venlan auth-UI-integraatiota.
+Jos backend vaatii välttämättömän frontend-yhteensopivuusmuutoksen:
 
----
-
-## VENLA-02 — Raportin yhteiset osiot
-
-Tommi luonnosteli SHARED-dokumentit:
-
-- `docs/RAPORTTI_JOHDANTO.md` (#149) — täydennä [VENLA]-kohdat
-- `docs/RAPORTTI_POHDINTA.md` (#152) — täydennä [VENLA]-kohdat
-- `docs/RAPORTTI_BACKEND.md` — Tommin tekninen osuus (valmis)
-
-Tila: odottaa Venlan täydennyksiä ennen lopullista yhdistämistä.
+1. Yritä ensin backend-adapteria
+2. Eristä `lib/integration/venla-*`
+3. Tiedoston alkuun: `VENLA-OWNED TEMPORARY INTEGRATION FILE`
+4. Kirjaa tähän tiedostoon
+5. Commit: `chore(venla): ...`
+6. Revertoitavissa ilman backendin rikkoontumista
 
 ---
 
-## VENLA-03 — Demo-data ja checklist
+## Aiemmat integraatiomuistiinpanot
 
-Tommi lisäsi (**SHARED**):
+### Middleware-auth
 
-- `lib/shared/demo-fixtures.ts` — seed-UUID:t, opiskelijat, opportunities, match-esimerkit
-- `docs/DEMO_CHECKLIST.md` — demojuoni (#147 / #153)
+Sivusuojaus käyttää Supabase-sessiota. Mock-login ilman sessiota ei ohita suojauksia; `/api/*` → JSON 401.
 
-Integraatio:
-1. Käytä fixtureita mock-fallbackina tai demossa.
-2. Älä muuta UUID-arvoja ilman seedin päivitystä.
-3. Täydennä checklistin `[VENLA]`-kohdat.
+### Demo / raportti
 
-Tila: odottaa Venlan UI-demoa.
-
----
-
-## VENLA-04 — API-käyttöpolut (Tommi testasi backendin)
-
-Tommi lisäsi **ilman UI:ta**:
-
-- `npm run smoke:student` — opiskelijapolku API:lla (#144)
-- `npm run smoke:teacher` — opettajapolku API:lla (#145)
-- `docs/BACKEND_REGRESSION.md`
-
-Venlan tehtävä:
-1. Toista samat polut selaimessa login → näkymät.
-2. Älä muuta API-sopimusta; käytä `createSharedApiClient()`.
-
-Tila: backend-varmistus valmis; selain-E2E odottaa Venlaa.
+- Demo-fixturet: `lib/shared/demo-fixtures.ts` (legacy UUID:t kunnes seed päivittyy)
+- Raportti: täydennä `[VENLA]`-kohdat `docs/RAPORTTI_JOHDANTO.md` / `docs/RAPORTTI_POHDINTA.md`

@@ -45,11 +45,13 @@ Base URL (local): `http://localhost:3000/api`
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "title is required",
-    "details": [{ "field": "title", "message": "Required" }]
+    "message": "Request validation failed",
+    "details": []
   }
 }
 ```
+
+`details` is an array of `{ "field": string, "message": string }` when field-level errors exist; otherwise `[]` or omitted.
 
 | HTTP | Typical `code` |
 |------|----------------|
