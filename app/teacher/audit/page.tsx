@@ -1,14 +1,5 @@
 'use client'
 
-/**
- * No `/api/audit` route exists yet (checked `app/api/**`). Sensitive actions
- * are already recorded server-side into the `audit_events` table (see
- * `types/domain.ts` `AuditEvent`), but there is no read endpoint to expose
- * them to the UI yet. This page probes `/api/audit` defensively so it starts
- * working the moment that route ships, and otherwise shows an honest
- * "not exposed yet" state instead of inventing fake rows.
- */
-
 import { useCallback, useEffect, useState } from 'react'
 import {
   Card,
@@ -16,12 +7,13 @@ import {
   ErrorState,
   LoadingState,
 } from '@/components/ui'
+import { RoleGuard } from '@/components/auth/RoleGuard'
+import { api, ApiClientError } from '@/lib/api/client'
 import { formatDateTime } from '@/lib/format'
 import { useTranslations } from '@/lib/i18n'
 import type { AuditEvent } from '@/types/domain'
-import { RoleGuard } from '@/components/auth/RoleGuard'
 
-type AuditPageStatus = 'loading' | 'not-exposed' | 'error' | 'ok'
+type AuditPageStatus = 'loading' | 'error' | 'ok'
 
 function TeacherAuditContent() {
   const { t, locale } = useTranslations()
@@ -33,20 +25,15 @@ function TeacherAuditContent() {
     setStatus('loading')
     setErrorMessage(null)
     try {
-      const response = await fetch('/api/audit', { credentials: 'include' })
-      if (response.status === 404) {
-        setStatus('not-exposed')
-        return
-      }
-      const text = await response.text()
-      const body = text ? (JSON.parse(text) as { data?: AuditEvent[] }) : null
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      setEvents(body?.data ?? [])
+      const data = await api.listAuditEvents(100)
+      setEvents(data)
       setStatus('ok')
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : t('teacher.auditLoadError'))
+      setErrorMessage(
+        err instanceof ApiClientError
+          ? err.message
+          : t('teacher.auditLoadError')
+      )
       setStatus('error')
     }
   }, [t])
@@ -57,7 +44,7 @@ function TeacherAuditContent() {
 
   return (
     <div className="min-h-screen px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {t('teacher.auditTitle')}
@@ -66,13 +53,6 @@ function TeacherAuditContent() {
         </div>
 
         {status === 'loading' && <LoadingState message={t('common.loading')} />}
-
-        {status === 'not-exposed' && (
-          <EmptyState
-            title={t('teacher.auditNotExposedTitle')}
-            description={t('teacher.auditNotExposedDescription')}
-          />
-        )}
 
         {status === 'error' && (
           <ErrorState
@@ -95,7 +75,9 @@ function TeacherAuditContent() {
               {events.map((event) => (
                 <li key={event.id} className="py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium text-foreground">{event.action}</span>
+                    <span className="font-medium text-foreground">
+                      {event.action}
+                    </span>
                     <span className="text-xs text-foreground-muted">
                       {formatDateTime(event.createdAt, locale)}
                     </span>

@@ -40,6 +40,7 @@ import type {
 import type {
   Application,
   ApplicationStatus,
+  AuditEvent,
   Course,
   Interest,
   Match,
@@ -379,6 +380,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
       req<{ updated: number }>('/api/notifications/mark-all-read', {
         method: 'POST',
       }),
+
+    // --- audit (teacher/admin) ---
+    listAuditEvents: (limit?: number) =>
+      req<AuditEvent[]>(`/api/audit${toQueryString({ limit })}`),
   }
 }
 
