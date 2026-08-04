@@ -1,0 +1,73 @@
+{
+  "common": {
+    "appName": "OAMK Matching",
+    "appNameFull": "OAMK Matching Tool",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "language": "Language",
+    "placeholder": "This is a page placeholder."
+  },
+  "roles": {
+    "student": "Student",
+    "teacher": "Teacher",
+    "admin": "Admin"
+  },
+  "nav": {
+    "projects": "Projects",
+    "matches": "My Matches",
+    "profile": "Profile",
+    "myProjects": "My Projects",
+    "newProject": "New Project",
+    "dashboard": "Dashboard",
+    "manageUsers": "Manage Users"
+  },
+  "home": {
+    "title": "OAMK Matching Tool",
+    "subtitle": "Connect your skills with real-world projects. Find your perfect team at OAMK.",
+    "ctaStudent": "I am a Student",
+    "ctaTeacher": "I am a Teacher",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in here"
+  },
+  "login": {
+    "title": "Student Login",
+    "description": "This is a placeholder for student login form."
+  },
+  "register": {
+    "title": "Student Registration",
+    "description": "This is a placeholder for student registration form."
+  },
+  "projects": {
+    "title": "Available Projects",
+    "description": "This is a placeholder for project listing page."
+  },
+  "matches": {
+    "title": "My Matches",
+    "description": "This is a placeholder for match results page."
+  },
+  "profile": {
+    "title": "Student Profile",
+    "description": "This is a placeholder for student profile page.",
+    "editTitle": "Edit Student Profile",
+    "editDescription": "This is a placeholder for edit profile page."
+  },
+  "teacher": {
+    "loginTitle": "Teacher Login",
+    "loginDescription": "This is a placeholder for teacher login form.",
+    "dashboardTitle": "Teacher Dashboard",
+    "dashboardDescription": "This is a placeholder for teacher dashboard.",
+    "projectsTitle": "My Projects",
+    "projectsDescription": "This is a placeholder for teacher project management page.",
+    "addProjectTitle": "Add New Project",
+    "addProjectDescription": "This is a placeholder for add project form."
+  },
+  "admin": {
+    "dashboardTitle": "Admin Dashboard",
+    "dashboardDescription": "This is a placeholder for admin panel."
+  },
+  "meta": {
+    "title": "OAMK Matching Tool",
+    "description": "Connect students, skills, and projects at OAMK"
+  }
+}

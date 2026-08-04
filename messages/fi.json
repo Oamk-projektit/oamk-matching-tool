@@ -1,0 +1,73 @@
+{
+  "common": {
+    "appName": "OAMK Matching",
+    "appNameFull": "OAMK Matching Tool",
+    "login": "Kirjaudu",
+    "register": "Rekisteröidy",
+    "logout": "Kirjaudu ulos",
+    "language": "Kieli",
+    "placeholder": "Tämä on sivun paikkamerkki."
+  },
+  "roles": {
+    "student": "Opiskelija",
+    "teacher": "Opettaja",
+    "admin": "Ylläpitäjä"
+  },
+  "nav": {
+    "projects": "Projektit",
+    "matches": "Omat osumat",
+    "profile": "Profiili",
+    "myProjects": "Omat projektit",
+    "newProject": "Uusi projekti",
+    "dashboard": "Hallintapaneeli",
+    "manageUsers": "Käyttäjähallinta"
+  },
+  "home": {
+    "title": "OAMK Matching Tool",
+    "subtitle": "Yhdistä osaamisesi oikeisiin projekteihin. Löydä sopiva tiimi OAMKissa.",
+    "ctaStudent": "Olen opiskelija",
+    "ctaTeacher": "Olen opettaja",
+    "hasAccount": "Onko sinulla jo tili?",
+    "signIn": "Kirjaudu tästä"
+  },
+  "login": {
+    "title": "Opiskelijan kirjautuminen",
+    "description": "Tämä on opiskelijan kirjautumislomakkeen paikkamerkki."
+  },
+  "register": {
+    "title": "Opiskelijan rekisteröinti",
+    "description": "Tämä on opiskelijan rekisteröintilomakkeen paikkamerkki."
+  },
+  "projects": {
+    "title": "Saatavilla olevat projektit",
+    "description": "Tämä on projektilistauksen paikkamerkki."
+  },
+  "matches": {
+    "title": "Omat osumat",
+    "description": "Tämä on osumatulosten sivun paikkamerkki."
+  },
+  "profile": {
+    "title": "Opiskelijaprofiili",
+    "description": "Tämä on opiskelijaprofiilin paikkamerkki.",
+    "editTitle": "Muokkaa opiskelijaprofiilia",
+    "editDescription": "Tämä on profiilin muokkauslomakkeen paikkamerkki."
+  },
+  "teacher": {
+    "loginTitle": "Opettajan kirjautuminen",
+    "loginDescription": "Tämä on opettajan kirjautumislomakkeen paikkamerkki.",
+    "dashboardTitle": "Opettajan hallintapaneeli",
+    "dashboardDescription": "Tämä on opettajan hallintapaneelin paikkamerkki.",
+    "projectsTitle": "Omat projektit",
+    "projectsDescription": "Tämä on opettajan projektinhallinnan paikkamerkki.",
+    "addProjectTitle": "Lisää uusi projekti",
+    "addProjectDescription": "Tämä on projektin lisäyslomakkeen paikkamerkki."
+  },
+  "admin": {
+    "dashboardTitle": "Ylläpitäjän hallintapaneeli",
+    "dashboardDescription": "Tämä on ylläpitäjän paneelin paikkamerkki."
+  },
+  "meta": {
+    "title": "OAMK Matching Tool",
+    "description": "Yhdistä opiskelijat, osaaminen ja projektit OAMKissa"
+  }
+}

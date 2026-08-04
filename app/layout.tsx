@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import { Navbar } from "@/components/ui";
+import {
+  defaultLocale,
+  isLocale,
+  localeCookieName,
+  type Locale,
+} from "@/lib/i18n/config";
+import { I18nProvider } from "@/lib/i18n/provider";
+import fi from "@/messages/fi.json";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,23 +23,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OAMK Matching Tool",
-  description: "Connect students, skills, and projects at OAMK",
+  title: fi.meta.title,
+  description: fi.meta.description,
 };
 
-export default function RootLayout({
+async function resolveLocale(): Promise<Locale> {
+  const store = await cookies();
+  const value = store.get(localeCookieName)?.value;
+  return isLocale(value) ? value : defaultLocale;
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await resolveLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
+        <I18nProvider initialLocale={locale}>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+        </I18nProvider>
       </body>
     </html>
   );
