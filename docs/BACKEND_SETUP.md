@@ -147,10 +147,12 @@ Full endpoint reference: `docs/API.md`.
 
 ### Suggested deploy steps
 
+See **`docs/DEPLOYMENT.md`** for the live production targets and commands.
+
 1. Create (or reuse) a production Supabase project.
-2. Apply every file in `supabase/migrations/` in timestamp order (CLI `supabase db push` or SQL editor).
+2. Apply every file in `supabase/migrations/` in timestamp order (CLI `supabase db push` or SQL editor). **Do not seed.**
 3. Deploy the Next.js app (e.g. Vercel).
-4. Set environment variables in the host dashboard, matching `.env.example` names.
+4. Set environment variables in the host dashboard, matching `.env.example` names (`scripts/sync-vercel-env.mjs` can sync from the linked project).
 5. Set the Supabase Auth redirect URL to your `APP_URL`.
 6. Verify `GET /api/health` and, after logging in, `GET /api/me`.
 
