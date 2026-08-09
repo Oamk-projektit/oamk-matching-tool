@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from './Button'
 import { Tag } from './Tag'
@@ -12,8 +12,14 @@ import { getNavLinks } from '@/lib/navigation/links'
 /** Global top bar. Auth state and role links come from `useAuth()` — no props needed. */
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  /** Avoid auth chrome SSR/client mismatch while session hydrates. */
+  const [authReady, setAuthReady] = useState(false)
   const { t } = useTranslations()
   const { user, role, loading, signOut } = useAuth()
+
+  useEffect(() => {
+    setAuthReady(true)
+  }, [])
 
   const isAuthenticated = !!user
   const links = isAuthenticated ? getNavLinks(role) : []
@@ -31,10 +37,9 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded bg-primary" />
-            <span className="font-semibold text-lg text-foreground hidden sm:inline">
+            <span className="font-semibold text-lg text-foreground">
               {t('common.appName')}
             </span>
-            <span className="font-semibold text-lg text-foreground sm:hidden">OAMK</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-6">
@@ -51,7 +56,8 @@ export const Navbar: React.FC = () => {
 
           <div className="hidden md:flex items-center space-x-3">
             <LanguageSwitcher compact />
-            {!loading &&
+            {authReady &&
+              !loading &&
               (isAuthenticated ? (
                 <>
                   {role && <Tag variant="primary">{t(`roles.${role}`)}</Tag>}
@@ -106,7 +112,7 @@ export const Navbar: React.FC = () => {
               </Link>
             ))}
 
-            {!loading && !isAuthenticated && (
+            {authReady && !loading && !isAuthenticated && (
               <>
                 <Link
                   href="/login"
@@ -125,7 +131,7 @@ export const Navbar: React.FC = () => {
               </>
             )}
 
-            {!loading && isAuthenticated && (
+            {authReady && !loading && isAuthenticated && (
               <div className="flex items-center justify-between px-4 py-2">
                 {role && <Tag variant="primary">{t(`roles.${role}`)}</Tag>}
                 <button
