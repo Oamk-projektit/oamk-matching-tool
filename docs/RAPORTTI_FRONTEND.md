@@ -2,7 +2,8 @@
 
 **Alkuperäinen tekijä:** Venla  
 **Viimeistely / raportti:** Tommi (luovutus 9.8.2026 — Venla ei ole enää projektissa)  
-**Issue:** #150 / #124  
+**Issue:** GitHub #126 / #100 (#150 / #124)  
+**OAMK-projekti:** osa raporttipakettia — aloitus `docs/RAPORTTI.md`
 
 Tämä dokumentti on projektiraportin **frontend- ja UX-osuus**. Backend: `docs/RAPORTTI_BACKEND.md`.
 

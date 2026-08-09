@@ -1,8 +1,9 @@
 # Pohdinta ja jatkokehitys
 
 <!--
-SHARED — alun perin Tommi + Venla (#152)
-Venla ei ole enää projektissa; [VENLA]-kohdat täytetty Tommin toimesta luovutuksena 9.8.2026.
+SHARED — alun perin Tommi + Venla (#152 / GitHub #128)
+Venla ei ole enää projektissa; UI-/UX-pohdinta täytetty Tommin toimesta luovutuksena 9.8.2026.
+Osa OAMK-projektin raporttipakettia: docs/RAPORTTI.md
 -->
 
 ## Mitä onnistui
@@ -12,7 +13,7 @@ Venla ei ole enää projektissa; [VENLA]-kohdat täytetty Tommin toimesta luovut
 - Yhteinen API-sopimus esti frontend/backend-kenttien eriytymisen.
 - Deterministinen matching + explanation tekee tuloksista perusteltavia demossa.
 - Opiskelijan `GET /api/matches/me` erottaa oman tuloksen yrityksen Top 3 -listasta.
-- RLS, service role -erottelu ja `profiles.role` -lock pitävät salaisuudet palvelimella.
+- RLS, service role -erottelu ja `profiles.role` -lock pitävät salaisuudet palvelimella (myös middleware-roolipolut).
 - Smoke-skriptit (`smoke:student` / `company` / `teacher` / `security`) peittävät demopolun ilman selainta.
 
 ### Frontend / UX (Venla → Tommi)
@@ -80,4 +81,8 @@ Backend-MVP täyttää sovitun teknisen rajauksen: `projects`-skeema, RLS, API, 
 
 ### Frontend (Venla → Tommi)
 
-Frontend-MVP: roolinäkymät, design system, FI/EN ja live-API-kytkentä riittävät demoon. Venlan poistuttua Tommi dokumentoi UI-osuuden (`docs/RAPORTTI_FRONTEND.md`) ja täydensi tämän pohdinnan käyttäjänäkökulmasta. Avoimeksi jää lähinnä manuaalinen selain-dry-run (#120 / #121) ennen live-esitystä (#153).
+Frontend-MVP: roolinäkymät, design system, FI/EN ja live-API-kytkentä riittävät demoon. Venlan poistuttua Tommi dokumentoi UI-osuuden (`docs/RAPORTTI_FRONTEND.md`) ja täydensi tämän pohdinnan käyttäjänäkökulmasta.
+
+### Raporttipaketti (OAMK-projekti)
+
+Raportin osiot (`docs/RAPORTTI.md` + johdanto, backend, frontend, pohdinta) on viimeistelty OAMK GitHub -projektiin. Avoimeksi jää lähinnä manuaalinen selain-dry-run (#120 / #121) ennen live-esitystä (#153 / GitHub #129).

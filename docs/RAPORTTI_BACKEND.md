@@ -2,9 +2,10 @@
 
 **Tekijä:** Tommi  
 **Päivitetty:** 9.8.2026  
-**Haara / main:** live `projects`-malli (`types/domain.ts`)
+**Haara / main:** live `projects`-malli (`types/domain.ts`)  
+**OAMK-projekti:** osa raporttipakettia — aloitus `docs/RAPORTTI.md`
 
-Tämä dokumentti on projektiraportin **backend- ja matching-osuus**. Frontend: `docs/RAPORTTI_FRONTEND.md` (Venla → Tommi, #150).
+Tämä dokumentti on projektiraportin **backend- ja matching-osuus**. Frontend: `docs/RAPORTTI_FRONTEND.md` (Venla → Tommi, GitHub #126 / #100).
 
 ---
 

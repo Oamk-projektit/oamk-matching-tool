@@ -2,7 +2,7 @@
 
 <!-- SHARED — Tommi (backend + luovutus) + Venla (frontend-pohja) -->
 
-Tiivistelmä projektityöstä raportointia ja demoa varten. MVP on **valmis**: backend ja frontend toimivat samalla `projects`-mallilla (`types/domain.ts`). Venla poistui projektista; Tommi viimeisteli integraation ja raportin UI-osuudet.
+Tiivistelmä projektityöstä raportointia ja demoa varten. **Raporttitoimitus OAMK-projektiin:** aloita `docs/RAPORTTI.md`. MVP on **valmis**: backend ja frontend toimivat samalla `projects`-mallilla (`types/domain.ts`). Venla poistui projektista; Tommi viimeisteli integraation ja raportin UI-osuudet.
 
 ---
 

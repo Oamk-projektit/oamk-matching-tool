@@ -1,15 +1,16 @@
 # Raportin johdanto ja tavoite
 
 <!--
-SHARED — alun perin Tommi + Venla (#149)
+SHARED — alun perin Tommi + Venla (#149 / GitHub #125)
 Venla ei ole enää projektissa; UI-/käyttäjäosuuden täydensi Tommi 9.8.2026.
+Osa OAMK-projektin raporttipakettia: docs/RAPORTTI.md
 -->
 
 ## 1. Johdanto
 
-OAMK Matching Tool on Oulun ammattikorkeakoulun opiskelijaprojekti, jonka tavoitteena on helpottaa opiskelijoiden ja yritysten projektien / harjoittelupaikkojen yhteensovittamista. Järjestelmä tarjoaa opiskelijalle profiilin ja selitettävät suositukset, yritykselle projektinhallinnan ja hakijoiden järjestämisen sopivuuspisteiden mukaan sekä opettajalle oversight-näkymän.
+OAMK Matching Tool on Oulun ammattikorkeakoulun opiskelijaprojekti ([Oamk-projektit/oamk-matching-tool](https://github.com/Oamk-projektit/oamk-matching-tool)), jonka tavoitteena on helpottaa opiskelijoiden ja yritysten projektien / harjoittelupaikkojen yhteensovittamista. Järjestelmä tarjoaa opiskelijalle profiilin ja selitettävät suositukset, yritykselle projektinhallinnan ja hakijoiden järjestämisen sopivuuspisteiden mukaan sekä opettajalle oversight-näkymän.
 
-Työ jaettiin alun perin kahteen päävastuuseen. Venla poistui projektista ennen loppuraporttia; Tommi viimeisteli backendin lisäksi frontend-integraation ja raportin UI-osuuden.
+Työ jaettiin alun perin kahteen päävastuuseen. Venla poistui projektista ennen loppuraporttia; Tommi viimeisteli backendin lisäksi frontend-integraation ja raportin UI-osuuden. Raportin sisällysluettelo: `docs/RAPORTTI.md`.
 
 | Vastuu | Alkuperäinen tekijä | Lopputila |
 |--------|---------------------|-----------|
@@ -38,9 +39,10 @@ Katso `docs/MVP_SCOPE.md`. Ulkopuolelle jätettiin muun muassa maksut, chat, mob
 
 - Yksi Next.js-sovellus (App Router) + Supabase Auth/Postgres
 - Yhteinen tyyppi- ja API-sopimus (`types/domain.ts`, `docs/API.md`)
-- Kanoninen `projects`-malli (legacy `/api/opportunities` → 410)
+- Kanoninen `projects`-malli (legacy `/api/opportunities` → 410 Gone)
 - Deterministinen matching ilman ulkoista AI:ta (läpinäkyvyys + `weights_snapshot`)
 - RLS + roolipohjainen API-autentikointi + audit-loki
+- Turvallisuuskovennuksia: `profiles.role` -lukitus (ei privilege escalation), middleware-roolipolut, service role vain palvelimella
 - Live-smoket: `npm run smoke:flows` / `smoke:security`
 
 ### Frontend ja käyttäjäpolut (Venla → Tommi)

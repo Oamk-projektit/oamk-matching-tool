@@ -16,14 +16,18 @@
 | Deploy health | `GET /api/health?deep=1` DB-ping |
 | Match FI/EN | `POST /api/matches/run` body `{ "locale": "fi" }` |
 
-## Raportti — valmis (Venla-luovutus)
+## Raportti — valmis OAMK-projektiin (Venla-luovutus → Tommi)
 
-| Issue | Artefakti |
+Sisäänkäynti: `docs/RAPORTTI.md` ([Oamk-projektit/oamk-matching-tool](https://github.com/Oamk-projektit/oamk-matching-tool)).
+
+| Issue (GitHub) | Artefakti |
 |-------|-----------|
-| #149 | `docs/RAPORTTI_JOHDANTO.md` — UI-näkökulma täytetty Tommin toimesta |
-| #150 / #124 | `docs/RAPORTTI_FRONTEND.md` — frontend-raportti (Venla → Tommi) |
-| #152 | `docs/RAPORTTI_POHDINTA.md` — entiset `[VENLA]`-kohdat täytetty |
-| #151 | `docs/RAPORTTI_BACKEND.md` |
+| #125 (#149) | `docs/RAPORTTI_JOHDANTO.md` — UI-näkökulma täytetty Tommin toimesta |
+| #100 / #126 (#124 / #150) | `docs/RAPORTTI_FRONTEND.md` — frontend-raportti (Venla → Tommi) |
+| #128 (#152) | `docs/RAPORTTI_POHDINTA.md` — UX-pohdinta täytetty luovutuksena |
+| #127 (#151) / #118 (#142) | `docs/RAPORTTI_BACKEND.md` |
+
+Paketti viimeistelty 9.8.2026: lukemisjärjestys + lyhyt yhteenveto `RAPORTTI.md`:ssä.
 
 ## Seuraava (Shared / demo)
 
