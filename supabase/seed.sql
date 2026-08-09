@@ -151,7 +151,10 @@ WHERE u.id IN (
 )
 ON CONFLICT DO NOTHING;
 
--- Ensure profile roles/names (trigger may have inserted defaults)
+-- Ensure profile roles/names.
+-- handle_new_user only seeds student|company from metadata; teacher/admin demo
+-- accounts are corrected here (seed runs without Auth JWT, so the role-immutable
+-- trigger allows this privileged UPDATE).
 INSERT INTO public.profiles (id, role, display_name, email, preferred_language)
 VALUES
   ('a0000000-0000-4000-8000-000000000001', 'teacher', 'Demo Teacher', 'teacher.demo@oamk.fi', 'fi'),

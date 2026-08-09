@@ -16,7 +16,11 @@ import {
   isAdmin,
 } from '@/lib/permissions/roles'
 import { assertCanManageProject } from '@/lib/projects/service'
-import { requireRole, type AuthContext } from '@/lib/api/auth'
+import {
+  requireRole,
+  roleFromMetadata,
+  type AuthContext,
+} from '@/lib/api/auth'
 import type { UserRole } from '@/types/domain'
 import type { User } from '@supabase/supabase-js'
 
@@ -115,6 +119,48 @@ describe('requireRole', () => {
       expect((error as ApiHttpError).status).toBe(403)
       expect((error as ApiHttpError).code).toBe('FORBIDDEN')
     }
+  })
+})
+
+describe('roleFromMetadata (signup bootstrap)', () => {
+  function userWithRole(role: unknown): User {
+    return {
+      id: '00000000-0000-4000-8000-000000000099',
+      user_metadata: { role },
+    } as User
+  }
+
+  it('allows only student and company from metadata', () => {
+    expect(roleFromMetadata(userWithRole('student'))).toBe('student')
+    expect(roleFromMetadata(userWithRole('company'))).toBe('company')
+  })
+
+  it('clamps teacher/admin and unknown values to student', () => {
+    expect(roleFromMetadata(userWithRole('teacher'))).toBe('student')
+    expect(roleFromMetadata(userWithRole('admin'))).toBe('student')
+    expect(roleFromMetadata(userWithRole('superuser'))).toBe('student')
+    expect(roleFromMetadata(userWithRole(undefined))).toBe('student')
+    expect(roleFromMetadata({ id: 'x', user_metadata: {} } as User)).toBe(
+      'student'
+    )
+  })
+})
+
+describe('profiles.role escalation guards (source)', () => {
+  it('migration locks role updates and clamps signup metadata', () => {
+    const migration = readFileSync(
+      resolve(
+        process.cwd(),
+        'supabase/migrations/20260809141000_lock_profile_role_escalation.sql'
+      ),
+      'utf8'
+    )
+    expect(migration).toMatch(/enforce_profiles_role_immutable/)
+    expect(migration).toMatch(/profiles\.role cannot be changed by non-admin/)
+    expect(migration).toMatch(/v_role NOT IN \('student', 'company'\)/)
+    expect(migration).not.toMatch(
+      /v_role NOT IN \('student', 'company', 'teacher', 'admin'\)/
+    )
   })
 })
 

@@ -1,6 +1,6 @@
 # Security
 
-Summary of authentication, authorization, and data-privacy controls for the OAMK Matching Tool. Canonical sources: `lib/api/auth.ts`, `supabase/migrations/20260804140700_rls_policies.sql`, `supabase/migrations/20260804140600_indexes_and_audit_triggers.sql`, `middleware.ts`.
+Summary of authentication, authorization, and data-privacy controls for the OAMK Matching Tool. Canonical sources: `lib/api/auth.ts`, `supabase/migrations/20260804140700_rls_policies.sql`, `supabase/migrations/20260809141000_lock_profile_role_escalation.sql`, `supabase/migrations/20260804140600_indexes_and_audit_triggers.sql`, `middleware.ts`.
 
 ---
 
@@ -17,7 +17,8 @@ Both paths call `supabase.auth.getUser()` (never trusting a locally-decoded JWT)
 
 - Roles are `student` | `company` | `teacher` | `admin`, stored on `public.profiles.role`.
 - A role is **never** trusted from a request body or client-supplied header. Route handlers read `ctx.role` from the authenticated profile row (`ensureProfile()`), and Postgres RLS policies independently re-check role via `SECURITY DEFINER` helper functions (`current_user_role()`, `is_admin()`, `is_teacher()`, `is_teacher_or_admin()`, `is_company_role()`, `is_student()`).
-- On first authenticated API call for a brand-new Auth user, `ensureProfile()` creates a `profiles` row; the initial role may be seeded from Auth signup metadata (defaults to `student`) but can never be **escalated** later via the API — role changes require a direct DB/admin action.
+- Signup / first-profile bootstrap (`handle_new_user`, `roleFromMetadata` / `ensureProfile`) may seed only `student` or `company` from Auth `user_metadata`. Values such as `teacher` or `admin` in metadata are ignored and fall back to `student`. Staff accounts are created only via seed, an existing admin, or the service role.
+- `profiles.role` cannot be changed by a non-admin client (including self-update via PostgREST). A `BEFORE UPDATE` trigger (`enforce_profiles_role_immutable`) rejects role changes unless the actor is an admin, the JWT is `service_role`, or there is no Auth JWT (seed/migrations as a privileged DB role).
 
 ## 3. Row Level Security (RLS) summary
 

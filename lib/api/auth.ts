@@ -42,9 +42,14 @@ function isKnownRole(role: unknown): role is UserRole {
   )
 }
 
-function roleFromMetadata(user: User): UserRole {
+/**
+ * Signup-safe role from Auth user_metadata only.
+ * Teacher/admin must never be bootstrapped from client-controlled metadata;
+ * those accounts come from seed, admin, or service_role only.
+ */
+export function roleFromMetadata(user: User): UserRole {
   const raw = user.user_metadata?.role
-  return isKnownRole(raw) ? raw : 'student'
+  return raw === 'student' || raw === 'company' ? raw : 'student'
 }
 
 function mapProfileRow(row: {
@@ -74,7 +79,7 @@ function mapProfileRow(row: {
  * Ensures a profiles row exists for the authenticated user.
  * DB trigger `handle_new_user` normally creates it; this is an idempotent fallback.
  * Role is taken from an existing row — never elevated from a client body.
- * On first insert only, metadata may seed an initial role (defaults to student).
+ * On first insert only, metadata may seed `student` or `company` (default student).
  */
 export async function ensureProfile(
   supabase: TypedSupabaseClient,

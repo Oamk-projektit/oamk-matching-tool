@@ -68,6 +68,8 @@ These mirror the privacy rules in `docs/SECURITY.md` and should pass before any 
 | 10 | Audit read is staff-only | As a student or company, call `GET /api/audit` → expect `403 FORBIDDEN`; as `teacher.demo@oamk.fi` or admin → `200` with recent events |
 | 11 | Service role never in browser | `grep -r SUPABASE_SERVICE_ROLE_KEY` the built client bundle (`.next/static`) → no matches; confirm `lib/supabase/admin.ts` starts with `import 'server-only'` |
 | 12 | Selection decision privacy | As a student not involved in a decision, `GET /api/applications/:id/decision` for someone else's application → expect `403` |
+| 13 | Student cannot escalate `profiles.role` | As a student, `PATCH` own `profiles` row with `{"role":"admin"}` (PostgREST or client) → expect error / role unchanged; signup metadata `role=teacher\|admin` must still create a `student` profile |
+| 14 | Role escalation probe script | With local env: `node --env-file=.env.local scripts/security-probe.mjs` → role self-update and metadata escalation checks must fail closed |
 
 ## 5. Demo seed accounts
 
