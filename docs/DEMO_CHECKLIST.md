@@ -1,6 +1,6 @@
-# Demo checklist — MVP pull request
+# Demo checklist — MVP
 
-Manual end-to-end path for reviewing `tommi/backend-mvp`. Canonical data model is **projects** (not legacy opportunities). Password for every seed account: `LocalDemoOnly!1` (local Supabase Auth only — never use in a real deployment).
+Manual end-to-end path for the final demo (#153). Canonical data model is **projects** (not legacy opportunities). Password for every seed account: `LocalDemoOnly!1` (local Supabase Auth only — never use in a real deployment).
 
 ## Before demo
 
@@ -8,7 +8,8 @@ Manual end-to-end path for reviewing `tommi/backend-mvp`. Canonical data model i
 - [ ] `.env.local` has URL, anon key, service role key (`cp .env.example .env.local`)
 - [ ] `npm run lint` / `npm run typecheck` / `npm test` / `npm run build` green
 - [ ] `npm run dev` running
-- [ ] Optional: `npm run smoke:flows` and `npm run smoke:company`
+- [ ] Optional but recommended: `npm run smoke:flows` and `npm run smoke:security`
+- [ ] Postman import refreshed: `docs/postman_collection.json` (projects model)
 
 ## Demo accounts (seed)
 
@@ -48,13 +49,31 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 
 ## Automated coverage (not a full browser E2E)
 
-| Check | Command / location |
-|-------|--------------------|
-| Privacy gates (Top 3, isolation, service role) | `lib/mvp/privacy.test.ts` |
-| Happy-path contracts (weights, selection, notify) | `lib/mvp/e2e-rules.test.ts` |
+| Checklist steps | Command |
+|-----------------|---------|
+| Student login → match → apply → notifications (≈ 1–10, 17) | `npm run smoke:student` |
+| Company applicants / Top 3 / selection (≈ 11–15) | `npm run smoke:company` |
+| Teacher oversight / audit (≈ 16, 18) | `npm run smoke:teacher` |
+| All role journeys | `npm run smoke:flows` |
+| Top 3 forbidden, isolation, role escalation | `npm run smoke:security` |
+| Privacy gates (unit) | `lib/mvp/privacy.test.ts` |
+| Happy-path contracts (unit) | `lib/mvp/e2e-rules.test.ts` |
 | DB integrity + RLS smoke | `supabase/tests/integrity_check.sql` |
-| Live API student/teacher/company flows | `npm run smoke:student` / `smoke:teacher` / `smoke:company` |
-| Authz / privacy / role-escalation probes | `npm run smoke:security` |
+
+Run these **before** the live browser walkthrough so UI-only surprises are isolated.
+
+## Presentation talking points (#153)
+
+Keep the spoken demo to ~5–8 minutes. Suggested order:
+
+1. **Problem (30 s)** — Students and company projects are hard to match manually; need explainable scores, not a black box.
+2. **Architecture (45 s)** — One Next.js app + Supabase; shared `types/domain.ts` / `docs/API.md`; company owns projects, teacher oversees.
+3. **Student path (90 s)** — Profile → browse → `matches/run` → own score + FI explanation → apply. Emphasize: no peer ranking.
+4. **Company path (90 s)** — Applicants sorted by score → Top 3 → shortlist → final selection within capacity. Matching never auto-picks.
+5. **Privacy / security (45 s)** — Student Top 3 → 403; company isolation; RLS + service role only on server; audit trail for teachers.
+6. **Limits & next (30 s)** — In-app notifications (no SMTP yet); rule-based matching (not ML); browser E2E still manual.
+
+Backup if UI flakes: show Postman or terminal smoke output for the same steps (`docs/API_TESTING.md`).
 
 ## Notes
 
@@ -62,3 +81,4 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 - Email delivery uses a **stub** in MVP — notifications are persisted in-app.
 - Do not run `supabase/seed.sql` against a production Supabase project.
 - Legacy `/api/opportunities` routes return **410 Gone** — use `/api/projects`.
+- Report drafts: `docs/RAPORTTI.md` → johdanto / backend / pohdinta.

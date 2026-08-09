@@ -7,11 +7,11 @@ Yhdistelmäraportin rakenne. Tommin osiot valmiit; Venla täydentää merkityt k
 
 | Osio | Tiedosto | Omistaja | Tila |
 |------|----------|----------|------|
-| Johdanto ja tavoite | [RAPORTTI_JOHDANTO.md](./RAPORTTI_JOHDANTO.md) | SHARED | Tommin luonnos; `[VENLA]` auki |
-| Backend ja matching | [RAPORTTI_BACKEND.md](./RAPORTTI_BACKEND.md) | Tommi | Valmis |
+| Johdanto ja tavoite | [RAPORTTI_JOHDANTO.md](./RAPORTTI_JOHDANTO.md) | SHARED | Tommi päivitetty 9.8.; `[VENLA]` auki |
+| Backend ja matching | [RAPORTTI_BACKEND.md](./RAPORTTI_BACKEND.md) | Tommi | Valmis (`projects`-malli) |
 | Frontend ja UX | *(Venla)* | Venla | #150 |
 | Pohdinta ja jatkokehitys | [RAPORTTI_POHDINTA.md](./RAPORTTI_POHDINTA.md) | SHARED | Tommin `[TOMMI]` valmis |
 | MVP-rajaus | [MVP_SCOPE.md](./MVP_SCOPE.md) | SHARED | Valmis |
-| Demo | [DEMO_CHECKLIST.md](./DEMO_CHECKLIST.md) | SHARED | Backend-juoni valmis |
+| Demo | [DEMO_CHECKLIST.md](./DEMO_CHECKLIST.md) | SHARED | Juoni + talking points + smoke-map |
 
 Tekninen sopimus: [SHARED_CONTRACT.md](./SHARED_CONTRACT.md), [API.md](./API.md).

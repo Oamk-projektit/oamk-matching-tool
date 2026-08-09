@@ -1,6 +1,6 @@
 # API testing with Postman
 
-Backend smoke tests for issue-style verification before frontend integration.
+Backend smoke tests for issue-style verification and demo backup (#153).
 
 ## Prerequisites
 
@@ -13,6 +13,7 @@ Backend smoke tests for issue-style verification before frontend integration.
 1. Open Postman → **Import** → select `docs/postman_collection.json`
 2. Set collection variable `baseUrl` (default `http://localhost:3000`)
 3. Set `accessToken` to a Supabase **access_token** (JWT)
+4. Optional: keep seed `projectId` `90000000-0000-4000-8000-000000000001` (Campus portal)
 
 ## How to get an access token
 
@@ -44,19 +45,33 @@ curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/token?grant_type=password" \
 
 Copy `access_token` into the Postman collection variable.
 
-Use teacher token (`teacher.demo@oamk.fi`) for opportunity create / applicant list / status updates.
+| Need | Seed email |
+|------|------------|
+| Student flows | `aino.virtanen@students.oamk.fi` |
+| Company create / applicants / selection | `contact@nordicsoft.example` |
+| Teacher audit / oversight | `teacher.demo@oamk.fi` |
 
 ## Suggested order
 
 1. **Health** (no auth)
-2. **Me** (verify role)
-3. **Create student** (student token) → copy `id` → `studentId`
-4. **Create opportunity** (teacher token) → copy `id` → `opportunityId`
-5. **Create application** (student token)
-6. **Run matching** → **Get student matches**
-7. **List applicants** (teacher)
-8. **Update application status** (teacher)
-9. **List notifications** (both roles)
+2. **Me** (verify role; copy `studentId` if present)
+3. **List published projects** (student or any auth)
+4. **Run matching** → **My matches** (student token; no rank fields)
+5. **Create application** (student) → copy `applicationId`
+6. Switch to **company** token → **List applicants** / **Top candidates**
+7. **Shortlist** → **Create selection decision**
+8. Switch to **teacher** token → **Audit**
+9. Optional: **Legacy opportunities** → expect **410**
+
+## Prefer scripts when possible
+
+| Journey | Command |
+|---------|---------|
+| Student | `npm run smoke:student` |
+| Company | `npm run smoke:company` |
+| Teacher | `npm run smoke:teacher` |
+| All | `npm run smoke:flows` |
+| Authz probes | `npm run smoke:security` |
 
 ## Auth modes supported by the API
 
@@ -65,4 +80,4 @@ Use teacher token (`teacher.demo@oamk.fi`) for opportunity create / applicant li
 | Browser session | Supabase SSR cookies |
 | Postman / scripts | `Authorization: Bearer <access_token>` |
 
-See also: `docs/API.md`, `docs/BACKEND.md`.
+See also: `docs/API.md`, `docs/BACKEND.md`, `docs/DEMO_CHECKLIST.md`.

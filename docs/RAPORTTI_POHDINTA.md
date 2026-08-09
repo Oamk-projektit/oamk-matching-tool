@@ -14,8 +14,9 @@ otsikoiden [VENLA] alle ennen lopullista raporttia.
 
 - Yhteinen API-sopimus esti frontend/backend-kenttien eriytymisen.
 - Deterministinen matching + explanation tekee tuloksista perusteltavia demossa.
-- RLS ja service role -erottelu pitävät salaisuudet palvelimella.
-- Postman + Bearer-token mahdollistaa backend-testauksen ilman valmista UI:ta.
+- Opiskelijan `GET /api/matches/me` erottaa oman tuloksen yrityksen Top 3 -listasta.
+- RLS, service role -erottelu ja `profiles.role` -lock pitävät salaisuudet palvelimella.
+- Smoke-skriptit (`smoke:student` / `company` / `teacher` / `security`) peittävät demopolun ilman selainta.
 
 ### [VENLA]
 
@@ -25,10 +26,10 @@ otsikoiden [VENLA] alle ennen lopullista raporttia.
 
 ### [TOMMI]
 
-- Oikea SMTP-sähköposti → korvattu in-app -ilmoituksilla + `email-stub`
-- Live E2E-CI Supabasea vasten
+- Oikea SMTP-sähköposti → korvattu in-app -ilmoituksilla + email-stub
+- Selain-E2E CI:ssä (#120 / #121) — API-smoket OK, manuaalinen selain vielä
 - ML-pohjainen matching
-- Tuotantodeployn suorittaminen opettajan ympäristöön (ohjeet dokumentoitu)
+- Thesis-aiheet ja pehmeät taidot matchingissa
 
 ### [VENLA]
 
@@ -38,36 +39,37 @@ otsikoiden [VENLA] alle ennen lopullista raporttia.
 
 ### [TOMMI]
 
-- Sprintti 1:n `projects`-malli piti laajentaa `opportunities` + `applications` -sopimukseen.
-- Matching-kirjoitukset vaativat huolellista RLS vs service role -suunnittelua.
+- Sprintin aikana `opportunities`-välimalli poistettiin; kanoniseksi jäi `projects` + company-omistus.
+- Matching-kirjoitukset vaativat huolellista RLS vs service role -suunnittelua sekä `weights_snapshot`-jäädytyksiä.
 - Middleware `/`-polun `startsWith`-bugi olisi avannut kaikki sivut “julkisiksi”.
+- Privilege escalation `profiles.role` -päivityksen kautta piti lukita migraatiolla.
 
 ## Algoritmin läpinäkyvyys ja luotettavuus
 
 - Sama syöte → sama score (unit-testattu).
-- Selitysteksti kertoo matched/missing skills & courses.
-- Lopullinen valinta jää ihmiselle (opettaja hyväksyy/hylkää hakemuksen).
-- Painotukset ovat opportunitykohtaisesti konfiguroitavissa.
+- Selitysteksti kertoo matched/missing skills & courses (FI/EN).
+- Lopullinen valinta jää ihmiselle (yritys shortlistaa / valitsee).
+- Painotukset ovat projektikohtaisesti konfiguroitavissa (summa 100).
 
 ## Eettiset näkökohdat
 
 - Algoritmi vertaa ilmoitettuja taitoja/kursseja, ei taustamuuttujia kuten nimeä tai sukupuolta.
 - Mahdollinen vinouma: jos vaaditut kurssit/taidot on määritelty kapeasti, osa opiskelijoista tippuu systemaattisesti — siksi explanation + manuaalinen päätös.
-- Opiskelijan tulee voida ymmärtää, miksi score on matala (suositus-kenttä).
+- Opiskelija ei näe muiden hakijoiden pisteitä; Top 3 on vain staff/yritys.
 
 ## Jatkokehitys
 
 1. SMTP / push-ilmoitukset stubbin tilalle  
 2. Analytiikka opettajalle  
 3. Pehmeät taidot / portfolio matchingiin  
-4. Automaattiset integraatiotestit  
+4. Selain-E2E CI:ssä (`smoke:flows` laajennus)  
 5. Mobiiliystävällisempi UI *(Venla)*  
 
 ## Yhteenveto
 
 ### [TOMMI]
 
-Backend-MVP täyttää sovitun teknisen rajauksen: skeema, RLS, API, matching ja dokumentaatio ovat paikallaan integraatiota varten.
+Backend-MVP täyttää sovitun teknisen rajauksen: `projects`-skeema, RLS, API, matching, valinnat, audit ja dokumentaatio ovat paikallaan demoa ja raporttia varten.
 
 ### [VENLA]
 

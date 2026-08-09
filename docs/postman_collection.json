@@ -1,14 +1,14 @@
 {
   "info": {
     "name": "OAMK Matching Tool API",
-    "description": "Tommi backend smoke collection. Set collection variables after signing in via Supabase Auth (password grant or dashboard).",
+    "description": "Projects-model smoke collection. Set collection variables after signing in via Supabase Auth. Legacy /api/opportunities returns 410 — use /api/projects.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
     { "key": "accessToken", "value": "" },
     { "key": "studentId", "value": "" },
-    { "key": "opportunityId", "value": "" },
+    { "key": "projectId", "value": "90000000-0000-4000-8000-000000000001" },
     { "key": "applicationId", "value": "" },
     { "key": "notificationId", "value": "" }
   ],
@@ -51,7 +51,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Aino Virtanen\",\n  \"email\": \"aino.virtanen@students.oamk.fi\",\n  \"degree_program\": \"Tietotekniikka\",\n  \"credits\": 120,\n  \"language\": \"FI\",\n  \"availability\": \"Full-time\",\n  \"completed_courses\": [\"Web-ohjelmointi\", \"Tietokannat\"],\n  \"skills\": [\"React\", \"TypeScript\"],\n  \"interests\": [\"Web development\"],\n  \"project_preferences\": [\"project\"]\n}"
+              "raw": "{\n  \"degreeProgramme\": \"Tietotekniikka\",\n  \"department\": \"ICT\",\n  \"studyCredits\": 120,\n  \"availabilityStart\": \"2026-09-01\",\n  \"availabilityEnd\": \"2026-12-15\",\n  \"preferredProjectTypes\": [\"company_project\", \"internship\"]\n}"
             },
             "url": "{{baseUrl}}/api/students"
           }
@@ -70,7 +70,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"credits\": 130,\n  \"skills\": [\"React\", \"TypeScript\", \"SQL\"]\n}"
+              "raw": "{\n  \"studyCredits\": 130\n}"
             },
             "url": "{{baseUrl}}/api/students/{{studentId}}"
           }
@@ -78,46 +78,55 @@
       ]
     },
     {
-      "name": "Opportunities",
+      "name": "Projects",
       "item": [
         {
-          "name": "List opportunities",
+          "name": "List published projects",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/opportunities?type=project"
+            "url": "{{baseUrl}}/api/projects?status=published"
           }
         },
         {
-          "name": "Create opportunity",
+          "name": "Create project",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Campus portal renewal\",\n  \"description\": \"Rebuild student-facing portal UI.\",\n  \"type\": \"project\",\n  \"required_courses\": [\"Web-ohjelmointi\"],\n  \"recommended_courses\": [\"Käyttöliittymäsuunnittelu\"],\n  \"minimum_credits\": 60,\n  \"required_language\": \"FI\",\n  \"schedule\": \"Flexible\",\n  \"duration\": \"3 months\",\n  \"required_skills\": [\"React\", \"TypeScript\"],\n  \"student_slots\": 2\n}"
+              "raw": "{\n  \"title\": \"Campus portal renewal\",\n  \"description\": \"Rebuild student-facing portal UI.\",\n  \"projectType\": \"company_project\",\n  \"status\": \"published\",\n  \"positions\": 2,\n  \"requiredLanguage\": \"fi\",\n  \"minimumStudyCredits\": 60,\n  \"weights\": {\n    \"studyCredits\": 10,\n    \"requiredCourses\": 20,\n    \"recommendedCourses\": 10,\n    \"skills\": 25,\n    \"language\": 10,\n    \"availability\": 10,\n    \"interests\": 10,\n    \"degreeProgramme\": 5\n  }\n}"
             },
-            "url": "{{baseUrl}}/api/opportunities"
+            "url": "{{baseUrl}}/api/projects"
           }
         },
         {
-          "name": "Get opportunity",
+          "name": "Get project",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/opportunities/{{opportunityId}}"
+            "url": "{{baseUrl}}/api/projects/{{projectId}}"
           }
         },
         {
           "name": "List applicants",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/opportunities/{{opportunityId}}/applicants"
+            "url": "{{baseUrl}}/api/projects/{{projectId}}/applicants"
           }
         },
         {
-          "name": "List opportunity matches",
+          "name": "Top candidates",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/opportunities/{{opportunityId}}/matches"
+            "url": "{{baseUrl}}/api/projects/{{projectId}}/top-candidates?limit=3"
+          }
+        },
+        {
+          "name": "Run project matching",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": "{{baseUrl}}/api/projects/{{projectId}}/matches"
           }
         }
       ]
@@ -132,7 +141,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"opportunity_id\": \"{{opportunityId}}\",\n  \"message\": \"I am interested in this project.\"\n}"
+              "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"message\": \"I am interested in this project.\"\n}"
             },
             "url": "{{baseUrl}}/api/applications"
           }
@@ -145,15 +154,17 @@
           }
         },
         {
-          "name": "Update application status",
+          "name": "Shortlist application",
           "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"accepted\"\n}"
-            },
-            "url": "{{baseUrl}}/api/applications/{{applicationId}}"
+            "method": "POST",
+            "url": "{{baseUrl}}/api/applications/{{applicationId}}/shortlist"
+          }
+        },
+        {
+          "name": "Withdraw application",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/applications/{{applicationId}}/withdraw"
           }
         }
       ]
@@ -162,19 +173,58 @@
       "name": "Matching",
       "item": [
         {
-          "name": "Run matching",
+          "name": "Run matching (own / staff)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{}" },
-            "url": "{{baseUrl}}/api/matches/run/{{studentId}}"
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locale\": \"fi\"\n}"
+            },
+            "url": "{{baseUrl}}/api/matches/run"
           }
         },
         {
-          "name": "Get student matches",
+          "name": "My matches (student-safe)",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/api/matches/{{studentId}}?limit=3"
+            "url": "{{baseUrl}}/api/matches/me?limit=3"
+          }
+        },
+        {
+          "name": "Run matching for studentId (staff)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locale\": \"fi\"\n}"
+            },
+            "url": "{{baseUrl}}/api/matches/run/{{studentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Selections",
+      "item": [
+        {
+          "name": "Create selection decision",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{applicationId}}\",\n  \"decision\": \"selected\",\n  \"note\": \"Strong React fit\"\n}"
+            },
+            "url": "{{baseUrl}}/api/projects/{{projectId}}/selections"
+          }
+        },
+        {
+          "name": "List project selections",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/projects/{{projectId}}/selections"
           }
         }
       ]
@@ -204,6 +254,20 @@
           }
         }
       ]
+    },
+    {
+      "name": "Audit (teacher/admin)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/audit"
+      }
+    },
+    {
+      "name": "Legacy opportunities (expect 410)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/opportunities"
+      }
     }
   ]
 }

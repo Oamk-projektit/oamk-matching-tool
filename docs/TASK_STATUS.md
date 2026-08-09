@@ -20,9 +20,10 @@
 
 | Vaihe | Sisältö |
 |-------|---------|
-| #120 / #121 | Selain-E2E opiskelija + yritys/opettaja (API-smoket OK) |
-| #149 / #150 / #152 | Raportin johdanto, frontend-osuus, pohdinta |
-| #153 | Lopullinen esitys / demo (`docs/DEMO_CHECKLIST.md`) |
+| #120 / #121 | Selain-E2E opiskelija + yritys/opettaja (API-smoket OK; Postman päivitetty) |
+| #150 | Frontend-raportti (Venla) |
+| #149 / #152 | Raportti: Tommin osiot valmiit → Venla täyttää `[VENLA]` |
+| #153 | Esitysharjoitus checklistin talking points -osion mukaan |
 
 ## Shared — Tommin osuus valmis
 
@@ -31,11 +32,12 @@
 | #100–#104 | sopimus + types | raporttitekstit tarvittaessa |
 | #143 | `lib/api/client.ts` live | UI jo kytketty; selain-E2E |
 | #147 | seed + demo-fixtures | esitysharjoitus |
-| #149 / #152 | raporttiluonnokset | `[VENLA]`-tekstit |
-| #153 | `DEMO_CHECKLIST.md` | esitysharjoitus |
+| #149 / #152 | `RAPORTTI_JOHDANTO.md` / `RAPORTTI_POHDINTA.md` | `[VENLA]`-tekstit |
+| #151 | `RAPORTTI_BACKEND.md` (projects) | — |
+| #153 | `DEMO_CHECKLIST.md` + Postman + `API_TESTING.md` | esitysharjoitus |
 
 ## Avoinna (ei Tommin UI-työtä)
 
 - #120–#121 selain-E2E yhdessä demossa
 - #150 frontend-raportti (Venla)
-- #149 / #152 / #153 raportti + esitys (Shared)
+- #149 / #152 / #153 Venlan UI-tekstit + yhteinen esitysharjoitus
