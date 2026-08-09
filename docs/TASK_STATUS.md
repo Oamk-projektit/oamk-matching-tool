@@ -16,28 +16,35 @@
 | Deploy health | `GET /api/health?deep=1` DB-ping |
 | Match FI/EN | `POST /api/matches/run` body `{ "locale": "fi" }` |
 
+## Raportti — valmis (Venla-luovutus)
+
+| Issue | Artefakti |
+|-------|-----------|
+| #149 | `docs/RAPORTTI_JOHDANTO.md` — UI-näkökulma täytetty Tommin toimesta |
+| #150 / #124 | `docs/RAPORTTI_FRONTEND.md` — frontend-raportti (Venla → Tommi) |
+| #152 | `docs/RAPORTTI_POHDINTA.md` — entiset `[VENLA]`-kohdat täytetty |
+| #151 | `docs/RAPORTTI_BACKEND.md` |
+
 ## Seuraava (Shared / demo)
 
 | Vaihe | Sisältö |
 |-------|---------|
 | #120 / #121 | Selain-E2E opiskelija + yritys/opettaja (API-smoket OK; Postman päivitetty) |
-| #150 | Frontend-raportti (Venla) |
-| #149 / #152 | Raportti: Tommin osiot valmiit → Venla täyttää `[VENLA]` |
-| #153 | Esitysharjoitus checklistin talking points -osion mukaan |
+| #153 | Esitysharjoitus / live dry-run checklistin talking points -osion mukaan |
 
 ## Shared — Tommin osuus valmis
 
-| Issue | Artefakti | Venla / yhteinen vielä |
-|-------|-----------|------------------------|
-| #100–#104 | sopimus + types | raporttitekstit tarvittaessa |
-| #143 | `lib/api/client.ts` live | UI jo kytketty; selain-E2E |
-| #147 | seed + demo-fixtures | esitysharjoitus |
-| #149 / #152 | `RAPORTTI_JOHDANTO.md` / `RAPORTTI_POHDINTA.md` | `[VENLA]`-tekstit |
-| #151 | `RAPORTTI_BACKEND.md` (projects) | — |
-| #153 | `DEMO_CHECKLIST.md` + Postman + `API_TESTING.md` | esitysharjoitus |
+| Issue | Artefakti | Vielä auki |
+|-------|-----------|------------|
+| #100–#104 | sopimus + types | — |
+| #143 | `lib/api/client.ts` live | selain-E2E (#120/#121) |
+| #147 | seed + demo-fixtures | esitysharjoitus (#153) |
+| #149 / #152 | johdanto + pohdinta | — (valmis) |
+| #150 / #124 | frontend-raportti | — (valmis) |
+| #151 | `RAPORTTI_BACKEND.md` | — |
+| #153 | `DEMO_CHECKLIST.md` + Postman + `API_TESTING.md` | live dry-run |
 
-## Avoinna (ei Tommin UI-työtä)
+## Avoinna
 
-- #120–#121 selain-E2E yhdessä demossa
-- #150 frontend-raportti (Venla)
-- #149 / #152 / #153 Venlan UI-tekstit + yhteinen esitysharjoitus
+- #120–#121 manuaalinen selain-E2E yhdessä demossa
+- #153 live-esityksen dry-run (materiaali valmis)

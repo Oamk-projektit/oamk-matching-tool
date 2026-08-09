@@ -1,7 +1,7 @@
-# Venlan tehtävät (frontend)
+# Venlan tehtävät (frontend) — arkisto / luovutus
 
 Tommi lukitsi backend-sopimuksen (`types/domain.ts`, `types/api.ts`, `docs/API.md`, `docs/SCHEMA.md`).  
-Tähän listataan **vain** Venlan myöhemmät UI-tehtävät. Älä toteuta näitä backend-haarassa.
+Venla poistui projektista; alla olevat UI-tehtävät on joko tehty repossa tai dokumentoitu Tommin toimesta (`docs/RAPORTTI_FRONTEND.md`). Tätä tiedostoa ei enää käytetä aktiivisena työlistana.
 
 ---
 
@@ -57,5 +57,5 @@ Sivusuojaus käyttää Supabase-sessiota. Mock-login ilman sessiota ei ohita suo
 
 ### Demo / raportti
 
-- Demo-fixturet: `lib/shared/demo-fixtures.ts` (legacy UUID:t kunnes seed päivittyy)
-- Raportti: täydennä `[VENLA]`-kohdat `docs/RAPORTTI_JOHDANTO.md` / `docs/RAPORTTI_POHDINTA.md`
+- Demo-fixturet: `lib/shared/demo-fixtures.ts` + `supabase/seed.sql`
+- Raportti: `[VENLA]`-kohdat täytetty Tommin luovutuksena (`RAPORTTI_JOHDANTO.md`, `RAPORTTI_POHDINTA.md`, `RAPORTTI_FRONTEND.md`)

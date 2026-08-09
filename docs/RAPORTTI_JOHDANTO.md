@@ -1,23 +1,20 @@
 # Raportin johdanto ja tavoite
 
 <!--
-SHARED — Tommi + Venla
-Issue: #149
-
-Tommi kirjoitti teknisen taustan ja tavoitteen backendin näkökulmasta.
-Venla täydentää käyttäjä-/UI-näkökulman ennen lopullista yhdistämistä.
+SHARED — alun perin Tommi + Venla (#149)
+Venla ei ole enää projektissa; UI-/käyttäjäosuuden täydensi Tommi 9.8.2026.
 -->
 
 ## 1. Johdanto
 
 OAMK Matching Tool on Oulun ammattikorkeakoulun opiskelijaprojekti, jonka tavoitteena on helpottaa opiskelijoiden ja yritysten projektien / harjoittelupaikkojen yhteensovittamista. Järjestelmä tarjoaa opiskelijalle profiilin ja selitettävät suositukset, yritykselle projektinhallinnan ja hakijoiden järjestämisen sopivuuspisteiden mukaan sekä opettajalle oversight-näkymän.
 
-Työ on jaettu kahteen päävastuuseen:
+Työ jaettiin alun perin kahteen päävastuuseen. Venla poistui projektista ennen loppuraporttia; Tommi viimeisteli backendin lisäksi frontend-integraation ja raportin UI-osuuden.
 
-| Vastuu | Tekijä | Painopiste |
-|--------|--------|------------|
-| Backend, tietokanta, matching | Tommi | Supabase, `/api`, algoritmi, turvallisuus |
-| Frontend, UX, mock→API | Venla | Näkymät, komponentit, integraatio |
+| Vastuu | Alkuperäinen tekijä | Lopputila |
+|--------|---------------------|-----------|
+| Backend, tietokanta, matching | Tommi | Valmis (`projects`-malli, RLS, API, smoke) |
+| Frontend, UX, mock→API | Venla → Tommi (luovutus) | Näkymät ja live-API käytössä; raportti `RAPORTTI_FRONTEND.md` |
 
 ## 2. Tavoite
 
@@ -35,7 +32,9 @@ Ensimmäisen MVP:n tavoite on **toimiva demo**, jossa:
 
 Katso `docs/MVP_SCOPE.md`. Ulkopuolelle jätettiin muun muassa maksut, chat, mobiilisovellus, thesis-aiheet ja automaattinen lopullinen valinta ilman ihmistä.
 
-## 4. Tekninen lähestymistapa (Tommi)
+## 4. Tekninen lähestymistapa
+
+### Backend (Tommi)
 
 - Yksi Next.js-sovellus (App Router) + Supabase Auth/Postgres
 - Yhteinen tyyppi- ja API-sopimus (`types/domain.ts`, `docs/API.md`)
@@ -44,4 +43,14 @@ Katso `docs/MVP_SCOPE.md`. Ulkopuolelle jätettiin muun muassa maksut, chat, mob
 - RLS + roolipohjainen API-autentikointi + audit-loki
 - Live-smoket: `npm run smoke:flows` / `smoke:security`
 
-Frontend-arkkitehtuuri ja käyttäjäpolut: **Venla täydentää**.
+### Frontend ja käyttäjäpolut (Venla → Tommi)
+
+Käyttöliittymä rakennettiin Next.js App Router -sivuina rooleittain (`app/dashboard`, `app/company/*`, `app/teacher/*`). Venla toteutti mock-pohjaiset näkymät, layoutin, design systemin (`docs/DESIGN_SYSTEM.md`) ja FI/EN-vaihdon. Tommi kytki näkymät live-API:in (`lib/api/client.ts`), korjasi middleware-roolisuojausta ja täydensi matching-/valintapolkuja demoa varten.
+
+Keskeiset käyttäjäpolut MVP:ssä:
+
+1. **Opiskelija** — rekisteröityminen/kirjautuminen → profiili → projektit → oma match + selitys → hakemus → ilmoitukset
+2. **Yritys** — projektin luonti/julkaisu → hakijalista → Top 3 → shortlist → valinta
+3. **Opettaja** — oversight projekteihin ja opiskelijoihin + audit-loki
+
+Yksityisyys UI:ssa: opiskelija ei näe Top 3- tai vertailurankia; yritysten data eristetään omistajuudella.

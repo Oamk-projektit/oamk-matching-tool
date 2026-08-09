@@ -1,8 +1,8 @@
 # Projektityön yhteenveto — OAMK Matching Tool
 
-<!-- SHARED — Tommi (backend) + Venla (frontend) -->
+<!-- SHARED — Tommi (backend + luovutus) + Venla (frontend-pohja) -->
 
-Tiivistelmä projektityöstä raportointia ja demoa varten. MVP on **valmis**: backend ja frontend toimivat samalla `projects`-mallilla (`types/domain.ts`).
+Tiivistelmä projektityöstä raportointia ja demoa varten. MVP on **valmis**: backend ja frontend toimivat samalla `projects`-mallilla (`types/domain.ts`). Venla poistui projektista; Tommi viimeisteli integraation ja raportin UI-osuudet.
 
 ---
 
@@ -23,7 +23,7 @@ OAMK Matching Tool on Next.js + Supabase -sovellus, joka yhdistää opiskelijat 
 | Alue | Vastuu | Sisältö |
 |------|--------|---------|
 | **Backend** (Tommi) | Supabase-skeema ja migraatiot, RLS-politiikat, `/api/*`-reitit (Next.js Route Handlers), matching-moottori, ilmoitukset, audit-triggerit, yksikkötestit | `supabase/migrations/`, `lib/`, `app/api/`, `types/domain.ts` |
-| **Frontend** (Venla) | Next.js App Router -sivut kaikille rooleille, komponentit, tyylijärjestelmä, mock→live-integraatio | `app/*/page.tsx`, `components/`, `docs/DESIGN_SYSTEM.md` |
+| **Frontend** (Venla → Tommi) | Next.js App Router -sivut, komponentit, tyylijärjestelmä; live-API + raportti Tommin viimeistelemänä | `app/*/page.tsx`, `components/`, `docs/DESIGN_SYSTEM.md`, `docs/RAPORTTI_FRONTEND.md` |
 | **Shared** | API-sopimus (`docs/API.md`, `types/domain.ts`), MVP-rajaus, demo-juoni | `docs/SHARED_CONTRACT.md`, `docs/MVP_SCOPE.md` |
 
 ## 3. Arkkitehtuuri (Architecture)

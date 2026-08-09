@@ -4,7 +4,7 @@
 **Päivitetty:** 9.8.2026  
 **Haara / main:** live `projects`-malli (`types/domain.ts`)
 
-Tämä dokumentti on projektiraportin **backend- ja matching-osuus**. Frontendin käyttöliittymäosuus on Venlan vastuulla (#150).
+Tämä dokumentti on projektiraportin **backend- ja matching-osuus**. Frontend: `docs/RAPORTTI_FRONTEND.md` (Venla → Tommi, #150).
 
 ---
 
@@ -327,4 +327,4 @@ Paikallinen seed-salasana `LocalDemoOnly!1` on vain demoa ja smoke-testausta var
 
 ## 13. Yhteenveto
 
-Backend-MVP sisältää versionoidun `projects`-skeeman (migraatiot + RLS + audit), jaetun API-sopimuksen, REST-reitit kaikille rooleille, selitettävän deterministisen matching-moottorin sekä smoke-skriptit demopolulle. Toteutus on yhdistetty Venlan frontendiin yhteisten tyyppien ja `lib/api/client.ts` -kerroksen kautta.
+Backend-MVP sisältää versionoidun `projects`-skeeman (migraatiot + RLS + audit), jaetun API-sopimuksen, REST-reitit kaikille rooleille, selitettävän deterministisen matching-moottorin sekä smoke-skriptit demopolulle. Toteutus on yhdistetty frontendiin yhteisten tyyppien ja `lib/api/client.ts` -kerroksen kautta (UI alun perin Venla; integraatio ja raportointi viimeistelty Tommin toimesta Venlan poistuttua).

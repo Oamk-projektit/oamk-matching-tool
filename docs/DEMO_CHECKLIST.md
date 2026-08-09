@@ -75,10 +75,21 @@ Keep the spoken demo to ~5–8 minutes. Suggested order:
 
 Backup if UI flakes: show Postman or terminal smoke output for the same steps (`docs/API_TESTING.md`).
 
+## Dry-run status (#153)
+
+| Valmistelu | Tila |
+|------------|------|
+| Checklist + talking points | Valmis |
+| Seed-tilit + Postman + API smokes | Valmis |
+| Manuaalinen selainkävely (#120 / #121) | Auki — aja ennen live-esitystä |
+| Raportti (johdanto / backend / frontend / pohdinta) | Valmis (`docs/RAPORTTI.md`) |
+
+Owner for live dry-run: Tommi (Venla not on the project).
+
 ## Notes
 
 - Matching is **deterministic and explainable**; the company always makes the final selection.
 - Email delivery uses a **stub** in MVP — notifications are persisted in-app.
 - Do not run `supabase/seed.sql` against a production Supabase project.
 - Legacy `/api/opportunities` routes return **410 Gone** — use `/api/projects`.
-- Report drafts: `docs/RAPORTTI.md` → johdanto / backend / pohdinta.
+- Full report TOC: `docs/RAPORTTI.md`.
