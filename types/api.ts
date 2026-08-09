@@ -6,8 +6,8 @@
  * Canonical HTTP request/response shapes for `/api/*`.
  * Keep in sync with `docs/API.md`. No React / UI code here.
  *
- * Runtime note: current handlers still use `types/legacy.ts` until routes
- * are migrated to the projects model.
+ * Runtime note: live handlers use the projects model (`types/domain.ts`).
+ * Legacy `/api/opportunities` routes return 410 Gone.
  */
 
 import type {
@@ -40,6 +40,7 @@ export type ApiErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'GONE'
   | 'DATABASE_ERROR'
   | 'SERVICE_UNAVAILABLE'
   | 'INTERNAL_ERROR'

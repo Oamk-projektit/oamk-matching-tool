@@ -14,7 +14,7 @@ Issues: #100
 | Kanoniset domain-tyypit + API-sopimus | Tommi / SHARED | ✅ Valmis (`types/domain.ts`, `docs/API.md`) |
 | Skeema-migraatio `projects` + RLS | Tommi | ✅ Valmis (`supabase/migrations/20260804*`) |
 | Opiskelijaprofiili (CRUD API) | Tommi / Venla UI | ✅ Valmis: `/api/students`, UI `app/profile/*` |
-| Projektit + harjoittelut (`projects.projectType`) | Tommi / Venla UI | ✅ Valmis: `/api/projects` on kanoninen ja live; legacy `/api/opportunities` jäänyt koodiin mutta ei toimi nykyisellä skeemalla |
+| Projektit + harjoittelut (`projects.projectType`) | Tommi / Venla UI | ✅ Valmis: `/api/projects` on kanoninen ja live; legacy `/api/opportunities` → **410 Gone** |
 | Hakemukset (`applications`) | Tommi / Venla UI | ✅ Valmis: haku, shortlist, withdraw, status, decision — `docs/API.md` § Applications |
 | Matching 0–100 + selitykset | Tommi | ✅ Valmis: 8 kriteeriä, painot summa 100, deterministinen (`docs/MATCHING_ALGORITHM.md`) |
 | Top 3 vain company/teacher/admin | Tommi | ✅ Valmis: `GET /api/projects/:id/top-candidates`, RLS + route-guard |

@@ -14,20 +14,16 @@
  */
 
 import type {
-  ApplicantListItem,
   ApplicationResponse,
   ApplicationWithOpportunity,
   CreateApplicationRequest,
-  CreateOpportunityRequest,
   CreateStudentRequest,
   ListResponse,
   MatchResultResponse,
   MeResponse,
-  OpportunityResponse,
   RunMatchesRequest,
   StudentResponse,
   UpdateApplicationStatusRequest,
-  UpdateOpportunityRequest,
   UpdateStudentRequest,
   ApiErrorBody,
 } from '@/types/legacy'
@@ -120,39 +116,6 @@ export function createSharedApiClient(options: SharedApiClientOptions = {}) {
         method: 'PUT',
         body: JSON.stringify(body),
       }),
-
-    // --- opportunities ---
-    listOpportunities: (query?: { type?: string; q?: string }) => {
-      const params = new URLSearchParams()
-      if (query?.type) params.set('type', query.type)
-      if (query?.q) params.set('q', query.q)
-      const qs = params.toString()
-      return request<ListResponse<OpportunityResponse>>(
-        `/api/opportunities${qs ? `?${qs}` : ''}`
-      )
-    },
-    getOpportunity: (id: string) =>
-      request<OpportunityResponse>(`/api/opportunities/${id}`),
-    createOpportunity: (body: CreateOpportunityRequest) =>
-      request<OpportunityResponse>('/api/opportunities', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }),
-    updateOpportunity: (id: string, body: UpdateOpportunityRequest) =>
-      request<OpportunityResponse>(`/api/opportunities/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(body),
-      }),
-    deleteOpportunity: (id: string) =>
-      request<void>(`/api/opportunities/${id}`, { method: 'DELETE' }),
-    listApplicants: (opportunityId: string) =>
-      request<ListResponse<ApplicantListItem>>(
-        `/api/opportunities/${opportunityId}/applicants`
-      ),
-    listOpportunityMatches: (opportunityId: string) =>
-      request<ListResponse<MatchResultResponse>>(
-        `/api/opportunities/${opportunityId}/matches`
-      ),
 
     // --- applications ---
     createApplication: (body: CreateApplicationRequest) =>

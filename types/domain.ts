@@ -12,8 +12,9 @@
  * - No React components, hooks, or view-specific styles in this file.
  * - Do not duplicate parallel models in mock-only shapes.
  *
- * Runtime note: current `/api/opportunities` routes still use `types/legacy.ts`
- * until the migration phase rewires handlers to these models.
+ * Runtime note: live `/api/*` handlers use these domain models. Legacy
+ * `/api/opportunities` returns 410 Gone (`types/legacy.ts` remains for
+ * older shared helpers / matching weight defaults).
  */
 
 /** Canonical app roles — source of truth: `profiles.role` */

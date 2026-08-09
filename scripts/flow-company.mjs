@@ -80,8 +80,15 @@ async function main() {
   if (items.length === 0) {
     console.log('SKIP shortlist/selection (no applicants on campus portal)')
   } else {
-    const applicationId = items[0].application?.id
-    const studentId = items[0].student?.id
+    // Prefer an applicant that is not already selected/withdrawn to avoid
+    // re-run flakes (409 CONFLICT on shortlist of selected apps).
+    const pick =
+      items.find((item) => {
+        const status = item.application?.status
+        return status !== 'selected' && status !== 'withdrawn'
+      }) ?? items[0]
+    const applicationId = pick.application?.id
+    const studentId = pick.student?.id
     if (!applicationId || !studentId) {
       throw new Error('Applicant payload missing application/student id')
     }
@@ -91,7 +98,8 @@ async function main() {
       `/api/applications/${applicationId}/shortlist`,
       { token, method: 'POST' }
     )
-    assertOk('POST .../shortlist', shortlist, [200, 201])
+    // 409 = already selected / withdrawn (idempotent re-runs)
+    assertOk('POST .../shortlist', shortlist, [200, 201, 409])
     logOk('shortlist', applicationId)
 
     const selection = await api(

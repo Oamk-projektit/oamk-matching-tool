@@ -82,4 +82,4 @@ Tämä dokumentti kokoaa yhteisen sopimuksen. Kanoninen totuus:
 Venla käyttää service-kerrosta (päivitetty `api-client` reittimigraation jälkeen).  
 Älä rakenna rinnakkaisia kenttänimiä — mapaa vain näyttötekstit.
 
-Nykyinen live-API käyttää vielä `opportunities`-polkuja (`types/legacy.ts`) kunnes skeema + reitit migrataan.
+Live-API käyttää `projects`-polkuja (`types/domain.ts`). Legacy `/api/opportunities` palauttaa **410 Gone**.

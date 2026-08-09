@@ -4,9 +4,9 @@
  * Client-side role gate for pages that must only render for specific
  * `profiles.role` values (e.g. `/teacher/*`, `/admin/*` oversight pages).
  *
- * Route-level authentication is already enforced by `middleware.ts`; this
- * component only narrows further by role, redirecting authenticated users
- * with the wrong role to their own home instead of rendering the page.
+ * Route-level authentication **and** role gates for `/company/*`,
+ * `/teacher/*`, `/admin/*` are enforced by `middleware.ts`; this
+ * component only narrows further by role on the client as a UX layer.
  */
 
 import { useEffect } from 'react'

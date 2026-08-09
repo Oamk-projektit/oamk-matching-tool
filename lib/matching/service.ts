@@ -316,11 +316,3 @@ export async function listTopCandidatesForProject(
 }
 
 export { assertCanAccessProjectMatches }
-
-/** @deprecated Use listMatchesForProject — kept name for opportunity route bridge. */
-export async function listMatchesForOpportunity(
-  supabase: SupabaseClient,
-  opportunityId: string
-): Promise<Match[]> {
-  return listMatchesForProject(supabase, opportunityId)
-}

@@ -4,7 +4,7 @@
  * ============================================================================
  *
  * Thin `fetch`-based client for the `/api/*` projects-model contract.
- * Unlike `lib/shared/api-client.ts` (kept for legacy/opportunities routes),
+ * Unlike `lib/shared/api-client.ts` (older shared helpers),
  * this client unwraps the `{ data, meta }` success envelope from
  * `types/api.ts` so callers work directly with domain types from
  * `types/domain.ts`.

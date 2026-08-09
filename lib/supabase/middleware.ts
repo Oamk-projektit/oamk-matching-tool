@@ -9,6 +9,8 @@ import {
 export type SessionUpdateResult = {
   response: NextResponse
   user: User | null
+  /** Cookie-bound SSR client; null when public env is missing. */
+  supabase: ReturnType<typeof createServerClient> | null
 }
 
 /**
@@ -28,7 +30,7 @@ export async function updateSession(
   const key = getSupabasePublishableKey()
 
   if (!url || !key) {
-    return { response, user: null }
+    return { response, user: null, supabase: null }
   }
 
   const supabase = createServerClient(url, key, {
@@ -57,5 +59,5 @@ export async function updateSession(
     data: { user },
   } = await supabase.auth.getUser()
 
-  return { response, user }
+  return { response, user, supabase }
 }

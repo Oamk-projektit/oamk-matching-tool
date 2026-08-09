@@ -45,10 +45,11 @@ npm run smoke          # health + auth + list projects
 npm run smoke:student  # full student journey: login → me → matches → apply → notifications
 npm run smoke:company  # company journey: projects → applicants → Top 3 → selections
 npm run smoke:teacher  # teacher journey: projects → applicants → matches → audit
-npm run smoke:flows    # student + teacher flows
+npm run smoke:flows    # student + company + teacher flows
+npm run smoke:security # live authz / privacy probes across roles
 ```
 
-Scripts live in `scripts/` (`api-smoke.mjs`, `flow-student.mjs`, `flow-company.mjs`, `flow-teacher.mjs`, `flow-all.mjs`, shared helpers in `scripts/lib/smoke-helpers.mjs`). They authenticate via `signInWithPassword` and call the **projects-model** API with a Bearer token — see `docs/API_TESTING.md` for the manual Postman equivalent. Full UI checklist: `docs/DEMO_CHECKLIST.md`.
+Scripts live in `scripts/` (`api-smoke.mjs`, `flow-student.mjs`, `flow-company.mjs`, `flow-teacher.mjs`, `flow-all.mjs`, `security-probe.mjs`, shared helpers in `scripts/lib/smoke-helpers.mjs`). They authenticate via `signInWithPassword` and call the **projects-model** API with a Bearer token — see `docs/API_TESTING.md` for the manual Postman equivalent. Full UI checklist: `docs/DEMO_CHECKLIST.md`.
 
 ## 4. Privacy test checklist (manual or automated E2E)
 

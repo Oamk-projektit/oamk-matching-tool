@@ -16,7 +16,8 @@
     "smoke:student": "node --env-file=.env.local scripts/flow-student.mjs",
     "smoke:company": "node --env-file=.env.local scripts/flow-company.mjs",
     "smoke:teacher": "node --env-file=.env.local scripts/flow-teacher.mjs",
-    "smoke:flows": "node --env-file=.env.local scripts/flow-all.mjs"
+    "smoke:flows": "node --env-file=.env.local scripts/flow-all.mjs",
+    "smoke:security": "node --env-file=.env.local scripts/security-probe.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

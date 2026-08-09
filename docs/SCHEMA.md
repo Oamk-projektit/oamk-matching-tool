@@ -6,10 +6,9 @@ Aligned with `docs/API.md` and `types/domain.ts` (projects model).
 Migrations: `supabase/migrations/`. Seed: `supabase/seed.sql`.
 
 > **Runtime note:** The **projects model is live**. After `supabase db reset`,
-> the database is exactly the schema documented here. The legacy
-> `/api/opportunities` Next.js handlers (`types/legacy.ts`) remain in the
-> codebase but target the `opportunities` table, which this schema drops —
-> treat that surface as deprecated/non-functional in favor of `/api/projects`.
+> the database is exactly the schema documented here. Legacy
+> `/api/opportunities` Next.js handlers return **410 Gone** and point callers
+> at `/api/projects`.
 
 ---
 

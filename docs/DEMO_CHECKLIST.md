@@ -60,4 +60,4 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 - Matching is **deterministic and explainable**; the company always makes the final selection.
 - Email delivery uses a **stub** in MVP — notifications are persisted in-app.
 - Do not run `supabase/seed.sql` against a production Supabase project.
-- Legacy `/api/opportunities` routes still exist in the tree but target a dropped table — use `/api/projects`.
+- Legacy `/api/opportunities` routes return **410 Gone** — use `/api/projects`.

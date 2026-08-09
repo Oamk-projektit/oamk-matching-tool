@@ -13,6 +13,8 @@ Every `/api/*` route resolves the caller via `requireAuth()` (`lib/api/auth.ts`)
 
 Both paths call `supabase.auth.getUser()` (never trusting a locally-decoded JWT) and resolve to the same `AuthContext { user, role, profileId, profile, supabase }`. Unauthenticated API calls always get a JSON `401 UNAUTHORIZED` — never an HTML redirect. Pages, by contrast, are redirected to `/login` or `/teacher/login` by `middleware.ts` if unauthenticated and not on the public list (`/`, `/login`, `/register`, `/teacher/login`, `/style-guide`).
 
+In addition to session checks, `middleware.ts` loads `profiles.role` and redirects wrong roles away from `/company/*`, `/teacher/*` (except `/teacher/login`), and `/admin/*` to that role's home dashboard. This is defense in depth alongside client `RoleGuard`; API authorization remains in route handlers + RLS.
+
 ## 2. Role source of truth: `profiles.role`
 
 - Roles are `student` | `company` | `teacher` | `admin`, stored on `public.profiles.role`.

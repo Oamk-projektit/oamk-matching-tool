@@ -3,8 +3,9 @@
  * LEGACY RUNTIME CONTRACT — Tommi
  * ============================================================================
  *
- * Temporary shapes used by current `/api/opportunities` routes, matching engine,
- * and shared client until the projects-model migration lands.
+ * Temporary shapes kept for matching weight defaults, older shared helpers,
+ * and parser unit tests. Live HTTP uses `types/domain.ts` / `types/api.ts`;
+ * `/api/opportunities` returns 410 Gone.
  *
  * Canonical source of truth: `types/domain.ts`, `types/api.ts`, `docs/API.md`.
  * Do not extend this file — migrate callers to the canonical models instead.
@@ -122,6 +123,7 @@ export type ApiErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'GONE'
   | 'INTERNAL_ERROR'
 
 export interface ApiFieldError {
