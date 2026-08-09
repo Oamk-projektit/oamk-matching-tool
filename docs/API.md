@@ -8,7 +8,7 @@ Canonical contract for the live projects-model schema (MVP complete).
 Shared REST contract for Tommi (backend) and Venla (frontend).  
 Canonical TypeScript: `types/domain.ts`, `types/api.ts`.
 
-**Runtime note:** The **projects model is live**. All routes documented below run against the current schema (`supabase/migrations/20260804*`). The legacy `/api/opportunities` surface (`types/legacy.ts`) still exists in the codebase for backward compatibility but targets a table dropped by `20260804140000_drop_legacy_opportunity_schema.sql` — treat it as deprecated/non-functional and use the `/api/projects` equivalents below instead.
+**Runtime note:** The **projects model is live**. All routes documented below run against the current schema (`supabase/migrations/20260804*`). Legacy `/api/opportunities` handlers return **410 Gone** and point callers at `/api/projects`. Keep `types/legacy.ts` only for older unit helpers — do not call opportunities from new code.
 
 Base URL (local): `http://localhost:3000/api`
 
@@ -438,7 +438,7 @@ Matching **does not** create a `SelectionDecision`.
 
 ### `POST /api/matches/run`
 
-**Auth:** student (own), company (own projects), teacher, or admin
+**Auth:** student (own profile). Teachers/admins may pass `{ "studentId": "<uuid>" }` in the body, or use `POST /api/matches/run/:studentId`. Companies should use `POST /api/projects/:id/matches`.
 
 ```json
 {
@@ -447,51 +447,27 @@ Matching **does not** create a `SelectionDecision`.
 }
 ```
 
-**Response `200`:** `{ "data": [ Match ], "meta": { "count": n } }`
+**Response `200`:** `{ "data": [ Match ], "meta": { "count": n, "studentId": "..." } }`
+
+### `POST /api/matches/run/:studentId`
+
+**Auth:** that student (own), teacher, or admin.
+
+Same body/response as `POST /api/matches/run`.
 
 ### `GET /api/matches/me`
 
 **Auth:** student  
-Own matches only (student-safe). May include weights for transparency.
+Own matches only (student-safe). May include `weightsSnapshot` for transparency.
 
-```json
-{
-  "data": [
-    {
-      "match": {
-        "id": "...",
-        "projectId": "...",
-        "studentId": "...",
-        "totalScore": 85,
-        "scoreBreakdown": { "...": 0 },
-        "matchedCourses": ["Web-ohjelmointi"],
-        "missingRequiredCourses": ["Tietokannat"],
-        "matchedSkills": ["React", "TypeScript"],
-        "missingRequiredSkills": ["Supabase"],
-        "explanation": "Strong skill overlap; one required course missing.",
-        "weightsSnapshot": {
-          "studyCredits": 10,
-          "requiredCourses": 20,
-          "recommendedCourses": 10,
-          "skills": 25,
-          "language": 10,
-          "availability": 10,
-          "interests": 10,
-          "degreeProgramme": 5
-        },
-        "calculatedAt": "2026-08-04T12:00:00.000Z"
-      },
-      "weights": { "...": 0 },
-      "project": {
-        "id": "...",
-        "title": "Campus portal renewal",
-        "projectType": "company_project"
-      }
-    }
-  ],
-  "meta": { "count": 1 }
-}
-```
+**Query:** `limit` (default 10, max 50)
+
+**Response `200`:** `{ "data": [ Match ], "meta": { "count": n, "studentId": "..." } }`
+
+### `GET /api/matches/:studentId`
+
+**Auth:** that student (own), teacher, or admin.  
+Prefer `GET /api/matches/me` for the signed-in student.
 
 ### `GET /api/projects/:id/matches`
 

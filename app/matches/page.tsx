@@ -46,7 +46,7 @@ export default function MatchesPage() {
     setLoading(true)
     setError(null)
     try {
-      const matches = await api.getMatchesForStudent(studentId)
+      const matches = await api.getMyMatches()
       const withProjects = await Promise.all(
         matches.map(async (match) => {
           try {
@@ -78,7 +78,7 @@ export default function MatchesPage() {
     setRunError(null)
     setRunNotice(null)
     try {
-      await api.runMatches(studentId)
+      await api.runMyMatches()
       setRunNotice(t('matches.runSuccess'))
       await load()
     } catch (err) {

@@ -71,4 +71,40 @@ describe('projects-model api client', () => {
       ])
     }
   })
+
+  it('calls GET /api/matches/me for getMyMatches()', async () => {
+    const fetchImpl: typeof fetch = async (input) => {
+      expect(String(input)).toBe('http://localhost:3000/api/matches/me?limit=5')
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'match-1',
+              projectId: 'project-1',
+              studentId: 'student-1',
+              totalScore: 88,
+              scoreBreakdown: {},
+              matchedCourses: [],
+              missingRequiredCourses: [],
+              matchedSkills: [],
+              missingRequiredSkills: [],
+              explanation: 'Strong fit',
+              weightsSnapshot: {},
+              calculatedAt: '2026-08-01T00:00:00.000Z',
+            },
+          ],
+          meta: { count: 1, studentId: 'student-1' },
+        }),
+        { status: 200 }
+      )
+    }
+
+    const client = createApiClient({
+      baseUrl: 'http://localhost:3000',
+      fetchImpl,
+    })
+    const matches = await client.getMyMatches(5)
+    expect(matches).toHaveLength(1)
+    expect(matches[0]?.totalScore).toBe(88)
+  })
 })

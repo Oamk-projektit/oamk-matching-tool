@@ -4,8 +4,9 @@
  * ============================================================================
  *
  * Thin `fetch`-based client for the `/api/*` projects-model contract.
- * Unlike `lib/shared/api-client.ts` (older shared helpers),
- * this client unwraps the `{ data, meta }` success envelope from
+ * `lib/shared/api-client.ts` re-exports this module under the older shared names
+ * (`createSharedApiClient`) for compatibility with early #143 wiring notes.
+ * This client unwraps the `{ data, meta }` success envelope from
  * `types/api.ts` so callers work directly with domain types from
  * `types/domain.ts`.
  *
@@ -29,6 +30,7 @@ import type {
   CreateProjectRequest,
   CreateSelectionDecisionRequest,
   CreateStudentRequest,
+  HealthData,
   MeData,
   ProjectDetail,
   RunMatchesRequest,
@@ -199,7 +201,8 @@ export function createApiClient(options: ApiClientOptions = {}) {
   }
 
   return {
-    // --- me ---
+    // --- health / me ---
+    health: () => req<HealthData>('/api/health'),
     me: () => req<MeData>('/api/me'),
 
     // --- catalog ---
@@ -346,7 +349,13 @@ export function createApiClient(options: ApiClientOptions = {}) {
       req<SelectionDecision>(`/api/applications/${id}/decision`),
 
     // --- matching ---
-    /** Run matching for a single student (existing API: POST /api/matches/run/:studentId). */
+    /** Run matching for the signed-in student (`POST /api/matches/run`). */
+    runMyMatches: (body?: RunMatchesRequest) =>
+      req<Match[]>('/api/matches/run', {
+        method: 'POST',
+        body: JSON.stringify(body ?? {}),
+      }),
+    /** Run matching for a single student (`POST /api/matches/run/:studentId`). */
     runMatches: (studentId: string, body?: RunMatchesRequest) =>
       req<Match[]>(`/api/matches/run/${studentId}`, {
         method: 'POST',
@@ -354,9 +363,9 @@ export function createApiClient(options: ApiClientOptions = {}) {
       }),
     getMatchesForStudent: (studentId: string, limit?: number) =>
       req<Match[]>(`/api/matches/${studentId}${toQueryString({ limit })}`),
-    /** Convenience alias of `getMatchesForStudent` for the signed-in student's own id. */
-    getMyMatches: (studentId: string, limit?: number) =>
-      req<Match[]>(`/api/matches/${studentId}${toQueryString({ limit })}`),
+    /** Own matches for the signed-in student (`GET /api/matches/me`). */
+    getMyMatches: (limit?: number) =>
+      req<Match[]>(`/api/matches/me${toQueryString({ limit })}`),
 
     // --- notifications ---
     listNotifications: async (opts?: {

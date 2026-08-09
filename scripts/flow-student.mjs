@@ -78,18 +78,18 @@ async function main() {
   }
   logOk('Top 3 forbidden for student')
 
-  const run = await api(baseUrl, `/api/matches/run/${studentId}`, {
+  const run = await api(baseUrl, `/api/matches/run`, {
     token,
     method: 'POST',
     body: { locale: 'fi' },
   })
-  assertOk('POST /api/matches/run/:id', run)
+  assertOk('POST /api/matches/run', run)
   logOk('run matching', `count=${run.json?.meta?.count ?? run.json?.data?.length}`)
 
-  const matches = await api(baseUrl, `/api/matches/${studentId}?limit=3`, {
+  const matches = await api(baseUrl, `/api/matches/me?limit=3`, {
     token,
   })
-  assertOk('GET /api/matches/:id', matches)
+  assertOk('GET /api/matches/me', matches)
   if (!matches.json?.data?.length) {
     throw new Error('Expected match results')
   }

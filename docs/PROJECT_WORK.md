@@ -69,7 +69,7 @@ Data virtaa aina Supabase-skeeman läpi: sekä selain (RLS-rajattu istunto) ett�
 - Ei oikeaa sähköpostia/SMTP:tä — ilmoitukset vain sovelluksen sisällä
 - Opinnäytetyöt (thesis) eivät kuulu MVP:hen
 - Ei maksuja, chattia, mobiilisovellusta tai ulkoista tekoäly-API:a matchingissa
-- `npm run smoke` / `smoke:student` / `smoke:teacher` -skriptit viittaavat osittain vanhaan `/api/opportunities`-rajapintaan, joka on poistettu skeemasta — käytännön smoke-testaus ajetaan tällä hetkellä `docs/BACKEND_SETUP.md`:n manuaalisella `/api/projects`-tarkistuslistalla
+- Selain-E2E (#120 / #121) on vielä manuaalinen / flaky browser-MCP — API-smoket (`npm run smoke:flows`, `smoke:security`) kattavat backend-polut
 - Ei automaattista lopullista valintaa — yritys tekee aina päätöksen ihmisenä
 
 ## 6. Miten demota (How to demo)

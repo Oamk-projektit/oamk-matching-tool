@@ -88,18 +88,18 @@ Manual API testing: import `docs/postman_collection.json` (see `docs/API_TESTING
 
 ## API smoke checklist
 
-Use a logged-in session cookie (browser) or Supabase access token as Bearer via your HTTP client after `signIn`.
+Use a logged-in session cookie (browser) or Supabase access token as Bearer via your HTTP client after `signIn`. Prefer `npm run smoke:flows` / `smoke:security` when the local stack is up.
 
 1. `GET /api/health` → `status: ok`
-2. `GET /api/me` → role + ids (401 if anonymous)
-3. `POST /api/students` → create own profile
-4. `GET /api/opportunities` → list
-5. `POST /api/opportunities` → as teacher
+2. `GET /api/me` → profile + studentId/companyId (401 if anonymous)
+3. `POST /api/students` → create own profile (or use seed student)
+4. `GET /api/projects` → list published projects
+5. `POST /api/projects` → as company (not teacher)
 6. `POST /api/applications` → as student
-7. `POST /api/matches/run/:studentId` → scores persisted
-8. `GET /api/matches/:studentId` → ranked results
-9. `GET /api/notifications` → inbox + `unread_count`
-10. `PATCH /api/applications/:id` with `{ "status": "accepted" }` → student notified
+7. `POST /api/matches/run` → scores persisted for the signed-in student
+8. `GET /api/matches/me` → own matches only
+9. `GET /api/notifications` → inbox + unread count
+10. Company `POST /api/applications/:id/shortlist` / selections → student notified
 
 Full contract: `docs/API.md`.
 

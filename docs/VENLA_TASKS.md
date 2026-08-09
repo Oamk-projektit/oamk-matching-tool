@@ -27,7 +27,8 @@ Tähän listataan **vain** Venlan myöhemmät UI-tehtävät. Älä toteuta näit
 - API: `docs/API.md` — vastaus `{ data, meta }`, virhe `{ error: { code, message, details } }`
 - Skeema (target): `docs/SCHEMA.md`
 - Projects-model CRUD (students/courses/projects/applications): live `/api/*`
-- Legacy opportunities surface still present for older demos: `types/legacy.ts`, `/api/opportunities`
+- Frontend client: `lib/api/client.ts` (canonical). `lib/shared/api-client.ts` is a thin alias.
+- Legacy `/api/opportunities` returns **410 Gone** — do not wire UI to it.
 
 ### Yksityisyys (UI:ssa pakollista)
 

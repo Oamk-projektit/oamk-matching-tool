@@ -33,8 +33,8 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 6. [ ] Painojen summa validoituu 100 prosenttiin (virheellinen summa hylätään)
 7. [ ] Projekti julkaistaan (`published`)
 8. [ ] Opiskelija hakee projektiin
-9. [ ] Matching lasketaan (`POST /api/matches/run/:studentId` tai UI)
-10. [ ] Opiskelija näkee **oman** tuloksensa ja selityksen — ei vertailurankia
+9. [ ] Matching lasketaan (`POST /api/matches/run` tai UI `/matches`)
+10. [ ] Opiskelija näkee **oman** tuloksensa (`GET /api/matches/me`) ja selityksen — ei vertailurankia
 11. [ ] Yritys näkee hakijat järjestettyinä (`/company/projects/:id/applicants`)
 12. [ ] Yritys näkee Top 3 -ehdokkaat (`/company/projects/:id/top`)
 13. [ ] Opiskelija **ei** näe Top 3 -listaa (`GET /api/projects/:id/top-candidates` → `403`)
@@ -54,6 +54,7 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 | Happy-path contracts (weights, selection, notify) | `lib/mvp/e2e-rules.test.ts` |
 | DB integrity + RLS smoke | `supabase/tests/integrity_check.sql` |
 | Live API student/teacher/company flows | `npm run smoke:student` / `smoke:teacher` / `smoke:company` |
+| Authz / privacy / role-escalation probes | `npm run smoke:security` |
 
 ## Notes
 

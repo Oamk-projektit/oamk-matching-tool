@@ -4,7 +4,10 @@ import {
   resetEmailOutbox,
   simulateNotificationEmail,
 } from '@/lib/notifications/email-stub'
-import { createSharedApiClient, SharedApiError } from '@/lib/shared/api-client'
+import {
+  createSharedApiClient,
+  SharedApiError,
+} from '@/lib/shared/api-client'
 
 describe('email stub (#138/#146)', () => {
   beforeEach(() => {
@@ -23,7 +26,7 @@ describe('email stub (#138/#146)', () => {
 })
 
 describe('shared api client (#143)', () => {
-  it('calls health without auth header', async () => {
+  it('delegates to the projects-model client (unwraps health envelope)', async () => {
     const fetchImpl: typeof fetch = async (input) => {
       expect(String(input)).toBe('http://localhost:3000/api/health')
       return new Response(
@@ -45,8 +48,8 @@ describe('shared api client (#143)', () => {
       fetchImpl,
     })
     const health = await client.health()
-    expect(health.data.status).toBe('ok')
-    expect(health.data.database).toBe('connected')
+    expect(health.status).toBe('ok')
+    expect(health.database).toBe('connected')
   })
 
   it('throws SharedApiError on 401', async () => {

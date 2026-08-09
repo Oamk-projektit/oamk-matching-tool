@@ -12,8 +12,9 @@ Tämä dokumentti kokoaa yhteisen sopimuksen. Kanoninen totuus:
 | Domain-mallit | `types/domain.ts` |
 | API-tyypit | `types/api.ts` |
 | REST-sopimus | `docs/API.md` |
-| Skeema (nykyinen runtime) | `docs/SCHEMA.md` — **migraatio tulossa** |
-| Legacy runtime -tyypit | `types/legacy.ts` (väliaikainen) |
+| Skeema (nykyinen runtime) | `docs/SCHEMA.md` |
+| Frontend API-client | `lib/api/client.ts` (`lib/shared/api-client.ts` on yhteensopivuus-alias) |
+| Legacy helpers | `types/legacy.ts` (ei live HTTP; `/api/opportunities` → 410) |
 
 ## Kanoniset päätökset
 
@@ -79,7 +80,9 @@ Tämä dokumentti kokoaa yhteisen sopimuksen. Kanoninen totuus:
 
 ## Frontend-integraatio
 
-Venla käyttää service-kerrosta (päivitetty `api-client` reittimigraation jälkeen).  
+Venla käyttää `lib/api/client.ts` (`createApiClient` / `api`).  
+`lib/shared/api-client.ts` re-exporttaa saman clientin vanhemmilla nimillä (`createSharedApiClient`).  
 Älä rakenna rinnakkaisia kenttänimiä — mapaa vain näyttötekstit.
 
 Live-API käyttää `projects`-polkuja (`types/domain.ts`). Legacy `/api/opportunities` palauttaa **410 Gone**.
+Opiskelijan match-lukeminen: `GET /api/matches/me` (ei vertailurankia).
