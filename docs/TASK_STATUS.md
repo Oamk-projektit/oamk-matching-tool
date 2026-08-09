@@ -33,8 +33,8 @@ Paketti viimeistelty 9.8.2026: lukemisjärjestys + lyhyt yhteenveto `RAPORTTI.md
 
 | Vaihe | Sisältö |
 |-------|---------|
-| #120 / #121 | Selain-E2E opiskelija + yritys/opettaja (API-smoket OK; Postman päivitetty) |
-| #153 | Esitysharjoitus / live dry-run checklistin talking points -osion mukaan |
+| #120 / #121 | Selain-E2E opiskelija + yritys/opettaja (API dry-run OK via `npm run demo:dry-run`) |
+| #153 | Spoken rehearsal (talking points); API dry-run documented 9.8.2026 |
 
 ## Shared — Tommin osuus valmis
 
@@ -46,9 +46,9 @@ Paketti viimeistelty 9.8.2026: lukemisjärjestys + lyhyt yhteenveto `RAPORTTI.md
 | #149 / #152 | johdanto + pohdinta | — (valmis) |
 | #150 / #124 | frontend-raportti | — (valmis) |
 | #151 | `RAPORTTI_BACKEND.md` | — |
-| #153 | `DEMO_CHECKLIST.md` + Postman + `API_TESTING.md` | live dry-run |
+| #153 | `DEMO_CHECKLIST.md` + `npm run demo:dry-run` + Postman | selain-E2E + spoken rehearsal |
 
 ## Avoinna
 
-- #120–#121 manuaalinen selain-E2E yhdessä demossa
-- #153 live-esityksen dry-run (materiaali valmis)
+- #120–#121 manuaalinen selain-E2E (browser MCP flaky 9.8.; API dry-run OK)
+- #153 spoken rehearsal (API dry-run + checklist materiaali valmis)

@@ -8,8 +8,10 @@ Manual end-to-end path for the final demo (#153). Canonical data model is **proj
 - [ ] `.env.local` has URL, anon key, service role key (`cp .env.example .env.local`)
 - [ ] `npm run lint` / `npm run typecheck` / `npm test` / `npm run build` green
 - [ ] `npm run dev` running
-- [ ] Optional but recommended: `npm run smoke:flows` and `npm run smoke:security`
+- [ ] Recommended: `npm run demo:dry-run` (runs `npm test` + `smoke:flows` + `smoke:security`)
 - [ ] Postman import refreshed: `docs/postman_collection.json` (projects model)
+
+**Turbopack tip:** if nested routes like `GET /api/projects/:id/top-candidates` return an **HTML 404** while `/api/projects/:id` still works, stop Next, delete `.next`, and run `npm run dev` again. Stale `.next` can drop nested App Router handlers until a clean restart.
 
 ## Demo accounts (seed)
 
@@ -51,6 +53,7 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 
 | Checklist steps | Command |
 |-----------------|---------|
+| Full API dry-run (tests + all role flows + security) | `npm run demo:dry-run` |
 | Student login → match → apply → notifications (≈ 1–10, 17) | `npm run smoke:student` |
 | Company applicants / Top 3 / selection (≈ 11–15) | `npm run smoke:company` |
 | Teacher oversight / audit (≈ 16, 18) | `npm run smoke:teacher` |
@@ -81,7 +84,8 @@ Backup if UI flakes: show Postman or terminal smoke output for the same steps (`
 |------------|------|
 | Checklist + talking points | Valmis |
 | Seed-tilit + Postman + API smokes | Valmis |
-| Manuaalinen selainkävely (#120 / #121) | Auki — aja ennen live-esitystä |
+| `npm run demo:dry-run` (API) | **OK 9.8.2026** — `npm test` 213/213, `smoke:flows` + `smoke:security` 21/21 PASS (after clearing stale `.next`) |
+| Manuaalinen selainkävely (#120 / #121) | Auki — browser MCP flaky; aja ennen live-esitystä |
 | Raportti (johdanto / backend / frontend / pohdinta) | Valmis (`docs/RAPORTTI.md`) |
 
 Owner for live dry-run: Tommi (Venla not on the project).
