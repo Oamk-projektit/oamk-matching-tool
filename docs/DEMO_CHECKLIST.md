@@ -21,14 +21,14 @@ Manual end-to-end path for the final demo (#153). Canonical data model is **proj
 | Admin | `admin.demo@oamk.fi` | Full access |
 | Company (Nordic Soft) | `contact@nordicsoft.example` | Owns Campus portal project |
 | Company (Polar Byte) | `hr@polarbyte.example` | Isolation check vs Nordic Soft |
-| Student (strong match) | `aino.virtanen@students.oamk.fi` | Primary demo student |
+| Student (strong match) | `t3jato02@students.oamk.fi` | Primary manual-test account; uses the requested OAMK address locally |
 | Student | `mikko.korhonen@students.oamk.fi` | Secondary |
 
 Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 
 ## MVP demopolku
 
-1. [ ] Opiskelija kirjautuu (`aino.virtanen@students.oamk.fi`) **tai** rekisteröityy uutena käyttäjänä
+1. [ ] Opiskelija kirjautuu (`t3jato02@students.oamk.fi`) **tai** rekisteröityy uutena käyttäjänä
 2. [ ] Opiskelijaprofiili voidaan täyttää / päivittää (`/profile/edit`)
 3. [ ] Kursseja, taitoja ja kiinnostuksia voidaan lisätä
 4. [ ] Yritys kirjautuu (`contact@nordicsoft.example`) ja luo projektin **tai** käyttää seed-projektia
@@ -54,6 +54,7 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 | Checklist steps | Command |
 |-----------------|---------|
 | Full API dry-run (tests + all role flows + security) | `npm run demo:dry-run` |
+| Browser role journeys | `npm run test:e2e` |
 | Student login → match → apply → notifications (≈ 1–10, 17) | `npm run smoke:student` |
 | Company applicants / Top 3 / selection (≈ 11–15) | `npm run smoke:company` |
 | Teacher oversight / audit (≈ 16, 18) | `npm run smoke:teacher` |
@@ -94,6 +95,8 @@ Owner for live dry-run: Tommi (Venla not on the project).
 
 - Matching is **deterministic and explainable**; the company always makes the final selection.
 - Email delivery uses a **stub** in MVP — notifications are persisted in-app.
+- `t3jato02@students.oamk.fi` is an Auth identifier in the local seed. The local seed does not send email or connect to the OAMK mailbox.
+- One Auth email can have only one application role. Company, teacher and admin therefore retain separate fictional seed addresses.
 - Do not run `supabase/seed.sql` against a production Supabase project.
 - Legacy `/api/opportunities` routes return **410 Gone** — use `/api/projects`.
 - Full report TOC: `docs/RAPORTTI.md`.

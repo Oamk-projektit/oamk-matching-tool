@@ -33,7 +33,7 @@ Demo accounts (from `supabase/seed.sql`, password `LocalDemoOnly!1` for all — 
 | Teacher | `teacher.demo@oamk.fi` |
 | Admin | `admin.demo@oamk.fi` |
 | Company | `contact@nordicsoft.example`, `hr@polarbyte.example` |
-| Student | `aino.virtanen@students.oamk.fi` (strong match), `mikko.korhonen@students.oamk.fi`, `sara.nieminen@students.oamk.fi`, `alex.smith@students.oamk.fi`, `emilia.laitinen@students.oamk.fi` |
+| Student | `t3jato02@students.oamk.fi` (primary manual-test account, strong match), `mikko.korhonen@students.oamk.fi`, `sara.nieminen@students.oamk.fi`, `alex.smith@students.oamk.fi`, `emilia.laitinen@students.oamk.fi` |
 
 ## Scripts
 
@@ -45,6 +45,7 @@ Demo accounts (from `supabase/seed.sql`, password `LocalDemoOnly!1` for all — 
 | `npm run lint` | ESLint |
 | `npm test` | Unit tests (Vitest) — matching engine, validation, permissions, API helpers |
 | `npm run test:watch` | Unit tests in watch mode |
+| `npm run test:e2e` | Playwright browser journeys (requires local seeded Supabase) |
 | `npm run verify` | `tsc --noEmit` + `npm test` — run before pushing |
 | `npm run gen:types` | Regenerate `types/database.ts` from the live Supabase schema |
 | `npm run smoke` | Basic API smoke: health + auth + list projects |

@@ -13,7 +13,7 @@ import {
   signInWithPassword,
 } from './lib/smoke-helpers.mjs'
 
-const email = process.env.SMOKE_EMAIL ?? 'aino.virtanen@students.oamk.fi'
+const email = process.env.SMOKE_EMAIL ?? 't3jato02@students.oamk.fi'
 const password = process.env.SMOKE_PASSWORD ?? 'LocalDemoOnly!1'
 
 async function main() {

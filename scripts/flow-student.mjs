@@ -15,7 +15,7 @@ import {
 } from './lib/smoke-helpers.mjs'
 
 const email =
-  process.env.SMOKE_STUDENT_EMAIL ?? 'aino.virtanen@students.oamk.fi'
+  process.env.SMOKE_STUDENT_EMAIL ?? 't3jato02@students.oamk.fi'
 const password = process.env.SMOKE_PASSWORD ?? 'LocalDemoOnly!1'
 const campusPortalId = '90000000-0000-4000-8000-000000000001'
 

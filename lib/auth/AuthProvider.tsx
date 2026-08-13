@@ -22,7 +22,7 @@ import React, {
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
-import { ApiClientError, api } from '@/lib/api/client'
+import { ApiClientError, api, createApiClient } from '@/lib/api/client'
 import type { MeData } from '@/types/api'
 import type { PreferredLanguage, Profile, UserRole } from '@/types/domain'
 
@@ -146,9 +146,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw signInError
       }
       setUser(data.user ?? null)
-      return refreshMe()
+      const accessToken = data.session?.access_token
+      if (!accessToken) return null
+      const me = await createApiClient({ accessToken }).me()
+      setProfile(me.profile)
+      setStudentId(me.studentId)
+      setCompanyId(me.companyId)
+      return me
     },
-    [refreshMe]
+    []
   )
 
   const signUp = useCallback(
@@ -173,9 +179,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user ?? null)
       // No session yet (e.g. email confirmation required) — nothing to fetch.
       if (!data.session) return null
-      return refreshMe()
+      const me = await createApiClient({
+        accessToken: data.session.access_token,
+      }).me()
+      setProfile(me.profile)
+      setStudentId(me.studentId)
+      setCompanyId(me.companyId)
+      return me
     },
-    [refreshMe]
+    []
   )
 
   const signOut = useCallback(

@@ -76,11 +76,11 @@ VALUES
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000011',
     'authenticated', 'authenticated',
-    'aino.virtanen@students.oamk.fi',
+    't3jato02@students.oamk.fi',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"role":"student","display_name":"Aino Virtanen","preferred_language":"fi"}',
+    '{"role":"student","display_name":"T3JATO02 Test Student","preferred_language":"fi"}',
     now(), now(), '', '', '', ''
   ),
   (
@@ -161,7 +161,7 @@ VALUES
   ('a0000000-0000-4000-8000-000000000002', 'admin', 'Demo Admin', 'admin.demo@oamk.fi', 'fi'),
   ('a0000000-0000-4000-8000-000000000003', 'company', 'Nordic Soft Oy', 'contact@nordicsoft.example', 'fi'),
   ('a0000000-0000-4000-8000-000000000004', 'company', 'Polar Byte Ab', 'hr@polarbyte.example', 'en'),
-  ('a0000000-0000-4000-8000-000000000011', 'student', 'Aino Virtanen', 'aino.virtanen@students.oamk.fi', 'fi'),
+  ('a0000000-0000-4000-8000-000000000011', 'student', 'T3JATO02 Test Student', 't3jato02@students.oamk.fi', 'fi'),
   ('a0000000-0000-4000-8000-000000000012', 'student', 'Mikko Korhonen', 'mikko.korhonen@students.oamk.fi', 'fi'),
   ('a0000000-0000-4000-8000-000000000013', 'student', 'Sara Nieminen', 'sara.nieminen@students.oamk.fi', 'fi'),
   ('a0000000-0000-4000-8000-000000000014', 'student', 'Alex Smith', 'alex.smith@students.oamk.fi', 'en'),

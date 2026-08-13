@@ -16,7 +16,7 @@ import type {
 import { DEFAULT_MATCHING_WEIGHTS } from '@/types/legacy'
 
 /** Seed auth password for local demo users (see supabase/seed.sql). */
-export const DEMO_PASSWORD = 'Passw0rd!'
+export const DEMO_PASSWORD = 'LocalDemoOnly!1'
 
 export const DEMO_USERS = {
   teacher: {
@@ -31,7 +31,7 @@ export const DEMO_USERS = {
   },
   aino: {
     id: 'a0000000-0000-4000-8000-000000000011',
-    email: 'aino.virtanen@students.oamk.fi',
+    email: 't3jato02@students.oamk.fi',
     role: 'student' as const,
   },
   mikko: {

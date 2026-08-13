@@ -9,6 +9,7 @@ How to run and extend the test suite for the OAMK Matching Tool.
 ```bash
 npm test          # vitest run — single pass, CI-friendly
 npm run test:watch  # vitest — watch mode for local development
+npm run test:e2e    # Playwright — seeded local Supabase + browser journeys
 ```
 
 Test files (Vitest, `*.test.ts`, colocated with source):
@@ -57,7 +58,7 @@ These mirror the privacy rules in `docs/SECURITY.md` and should pass before any 
 
 | # | Rule | How to verify |
 |---|------|----------------|
-| 1 | Top 3 hidden from students | As `aino.virtanen@students.oamk.fi`, call `GET /api/projects/:id/top-candidates` for any project → expect `403 FORBIDDEN` |
+| 1 | Top 3 hidden from students | As `t3jato02@students.oamk.fi`, call `GET /api/projects/:id/top-candidates` for any project → expect `403 FORBIDDEN` |
 | 2 | Student sees only own match | As a student, call `GET /api/matches/me` → every row's `studentId` equals the caller's own student ID; no peer scores appear |
 | 3 | Full ranked applicant list is staff-only | As a student, call `GET /api/projects/:id/applicants` or `GET /api/projects/:id/matches` → expect `403 FORBIDDEN` |
 | 4 | Company isolation | As `contact@nordicsoft.example` (Nordic Soft), try to fetch a Polar Byte project's applicants/matches/selections → expect `403`/`404`, never Polar Byte data |
@@ -82,7 +83,7 @@ From `supabase/seed.sql` (local/dev only, loaded by `supabase db reset`). Passwo
 | Admin | `admin.demo@oamk.fi` | Full access |
 | Company | `contact@nordicsoft.example` | Owns Nordic Soft Oy projects |
 | Company | `hr@polarbyte.example` | Owns Polar Byte Ab projects — use for the company-isolation check above |
-| Student | `aino.virtanen@students.oamk.fi` | 160 credits, strong skill/course overlap — good "high score" demo case |
+| Student | `t3jato02@students.oamk.fi` | Primary manual-test account; 160 credits and strong overlap |
 | Student | `mikko.korhonen@students.oamk.fi` | 90 credits, partial overlap |
 | Student | `sara.nieminen@students.oamk.fi` | 45 credits, internship-only preference |
 | Student | `alex.smith@students.oamk.fi` | English-speaking profile |

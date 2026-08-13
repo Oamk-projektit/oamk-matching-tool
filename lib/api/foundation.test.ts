@@ -127,7 +127,7 @@ describe('roleFromMetadata (signup bootstrap)', () => {
     return {
       id: '00000000-0000-4000-8000-000000000099',
       user_metadata: { role },
-    } as User
+    } as unknown as User
   }
 
   it('allows only student and company from metadata', () => {

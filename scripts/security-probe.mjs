@@ -163,12 +163,13 @@ async function main() {
   record('health', 'PASS', 'database connected')
 
   // --- Student journey negatives ---
-  const studentToken = await signIn('aino.virtanen@students.oamk.fi')
+  const studentToken = await signIn(
+    process.env.SMOKE_STUDENT_EMAIL ?? 't3jato02@students.oamk.fi'
+  )
   record('student-signin', 'PASS')
 
   const me = await api(baseUrl, '/api/me', { token: studentToken })
   const studentRole = me.json?.data?.profile?.role
-  const studentId = me.json?.data?.studentId
   record('student-me', studentRole === 'student' ? 'PASS' : 'FAIL', `role=${studentRole}`)
 
   const top = await api(baseUrl, `/api/projects/${campusPortalId}/top-candidates`, {

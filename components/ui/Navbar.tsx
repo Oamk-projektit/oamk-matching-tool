@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from './Button'
 import { Tag } from './Tag'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -16,6 +17,7 @@ export const Navbar: React.FC = () => {
   const [authReady, setAuthReady] = useState(false)
   const { t } = useTranslations()
   const { user, role, loading, signOut } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     setAuthReady(true)
@@ -28,7 +30,8 @@ export const Navbar: React.FC = () => {
 
   async function handleLogout() {
     await signOut()
-    window.location.href = '/login'
+    router.push('/login')
+    router.refresh()
   }
 
   return (

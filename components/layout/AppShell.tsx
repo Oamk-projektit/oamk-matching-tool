@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button, LoadingState, Tag } from '@/components/ui'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { useTranslations } from '@/lib/i18n'
@@ -31,12 +31,14 @@ export function AppShell({ children, title, primaryAction }: AppShellProps) {
   const { t } = useTranslations()
   const { loading, role, profile, signOut } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
 
   const links = getNavLinks(role)
 
   async function handleLogout() {
     await signOut()
-    window.location.href = '/login'
+    router.push('/login')
+    router.refresh()
   }
 
   if (loading) {
