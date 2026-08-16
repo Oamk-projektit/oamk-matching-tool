@@ -138,6 +138,10 @@ export interface CompanyUser {
 export interface Student {
   id: string
   profileId: string
+  displayName?: string | null
+  educationFieldCode: import('@/lib/education/catalog').EducationFieldCode | null
+  degreeProgrammeCode: import('@/lib/education/catalog').DegreeProgrammeCode | null
+  specializationCode: import('@/lib/education/catalog').SpecializationCode | null
   degreeProgramme: string | null
   department: string | null
   studyCredits: number

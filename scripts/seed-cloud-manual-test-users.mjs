@@ -242,9 +242,9 @@ async function main() {
   ], 'company_id,profile_id')
 
   await upsertRows('courses', [
-    { id: ids.courses.ai, code: 'MANUAL-QA-AI', name_fi: 'AI ja koneoppiminen', name_en: 'AI and Machine Learning', credits: 5, department: 'ICT', active: true },
-    { id: ids.courses.frontend, code: 'MANUAL-QA-FE', name_fi: 'Frontend-kehitys', name_en: 'Frontend Development', credits: 5, department: 'ICT', active: true },
-    { id: ids.courses.backend, code: 'MANUAL-QA-BE', name_fi: 'Backend API:t', name_en: 'Backend APIs', credits: 5, department: 'ICT', active: true },
+    { id: ids.courses.ai, code: 'MANUAL-QA-AI', name_fi: 'AI ja koneoppiminen', name_en: 'AI and Machine Learning', credits: 5, department: 'Informaatioteknologia', active: true },
+    { id: ids.courses.frontend, code: 'MANUAL-QA-FE', name_fi: 'Frontend-kehitys', name_en: 'Frontend Development', credits: 5, department: 'Informaatioteknologia', active: true },
+    { id: ids.courses.backend, code: 'MANUAL-QA-BE', name_fi: 'Backend API:t', name_en: 'Backend APIs', credits: 5, department: 'Informaatioteknologia', active: true },
   ])
   await upsertRows('skills', [
     { id: ids.skills.python, name_fi: 'Python', name_en: 'Python', normalized_name: 'manual-qa-python' },
@@ -260,9 +260,9 @@ async function main() {
   ])
 
   await upsertRows('students', [
-    { id: ids.students.student1, profile_id: userIds.student1, degree_programme: 'Software Engineering', department: 'ICT', study_credits: 180, availability_start: '2026-09-01', availability_end: '2027-05-31', preferred_project_types: ['company_project'] },
-    { id: ids.students.student2, profile_id: userIds.student2, degree_programme: 'Software Engineering', department: 'ICT', study_credits: 100, availability_start: '2026-09-01', availability_end: '2027-01-31', preferred_project_types: ['company_project', 'internship'] },
-    { id: ids.students.student3, profile_id: userIds.student3, degree_programme: 'Business Information Technology', department: 'Business', study_credits: 50, availability_start: '2027-02-01', availability_end: '2027-05-31', preferred_project_types: ['internship'] },
+    { id: ids.students.student1, profile_id: userIds.student1, education_field_code: 'information_technology', degree_programme_code: 'information_and_communication_technology', specialization_code: 'software_development', degree_programme: 'Tietotekniikan tutkinto-ohjelma', department: 'Informaatioteknologia', study_credits: 180, availability_start: '2026-09-01', availability_end: '2027-05-31', preferred_project_types: ['company_project'] },
+    { id: ids.students.student2, profile_id: userIds.student2, education_field_code: 'information_technology', degree_programme_code: 'information_and_communication_technology', specialization_code: 'software_development', degree_programme: 'Tietotekniikan tutkinto-ohjelma', department: 'Informaatioteknologia', study_credits: 100, availability_start: '2026-09-01', availability_end: '2027-01-31', preferred_project_types: ['company_project', 'internship'] },
+    { id: ids.students.student3, profile_id: userIds.student3, education_field_code: 'information_technology', degree_programme_code: 'business_information_systems', specialization_code: null, degree_programme: 'Tietojenkäsittelyn tutkinto-ohjelma', department: 'Informaatioteknologia', study_credits: 50, availability_start: '2027-02-01', availability_end: '2027-05-31', preferred_project_types: ['internship'] },
   ])
   await upsertRows('student_courses', [
     { student_id: ids.students.student1, course_id: ids.courses.ai },
@@ -286,9 +286,9 @@ async function main() {
   ], 'student_id,interest_id')
 
   await upsertRows('projects', [
-    { id: ids.projects.ai, company_id: ids.companies.company1, title: 'Manual QA AI / Python Project', description: TEST_MARKER, project_type: 'company_project', status: 'published', positions: 3, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode: 'hybrid', location: 'Oulu', remote_allowed: true, minimum_study_credits: 60, required_language: 'en', department: 'ICT' },
-    { id: ids.projects.frontend, company_id: ids.companies.company1, title: 'Manual QA Frontend Project', description: TEST_MARKER, project_type: 'company_project', status: 'published', positions: 2, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode: 'remote', location: 'Remote', remote_allowed: true, minimum_study_credits: 40, required_language: 'en', department: 'ICT' },
-    { id: ids.projects.backend, company_id: ids.companies.company1, title: 'Manual QA Backend APIs Project', description: TEST_MARKER, project_type: 'company_project', status: 'published', positions: 2, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode: 'hybrid', location: 'Oulu', remote_allowed: true, minimum_study_credits: 60, required_language: 'en', department: 'ICT' },
+    { id: ids.projects.ai, company_id: ids.companies.company1, title: 'Manual QA AI / Python Project', description: TEST_MARKER, project_type: 'company_project', status: 'published', positions: 3, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode: 'hybrid', location: 'Oulu', remote_allowed: true, minimum_study_credits: 60, required_language: 'en', department: 'Informaatioteknologia' },
+    { id: ids.projects.frontend, company_id: ids.companies.company1, title: 'Manual QA Frontend Project', description: TEST_MARKER, project_type: 'company_project', status: 'published', positions: 2, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode: 'remote', location: 'Remote', remote_allowed: true, minimum_study_credits: 40, required_language: 'en', department: 'Informaatioteknologia' },
+    { id: ids.projects.backend, company_id: ids.companies.company1, title: 'Manual QA Backend APIs Project', description: TEST_MARKER, project_type: 'company_project', status: 'published', positions: 2, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode: 'hybrid', location: 'Oulu', remote_allowed: true, minimum_study_credits: 60, required_language: 'en', department: 'Informaatioteknologia' },
   ])
   await upsertRows('project_required_courses', [
     { project_id: ids.projects.ai, course_id: ids.courses.ai },

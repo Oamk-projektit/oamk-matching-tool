@@ -19,6 +19,12 @@ import { formatDate, localizedName } from '@/lib/format'
 import { useTranslations } from '@/lib/i18n'
 import type { StudentDetail } from '@/types/api'
 import type { Course, Interest, Skill } from '@/types/domain'
+import {
+  degreeProgrammeName,
+  degreeTitleName,
+  educationFieldName,
+  specializationName,
+} from '@/lib/education/catalog'
 
 interface LoadedState {
   student: StudentDetail
@@ -90,10 +96,12 @@ function TeacherStudentDetailContent() {
           <>
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {state.student.degreeProgramme ?? t('common.notProvided')}
+                {state.student.displayName ?? t('common.notProvided')}
               </h1>
               <p className="mt-1 text-sm text-foreground-muted">
-                {state.student.department ?? t('common.notProvided')}
+                {degreeProgrammeName(state.student.degreeProgrammeCode, locale) ??
+                  state.student.degreeProgramme ??
+                  t('common.notProvided')}
               </p>
             </div>
 
@@ -102,6 +110,30 @@ function TeacherStudentDetailContent() {
                 <CardTitle>{t('teacher.studentsTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label={t('teacher.studentCard.educationField')}
+                  value={
+                    educationFieldName(state.student.educationFieldCode, locale) ??
+                    state.student.department ??
+                    t('common.notProvided')
+                  }
+                />
+                <Field
+                  label={t('teacher.studentCard.degreeTitle')}
+                  value={
+                    degreeTitleName(state.student.degreeProgrammeCode, locale) ??
+                    t('common.notProvided')
+                  }
+                />
+                {state.student.specializationCode && (
+                  <Field
+                    label={t('teacher.studentCard.specialization')}
+                    value={
+                      specializationName(state.student.specializationCode, locale) ??
+                      t('common.notProvided')
+                    }
+                  />
+                )}
                 <Field
                   label={t('teacher.studentCard.studyCredits')}
                   value={String(state.student.studyCredits)}

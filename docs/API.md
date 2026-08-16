@@ -235,7 +235,7 @@ No auth. Always probes database connectivity with a cheap privileged query.
 ```json
 {
   "degreeProgramme": "Tietotekniikka",
-  "department": "ICT",
+  "department": "Informaatioteknologia",
   "studyCredits": 120,
   "availabilityStart": "2026-09-01",
   "availabilityEnd": "2026-12-15",
@@ -288,7 +288,7 @@ Returns `ProjectDetail` (project + weights + related catalog IDs).
   "remoteAllowed": true,
   "minimumStudyCredits": 60,
   "requiredLanguage": "fi",
-  "department": "ICT",
+  "department": "Informaatioteknologia",
   "requiredCourseIds": ["..."],
   "recommendedCourseIds": ["..."],
   "requiredSkillIds": ["..."],
@@ -368,7 +368,7 @@ Sorted by match `totalScore` desc when a match exists.
       "student": {
         "id": "...",
         "degreeProgramme": "Tietotekniikka",
-        "department": "ICT",
+        "department": "Informaatioteknologia",
         "studyCredits": 120
       },
       "profile": {
@@ -663,7 +663,7 @@ Students and companies receive `403 FORBIDDEN`.
   "id": "s0000000-0000-4000-8000-000000000001",
   "profileId": "90000000-0000-4000-8000-000000000001",
   "degreeProgramme": "Tietotekniikka",
-  "department": "ICT",
+  "department": "Informaatioteknologia",
   "studyCredits": 120,
   "availabilityStart": "2026-09-01",
   "availabilityEnd": "2026-12-15",
@@ -693,7 +693,7 @@ Students and companies receive `403 FORBIDDEN`.
   "remoteAllowed": true,
   "minimumStudyCredits": 60,
   "requiredLanguage": "fi",
-  "department": "ICT",
+  "department": "Informaatioteknologia",
   "createdAt": "2026-08-01T10:00:00.000Z",
   "updatedAt": "2026-08-01T10:00:00.000Z"
 }

@@ -201,13 +201,13 @@ ON CONFLICT DO NOTHING;
 -- Catalogs
 -- ---------------------------------------------------------------------------
 INSERT INTO public.courses (id, code, name_fi, name_en, credits, department) VALUES
-  ('c1000000-0000-4000-8000-000000000001', 'TT00AA11', 'Web-ohjelmointi', 'Web Development', 5, 'ICT'),
-  ('c1000000-0000-4000-8000-000000000002', 'TT00AA12', 'Tietokannat', 'Databases', 5, 'ICT'),
-  ('c1000000-0000-4000-8000-000000000003', 'TT00AA13', 'Käyttöliittymäsuunnittelu', 'UI Design', 5, 'ICT'),
-  ('c1000000-0000-4000-8000-000000000004', 'TT00AA14', 'Ohjelmistotuotanto', 'Software Engineering', 5, 'ICT'),
-  ('c1000000-0000-4000-8000-000000000005', 'TT00AA15', 'Pilvipalvelut', 'Cloud Services', 5, 'ICT'),
-  ('c1000000-0000-4000-8000-000000000006', 'TT00AA16', 'Tietoturva', 'Information Security', 5, 'ICT'),
-  ('c1000000-0000-4000-8000-000000000007', 'TT00AA17', 'Johdatus ohjelmointiin', 'Introduction to Programming', 5, 'ICT')
+  ('c1000000-0000-4000-8000-000000000001', 'TT00AA11', 'Web-ohjelmointi', 'Web Development', 5, 'Informaatioteknologia'),
+  ('c1000000-0000-4000-8000-000000000002', 'TT00AA12', 'Tietokannat', 'Databases', 5, 'Informaatioteknologia'),
+  ('c1000000-0000-4000-8000-000000000003', 'TT00AA13', 'Käyttöliittymäsuunnittelu', 'UI Design', 5, 'Informaatioteknologia'),
+  ('c1000000-0000-4000-8000-000000000004', 'TT00AA14', 'Ohjelmistotuotanto', 'Software Engineering', 5, 'Informaatioteknologia'),
+  ('c1000000-0000-4000-8000-000000000005', 'TT00AA15', 'Pilvipalvelut', 'Cloud Services', 5, 'Informaatioteknologia'),
+  ('c1000000-0000-4000-8000-000000000006', 'TT00AA16', 'Tietoturva', 'Information Security', 5, 'Informaatioteknologia'),
+  ('c1000000-0000-4000-8000-000000000007', 'TT00AA17', 'Johdatus ohjelmointiin', 'Introduction to Programming', 5, 'Informaatioteknologia')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.skills (id, name_fi, name_en, normalized_name) VALUES
@@ -236,41 +236,52 @@ ON CONFLICT (id) DO NOTHING;
 -- Students (5)
 -- ---------------------------------------------------------------------------
 INSERT INTO public.students (
-  id, profile_id, degree_programme, department, study_credits,
+  id, profile_id, education_field_code, degree_programme_code,
+  specialization_code, degree_programme, department, study_credits,
   availability_start, availability_end, preferred_project_types
 ) VALUES
   (
     'b0000000-0000-4000-8000-000000000011',
     'a0000000-0000-4000-8000-000000000011',
-    'Tietotekniikka', 'ICT', 160,
+    'information_technology', 'information_and_communication_technology',
+    'software_development', 'Tietotekniikan tutkinto-ohjelma',
+    'Informaatioteknologia', 160,
     '2026-09-01', '2026-12-15',
     ARRAY['company_project']
   ),
   (
     'b0000000-0000-4000-8000-000000000012',
     'a0000000-0000-4000-8000-000000000012',
-    'Tietotekniikka', 'ICT', 90,
+    'information_technology', 'information_and_communication_technology',
+    'software_development', 'Tietotekniikan tutkinto-ohjelma',
+    'Informaatioteknologia', 90,
     '2026-09-01', '2027-01-31',
     ARRAY['company_project', 'internship']
   ),
   (
     'b0000000-0000-4000-8000-000000000013',
     'a0000000-0000-4000-8000-000000000013',
-    'Tieto- ja viestintätekniikka', 'ICT', 45,
+    'information_technology', 'information_and_communication_technology',
+    'device_oriented_software_development', 'Tietotekniikan tutkinto-ohjelma',
+    'Informaatioteknologia', 45,
     '2026-10-01', '2027-03-01',
     ARRAY['internship']
   ),
   (
     'b0000000-0000-4000-8000-000000000014',
     'a0000000-0000-4000-8000-000000000014',
-    'Information Technology', 'ICT', 110,
+    'information_technology', 'information_technology_beng', NULL,
+    'Bachelor of Engineering, Information Technology',
+    'Informaatioteknologia', 110,
     '2026-09-01', '2026-12-15',
     ARRAY['company_project']
   ),
   (
     'b0000000-0000-4000-8000-000000000015',
     'a0000000-0000-4000-8000-000000000015',
-    'Tietotekniikka', 'ICT', 130,
+    'information_technology', 'information_and_communication_technology',
+    'software_development', 'Tietotekniikan tutkinto-ohjelma',
+    'Informaatioteknologia', 130,
     '2026-09-01', '2027-02-28',
     ARRAY['company_project', 'internship']
   )
@@ -333,7 +344,7 @@ INSERT INTO public.projects (
     'Rebuild the student-facing campus portal UI with accessibility focus.',
     'company_project', 'published', 2,
     '2026-08-01', '2026-09-15', '2026-10-01', '2026-12-15',
-    'hybrid', 'Oulu', true, 60, 'fi', 'ICT'
+    'hybrid', 'Oulu', true, 60, 'fi', 'Informaatioteknologia'
   ),
   (
     '90000000-0000-4000-8000-000000000002',
@@ -342,7 +353,7 @@ INSERT INTO public.projects (
     'Improve search UX and ranking for the campus library catalogue.',
     'company_project', 'published', 1,
     '2026-08-01', '2026-09-30', '2026-10-15', '2026-12-15',
-    'hybrid', 'Oulu', true, 40, 'fi', 'ICT'
+    'hybrid', 'Oulu', true, 40, 'fi', 'Informaatioteknologia'
   ),
   (
     '90000000-0000-4000-8000-000000000003',
@@ -351,7 +362,7 @@ INSERT INTO public.projects (
     'Build a dashboard for IoT sensor data used in teaching labs.',
     'company_project', 'published', 3,
     '2026-08-01', '2026-10-01', '2026-10-15', '2027-02-01',
-    'onsite', 'Oulu', false, 80, 'fi', 'ICT'
+    'onsite', 'Oulu', false, 80, 'fi', 'Informaatioteknologia'
   ),
   (
     '90000000-0000-4000-8000-000000000004',
@@ -360,7 +371,7 @@ INSERT INTO public.projects (
     'React Native prototype for personalised student timetables.',
     'company_project', 'published', 2,
     '2026-08-01', '2026-09-20', '2026-10-01', '2026-12-31',
-    'remote', 'Remote', true, 50, 'en', 'ICT'
+    'remote', 'Remote', true, 50, 'en', 'Informaatioteknologia'
   ),
   (
     '90000000-0000-4000-8000-000000000005',
@@ -369,7 +380,7 @@ INSERT INTO public.projects (
     'Create tooling and checklists for WCAG audits of education sites.',
     'company_project', 'draft', 1,
     NULL, NULL, NULL, NULL,
-    'hybrid', 'Oulu', true, 30, 'fi', 'ICT'
+    'hybrid', 'Oulu', true, 30, 'fi', 'Informaatioteknologia'
   ),
   (
     '90000000-0000-4000-8000-000000000006',
@@ -378,7 +389,7 @@ INSERT INTO public.projects (
     'Internship with the internal web team maintaining campus components.',
     'internship', 'published', 1,
     '2026-08-01', '2026-09-10', '2026-10-01', '2027-03-01',
-    'onsite', 'Oulu', false, 90, 'fi', 'ICT'
+    'onsite', 'Oulu', false, 90, 'fi', 'Informaatioteknologia'
   ),
   (
     '90000000-0000-4000-8000-000000000007',
@@ -387,7 +398,7 @@ INSERT INTO public.projects (
     'Assist with AWS deployments and monitoring for teaching environments.',
     'internship', 'published', 1,
     '2026-08-01', '2026-09-25', '2026-10-01', '2027-03-01',
-    'hybrid', 'Oulu', true, 100, 'fi', 'ICT'
+    'hybrid', 'Oulu', true, 100, 'fi', 'Informaatioteknologia'
   )
 ON CONFLICT (id) DO NOTHING;
 

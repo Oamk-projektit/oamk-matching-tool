@@ -116,6 +116,9 @@ export async function getStudentById(
   return {
     id: detail.id,
     profileId: detail.profileId,
+    educationFieldCode: detail.educationFieldCode,
+    degreeProgrammeCode: detail.degreeProgrammeCode,
+    specializationCode: detail.specializationCode,
     degreeProgramme: detail.degreeProgramme,
     department: detail.department,
     studyCredits: detail.studyCredits,
@@ -162,6 +165,9 @@ export async function createStudent(
     .from('students')
     .insert({
       profile_id: profileId,
+      education_field_code: input.educationFieldCode ?? null,
+      degree_programme_code: input.degreeProgrammeCode ?? null,
+      specialization_code: input.specializationCode ?? null,
       degree_programme: input.degreeProgramme ?? null,
       department: input.department ?? null,
       study_credits: input.studyCredits ?? 0,
@@ -203,6 +209,15 @@ export async function updateStudent(
   input: UpdateStudentRequest
 ): Promise<StudentDetail> {
   const patch: Record<string, unknown> = {}
+  if (input.educationFieldCode !== undefined) {
+    patch.education_field_code = input.educationFieldCode
+  }
+  if (input.degreeProgrammeCode !== undefined) {
+    patch.degree_programme_code = input.degreeProgrammeCode
+  }
+  if (input.specializationCode !== undefined) {
+    patch.specialization_code = input.specializationCode
+  }
   if (input.degreeProgramme !== undefined) {
     patch.degree_programme = input.degreeProgramme
   }

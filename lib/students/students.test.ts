@@ -27,7 +27,7 @@ const sampleDetail = mapStudentDetail({
   id: 's0000000-0000-4000-8000-000000000001',
   profile_id: 'p0000000-0000-4000-8000-000000000001',
   degree_programme: 'Tietotekniikka',
-  department: 'ICT',
+  department: 'Informaatioteknologia',
   study_credits: 120,
   availability_start: '2026-09-01',
   availability_end: '2026-12-15',
@@ -43,7 +43,7 @@ describe('student profile validation', () => {
   it('parses full create payload including study metadata', () => {
     const parsed = parseCreateStudent({
       degreeProgramme: 'Tietotekniikka',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       studyCredits: 120,
       availabilityStart: '2026-09-01',
       availabilityEnd: '2026-12-15',
@@ -54,7 +54,7 @@ describe('student profile validation', () => {
     })
     expect(parsed).toMatchObject({
       degreeProgramme: 'Tietotekniikka',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       studyCredits: 120,
       availabilityStart: '2026-09-01',
       availabilityEnd: '2026-12-15',
@@ -63,6 +63,24 @@ describe('student profile validation', () => {
       'company_project',
       'internship',
     ])
+  })
+
+  it('maps the profile display name for staff student lists', () => {
+    const student = mapStudentDetail({
+      id: 's0000000-0000-4000-8000-000000000002',
+      profile_id: 'p0000000-0000-4000-8000-000000000002',
+      profiles: { display_name: 'Manual QA Student 1' },
+      degree_programme: null,
+      department: null,
+      study_credits: 0,
+      availability_start: null,
+      availability_end: null,
+      preferred_project_types: [],
+      created_at: '2026-08-01T10:00:00.000Z',
+      updated_at: '2026-08-01T10:00:00.000Z',
+    })
+
+    expect(student.displayName).toBe('Manual QA Student 1')
   })
 
   it('rejects negative study credits', () => {
@@ -300,8 +318,11 @@ describe('student access control', () => {
     )
     expect(shaped).toEqual({
       id: sampleDetail.id,
+      educationFieldCode: null,
+      degreeProgrammeCode: null,
+      specializationCode: null,
       degreeProgramme: 'Tietotekniikka',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       studyCredits: 120,
       preferredProjectTypes: ['company_project', 'internship'],
     })
@@ -327,7 +348,7 @@ describe('course catalog search', () => {
         name_fi: 'Web-ohjelmointi',
         name_en: 'Web Programming',
         credits: 5,
-        department: 'ICT',
+        department: 'Informaatioteknologia',
         active: true,
       })
     ).toEqual({
@@ -336,7 +357,7 @@ describe('course catalog search', () => {
       nameFi: 'Web-ohjelmointi',
       nameEn: 'Web Programming',
       credits: 5,
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       active: true,
     })
   })

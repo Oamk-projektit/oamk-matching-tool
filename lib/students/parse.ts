@@ -18,10 +18,45 @@ import {
 } from '@/lib/validation/domain'
 import { isUuid, ValidationError } from '@/lib/validation'
 import { displayCatalogLabel } from '@/lib/catalogs/normalize'
+import {
+  DEGREE_PROGRAMMES,
+  EDUCATION_FIELDS,
+  SPECIALIZATIONS,
+  type DegreeProgrammeCode,
+  type EducationFieldCode,
+  type SpecializationCode,
+} from '@/lib/education/catalog'
+
+function optionalCatalogCode<T extends string>(
+  value: unknown,
+  field: string,
+  catalog: Record<T, unknown>
+): T | null {
+  if (value === undefined || value === null || value === '') return null
+  if (typeof value === 'string' && value in catalog) return value as T
+  throw new ValidationError(`${field} is invalid`, [
+    { field, message: 'Must be a canonical Oamk education code' },
+  ])
+}
 
 export function parseCreateStudent(body: unknown): CreateStudentRequest {
   const raw = requireObject(body)
   return {
+    educationFieldCode: optionalCatalogCode(
+      raw.educationFieldCode,
+      'educationFieldCode',
+      EDUCATION_FIELDS
+    ),
+    degreeProgrammeCode: optionalCatalogCode(
+      raw.degreeProgrammeCode,
+      'degreeProgrammeCode',
+      DEGREE_PROGRAMMES
+    ),
+    specializationCode: optionalCatalogCode(
+      raw.specializationCode,
+      'specializationCode',
+      SPECIALIZATIONS
+    ),
     degreeProgramme: assertOptionalString(raw.degreeProgramme, 'degreeProgramme') ?? null,
     department: assertOptionalString(raw.department, 'department') ?? null,
     studyCredits: assertNonNegativeInt(raw.studyCredits, 'studyCredits', 0),
@@ -42,6 +77,28 @@ export function parseCreateStudent(body: unknown): CreateStudentRequest {
 export function parseUpdateStudent(body: unknown): UpdateStudentRequest {
   const raw = requireObject(body)
   const out: UpdateStudentRequest = {}
+
+  if (raw.educationFieldCode !== undefined) {
+    out.educationFieldCode = optionalCatalogCode(
+      raw.educationFieldCode,
+      'educationFieldCode',
+      EDUCATION_FIELDS
+    )
+  }
+  if (raw.degreeProgrammeCode !== undefined) {
+    out.degreeProgrammeCode = optionalCatalogCode(
+      raw.degreeProgrammeCode,
+      'degreeProgrammeCode',
+      DEGREE_PROGRAMMES
+    )
+  }
+  if (raw.specializationCode !== undefined) {
+    out.specializationCode = optionalCatalogCode(
+      raw.specializationCode,
+      'specializationCode',
+      SPECIALIZATIONS
+    )
+  }
 
   if (raw.degreeProgramme !== undefined) {
     out.degreeProgramme = assertOptionalString(
@@ -168,6 +225,10 @@ export function parseAddStudentInterest(
 type StudentRow = {
   id: string
   profile_id: string
+  education_field_code?: EducationFieldCode | null
+  degree_programme_code?: DegreeProgrammeCode | null
+  specialization_code?: SpecializationCode | null
+  profiles?: { display_name: string } | { display_name: string }[] | null
   degree_programme: string | null
   department: string | null
   study_credits: number
@@ -181,9 +242,17 @@ type StudentRow = {
   student_interests?: { interest_id: string }[] | null
 }
 
+function profileDisplayName(row: StudentRow): string | null {
+  const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
+  return profile?.display_name ?? null
+}
+
 export const STUDENT_SELECT = `
   id,
   profile_id,
+  education_field_code,
+  degree_programme_code,
+  specialization_code,
   degree_programme,
   department,
   study_credits,
@@ -192,6 +261,7 @@ export const STUDENT_SELECT = `
   preferred_project_types,
   created_at,
   updated_at,
+  profiles(display_name),
   student_courses(course_id),
   student_skills(skill_id),
   student_interests(interest_id)
@@ -201,6 +271,10 @@ export function mapStudentRow(row: StudentRow): Student {
   return {
     id: row.id,
     profileId: row.profile_id,
+    displayName: profileDisplayName(row),
+    educationFieldCode: row.education_field_code ?? null,
+    degreeProgrammeCode: row.degree_programme_code ?? null,
+    specializationCode: row.specialization_code ?? null,
     degreeProgramme: row.degree_programme,
     department: row.department,
     studyCredits: row.study_credits,
@@ -225,6 +299,9 @@ export function mapStudentDetail(row: StudentRow): StudentDetail {
 export function toCompanyStudentView(student: Student) {
   return {
     id: student.id,
+    educationFieldCode: student.educationFieldCode,
+    degreeProgrammeCode: student.degreeProgrammeCode,
+    specializationCode: student.specializationCode,
     degreeProgramme: student.degreeProgramme,
     department: student.department,
     studyCredits: student.studyCredits,

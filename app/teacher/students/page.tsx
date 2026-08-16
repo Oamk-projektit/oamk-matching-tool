@@ -7,9 +7,15 @@ import { Button, Card, EmptyState, ErrorState, LoadingState } from '@/components
 import { ApiClientError, api } from '@/lib/api/client'
 import { useTranslations } from '@/lib/i18n'
 import type { Student } from '@/types/domain'
+import {
+  degreeProgrammeName,
+  degreeTitleName,
+  educationFieldName,
+  specializationName,
+} from '@/lib/education/catalog'
 
 function TeacherStudentsContent() {
-  const { t } = useTranslations()
+  const { t, locale } = useTranslations()
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,14 +67,34 @@ function TeacherStudentsContent() {
             {students.map((student) => (
               <Card key={student.id} className="flex flex-col justify-between">
                 <div className="space-y-2">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {student.displayName ?? t('common.notProvided')}
+                  </h2>
                   <StudentField
                     label={t('teacher.studentCard.degreeProgramme')}
-                    value={student.degreeProgramme}
+                    value={
+                      degreeProgrammeName(student.degreeProgrammeCode, locale) ??
+                      student.degreeProgramme
+                    }
+                    fallback={t('common.notProvided')}
+                  />
+                  {student.specializationCode && (
+                    <StudentField
+                      label={t('teacher.studentCard.specialization')}
+                      value={specializationName(student.specializationCode, locale)}
+                    />
+                  )}
+                  <StudentField
+                    label={t('teacher.studentCard.educationField')}
+                    value={
+                      educationFieldName(student.educationFieldCode, locale) ??
+                      student.department
+                    }
                     fallback={t('common.notProvided')}
                   />
                   <StudentField
-                    label={t('teacher.studentCard.department')}
-                    value={student.department}
+                    label={t('teacher.studentCard.degreeTitle')}
+                    value={degreeTitleName(student.degreeProgrammeCode, locale)}
                     fallback={t('common.notProvided')}
                   />
                   <StudentField
@@ -101,7 +127,7 @@ function StudentField({
 }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-foreground-muted">
+      <p className="text-xs font-medium uppercase text-foreground-muted">
         {label}
       </p>
       <p className="text-sm text-foreground">{value ?? fallback ?? '\u2014'}</p>

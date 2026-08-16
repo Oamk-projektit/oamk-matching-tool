@@ -306,6 +306,9 @@ export type Database = {
         Row: {
           id: string
           profile_id: string
+          education_field_code: string | null
+          degree_programme_code: string | null
+          specialization_code: string | null
           type: string
           language: string
           title: string
@@ -317,6 +320,9 @@ export type Database = {
         Insert: {
           id?: string
           profile_id: string
+          education_field_code?: string | null
+          degree_programme_code?: string | null
+          specialization_code?: string | null
           type: string
           language?: string
           title: string
@@ -328,6 +334,9 @@ export type Database = {
         Update: {
           id?: string
           profile_id?: string
+          education_field_code?: string | null
+          degree_programme_code?: string | null
+          specialization_code?: string | null
           type?: string
           language?: string
           title?: string

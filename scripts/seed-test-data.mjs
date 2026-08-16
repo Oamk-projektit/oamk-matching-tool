@@ -135,7 +135,7 @@ async function main() {
 
   const courseRows = [
     ['TTTEST01', 'AI and Machine Learning'], ['TTTEST02', 'Frontend Development'], ['TTTEST03', 'Backend APIs'], ['TTTEST04', 'Mobile Development'], ['TTTEST05', 'Data Analytics'],
-  ].map(([code, name], index) => ({ id: `75000000-0000-4000-8000-00000000000${index + 1}`, code, name_fi: name, name_en: name, credits: 5, department: 'ICT', active: true }))
+  ].map(([code, name], index) => ({ id: `75000000-0000-4000-8000-00000000000${index + 1}`, code, name_fi: name, name_en: name, credits: 5, department: 'Informaatioteknologia', active: true }))
   const skillRows = ['Python', 'Machine Learning', 'React', 'TypeScript', 'PostgreSQL', 'REST APIs', 'React Native', 'Data Analytics'].map((name, index) => ({ id: `76000000-0000-4000-8000-00000000000${index + 1}`, name_fi: name, name_en: name, normalized_name: `test-${name.toLowerCase().replaceAll(' ', '-')}` }))
   const interestRows = ['AI', 'Frontend', 'Backend', 'Mobile', 'Analytics'].map((name, index) => ({ id: `77000000-0000-4000-8000-00000000000${index + 1}`, name_fi: name, name_en: name, normalized_name: `test-${name.toLowerCase()}` }))
   await upsertRows('courses', courseRows)
@@ -143,9 +143,9 @@ async function main() {
   await upsertRows('interests', interestRows)
 
   await upsertRows('students', [
-    { id: ids.students.student1, profile_id: userIds.student1, degree_programme: 'Software Engineering', department: 'ICT', study_credits: 180, availability_start: '2026-09-01', availability_end: '2027-01-31', preferred_project_types: ['company_project'] },
-    { id: ids.students.student2, profile_id: userIds.student2, degree_programme: 'Software Engineering', department: 'ICT', study_credits: 100, availability_start: '2026-10-01', availability_end: '2026-12-15', preferred_project_types: ['company_project', 'internship'] },
-    { id: ids.students.student3, profile_id: userIds.student3, degree_programme: 'Business Information Technology', department: 'Business', study_credits: 35, availability_start: '2027-02-01', availability_end: '2027-03-01', preferred_project_types: ['internship'] },
+    { id: ids.students.student1, profile_id: userIds.student1, education_field_code: 'information_technology', degree_programme_code: 'information_and_communication_technology', specialization_code: 'software_development', degree_programme: 'Tietotekniikan tutkinto-ohjelma', department: 'Informaatioteknologia', study_credits: 180, availability_start: '2026-09-01', availability_end: '2027-01-31', preferred_project_types: ['company_project'] },
+    { id: ids.students.student2, profile_id: userIds.student2, education_field_code: 'information_technology', degree_programme_code: 'information_and_communication_technology', specialization_code: 'software_development', degree_programme: 'Tietotekniikan tutkinto-ohjelma', department: 'Informaatioteknologia', study_credits: 100, availability_start: '2026-10-01', availability_end: '2026-12-15', preferred_project_types: ['company_project', 'internship'] },
+    { id: ids.students.student3, profile_id: userIds.student3, education_field_code: 'information_technology', degree_programme_code: 'business_information_systems', specialization_code: null, degree_programme: 'Tietojenkäsittelyn tutkinto-ohjelma', department: 'Informaatioteknologia', study_credits: 35, availability_start: '2027-02-01', availability_end: '2027-03-01', preferred_project_types: ['internship'] },
   ])
   const course = Object.fromEntries(courseRows.map((row) => [row.code, row.id]))
   const skill = Object.fromEntries(skillRows.map((row) => [row.name_fi, row.id]))
@@ -167,7 +167,7 @@ async function main() {
     ['backend', ids.companies.company1, 'Backend databases and APIs', 'PostgreSQL data model and REST API implementation.', 'company_project', 'hybrid', 'en', 90],
     ['mobile', ids.companies.company2, 'Mobile development companion app', 'React Native mobile application for students.', 'company_project', 'remote', 'en', 60],
     ['analytics', ids.companies.company2, 'Data analytics dashboard', 'Analytics dashboard and reporting pipeline.', 'internship', 'onsite', 'en', 120],
-  ].map(([key, company_id, title, description, project_type, work_mode, required_language, minimum_study_credits]) => ({ id: ids.projects[key], company_id, title, description, project_type, status: 'published', positions: 3, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode, location: work_mode === 'remote' ? 'Remote' : 'Oulu', remote_allowed: work_mode === 'remote', minimum_study_credits, required_language, department: 'ICT' }))
+  ].map(([key, company_id, title, description, project_type, work_mode, required_language, minimum_study_credits]) => ({ id: ids.projects[key], company_id, title, description, project_type, status: 'published', positions: 3, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode, location: work_mode === 'remote' ? 'Remote' : 'Oulu', remote_allowed: work_mode === 'remote', minimum_study_credits, required_language, department: 'Informaatioteknologia' }))
   await upsertRows('projects', projectRows)
   await upsertRows('project_weights', projectRows.map((project) => ({ project_id: project.id, study_credits: 10, required_courses: 20, recommended_courses: 10, skills: 25, language: 10, availability: 10, interests: 10, degree_programme: 5 })), 'project_id')
   await upsertRows('project_required_courses', [{ project_id: ids.projects.ai, course_id: course.TTTEST01 }, { project_id: ids.projects.frontend, course_id: course.TTTEST02 }, { project_id: ids.projects.backend, course_id: course.TTTEST03 }, { project_id: ids.projects.mobile, course_id: course.TTTEST04 }, { project_id: ids.projects.analytics, course_id: course.TTTEST05 }], 'project_id,course_id')

@@ -35,7 +35,7 @@ Tämä dokumentti kokoaa yhteisen sopimuksen. Kanoninen totuus:
   "id": "s0000000-0000-4000-8000-000000000001",
   "profileId": "p0000000-0000-4000-8000-000000000001",
   "degreeProgramme": "Tietotekniikka",
-  "department": "ICT",
+  "department": "Informaatioteknologia",
   "studyCredits": 160,
   "availabilityStart": "2026-09-01",
   "availabilityEnd": "2026-12-15",
@@ -61,7 +61,7 @@ Tämä dokumentti kokoaa yhteisen sopimuksen. Kanoninen totuus:
   "remoteAllowed": true,
   "minimumStudyCredits": 60,
   "requiredLanguage": "fi",
-  "department": "ICT"
+  "department": "Informaatioteknologia"
 }
 ```
 

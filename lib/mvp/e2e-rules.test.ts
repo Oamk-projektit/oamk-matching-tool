@@ -39,7 +39,7 @@ describe('happy path 1/8 — student creates a profile', () => {
   it('parseCreateStudent accepts degree, credits, availability, and catalog links', () => {
     const parsed = parseCreateStudent({
       degreeProgramme: 'Tietotekniikka',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       studyCredits: 120,
       availabilityStart: '2026-09-01',
       availabilityEnd: '2026-12-15',
@@ -50,7 +50,7 @@ describe('happy path 1/8 — student creates a profile', () => {
 
     expect(parsed).toMatchObject({
       degreeProgramme: 'Tietotekniikka',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       studyCredits: 120,
       availabilityStart: '2026-09-01',
       availabilityEnd: '2026-12-15',
