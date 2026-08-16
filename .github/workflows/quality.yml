@@ -45,10 +45,10 @@ jobs:
           printf 'TEST_SEED_ALLOW=true\nTEST_SEED_CONFIRM=oamk-matching-test-data-v1\n' >> .env.local
       - name: Seed and verify Supabase integration
         shell: bash
-        run: source .env.local && npm run test:integration
+        run: set -a && source .env.local && set +a && npm run test:integration
       - name: Run browser smoke suite
         shell: bash
-        run: source .env.local && E2E_PASSWORD="$TEST_SEED_PASSWORD" npm run test:e2e
+        run: set -a && source .env.local && set +a && E2E_PASSWORD="$TEST_SEED_PASSWORD" npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
