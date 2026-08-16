@@ -382,6 +382,57 @@
       "studyCreditsInvalid": "Enter a study credit amount of 0 or more."
     }
   },
+  "audit": {
+    "events": {
+      "projectCreated": "Project created",
+      "projectUpdated": "Project updated",
+      "projectPublished": "Project published",
+      "applicationCreated": "Student applied to a project",
+      "applicationUpdated": "Application updated",
+      "applicationStatusChanged": "Application status changed",
+      "applicationWithdrawn": "Application withdrawn",
+      "applicationShortlisted": "Application shortlisted",
+      "applicationUnshortlisted": "Application removed from shortlist",
+      "matchSaved": "Match result created",
+      "matchUpdated": "Match result updated",
+      "selectionDecided": "Selection decision made",
+      "selectionSelected": "Student selected",
+      "selectionNotSelected": "Student not selected",
+      "selectionChanged": "Selection decision changed",
+      "selectionReasonChanged": "Selection reason changed",
+      "notificationCreated": "Notification created",
+      "unknown": "System event"
+    },
+    "systemActor": "System",
+    "unknownActor": "Unknown user",
+    "showTechnicalDetails": "Show technical details",
+    "entities": {
+      "deletedProject": "Deleted project",
+      "deletedApplication": "Deleted application",
+      "deletedStudent": "Deleted student",
+      "deletedCompany": "Deleted company",
+      "deletedUser": "Deleted user",
+      "deletedEntity": "Deleted item"
+    },
+    "changes": {
+      "status": "Status changed:",
+      "applicationDeadline": "Application deadline changed:",
+      "decision": "Selection decision changed:",
+      "to": "to"
+    },
+    "values": {
+      "selected": "Selected",
+      "not_selected": "Not selected"
+    },
+    "technical": {
+      "event": "Event",
+      "entityType": "Entity type",
+      "entityId": "Entity ID",
+      "actorId": "Actor ID",
+      "timestamp": "Timestamp",
+      "notAvailable": "Not available"
+    }
+  },
   "teacher": {
     "loginTitle": "Teacher Login",
     "loginDescription": "Sign in to review company projects, students, and platform activity.",
@@ -495,7 +546,7 @@
       "noInterests": "No interests recorded."
     },
     "auditTitle": "Audit log",
-    "auditDescription": "Sensitive actions across the platform are recorded server-side for accountability.",
+    "auditDescription": "This page shows important platform changes, including project creation, editing, and user administration. Events are also stored for system security and traceability.",
     "auditNotExposedTitle": "Audit log not available yet",
     "auditNotExposedDescription": "The audit API isn't exposed yet. Events are already being recorded server-side in the audit_events table.",
     "auditLoadError": "Audit events could not be loaded. Please try again.",

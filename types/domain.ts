@@ -303,9 +303,11 @@ export interface Notification {
 export interface AuditEvent {
   id: string
   actorProfileId: string | null
+  actorDisplayName: string | null
   action: string
   entityType: string
   entityId: string
+  entityDisplayName: string | null
   oldValues: Record<string, unknown> | null
   newValues: Record<string, unknown> | null
   createdAt: string

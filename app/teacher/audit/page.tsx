@@ -2,16 +2,15 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import {
-  Card,
   EmptyState,
   ErrorState,
   LoadingState,
 } from '@/components/ui'
 import { RoleGuard } from '@/components/auth/RoleGuard'
 import { api, ApiClientError } from '@/lib/api/client'
-import { formatDateTime } from '@/lib/format'
 import { useTranslations } from '@/lib/i18n'
 import type { AuditEvent } from '@/types/domain'
+import { AuditEventCard } from './AuditEventCard'
 
 type AuditPageStatus = 'loading' | 'error' | 'ok'
 
@@ -70,25 +69,13 @@ function TeacherAuditContent() {
         )}
 
         {status === 'ok' && events.length > 0 && (
-          <Card>
-            <ul className="divide-y divide-border">
-              {events.map((event) => (
-                <li key={event.id} className="py-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium text-foreground">
-                      {event.action}
-                    </span>
-                    <span className="text-xs text-foreground-muted">
-                      {formatDateTime(event.createdAt, locale)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-foreground-muted">
-                    {event.entityType} · {event.entityId}
-                  </p>
-                </li>
-              ))}
+          <ul className="space-y-3">
+            {events.map((event) => (
+              <li key={event.id}>
+                <AuditEventCard event={event} locale={locale} t={t} />
+              </li>
+            ))}
             </ul>
-          </Card>
         )}
       </div>
     </div>

@@ -169,6 +169,13 @@ async function main() {
     ['analytics', ids.companies.company2, 'Data analytics dashboard', 'Analytics dashboard and reporting pipeline.', 'internship', 'onsite', 'en', 120],
   ].map(([key, company_id, title, description, project_type, work_mode, required_language, minimum_study_credits]) => ({ id: ids.projects[key], company_id, title, description, project_type, status: 'published', positions: 3, application_start: '2026-08-01', application_deadline: '2027-12-31', project_start: '2027-01-01', project_end: '2027-05-31', work_mode, location: work_mode === 'remote' ? 'Remote' : 'Oulu', remote_allowed: work_mode === 'remote', minimum_study_credits, required_language, department: 'Informaatioteknologia' }))
   await upsertRows('projects', projectRows)
+  const { error: auditProjectUpdateError } = await admin
+    .from('projects')
+    .update({ title: projectRows[0].title })
+    .eq('id', ids.projects.ai)
+  if (auditProjectUpdateError) {
+    throw new Error(`update audit project fixture: ${auditProjectUpdateError.message}`)
+  }
   await upsertRows('project_weights', projectRows.map((project) => ({ project_id: project.id, study_credits: 10, required_courses: 20, recommended_courses: 10, skills: 25, language: 10, availability: 10, interests: 10, degree_programme: 5 })), 'project_id')
   await upsertRows('project_required_courses', [{ project_id: ids.projects.ai, course_id: course.TTTEST01 }, { project_id: ids.projects.frontend, course_id: course.TTTEST02 }, { project_id: ids.projects.backend, course_id: course.TTTEST03 }, { project_id: ids.projects.mobile, course_id: course.TTTEST04 }, { project_id: ids.projects.analytics, course_id: course.TTTEST05 }], 'project_id,course_id')
   await upsertRows('project_required_skills', [
