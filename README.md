@@ -62,6 +62,7 @@ Demo accounts (from `supabase/seed.sql`, password `LocalDemoOnly!1` for all — 
 | [docs/MATCHING_ALGORITHM.md](docs/MATCHING_ALGORITHM.md) | How the 0–100 match score is calculated |
 | [docs/SECURITY.md](docs/SECURITY.md) | Auth modes, RLS summary, privacy rules, audit |
 | [docs/BACKEND_SETUP.md](docs/BACKEND_SETUP.md) | Env vars, migrations, seed, deploy checklist |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production Supabase + Vercel runbook |
 | [docs/TESTING.md](docs/TESTING.md) | Unit tests, smoke scripts, privacy test checklist |
 | [docs/PROJECT_WORK.md](docs/PROJECT_WORK.md) | Project work summary (division of work, architecture, demo) |
 | [docs/MVP_SCOPE.md](docs/MVP_SCOPE.md) | What is / isn't in the MVP (SHARED, FI) |
