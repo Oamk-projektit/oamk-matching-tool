@@ -50,7 +50,7 @@ A project may define its own weights (`project_weights` table / `POST /api/proje
 | `language` | `languageScore` | `1` if the student's working languages include the project's `requiredLanguage`, else `0`. **Never divides — binary match.** |
 | `availability` | `availabilityScore` | Compares `[studentAvailabilityStart, studentAvailabilityEnd]` to `[projectStart, projectEnd]`. Missing dates on either side → neutral `0.5` (`AVAILABILITY_UNKNOWN_RATIO`). Full overlap → `1`. Partial overlap → `overlapDays / projectDurationDays`. No overlap → `0`. |
 | `interests` | `interestsScore` (via `splitRequired`) | `matchedInterests / projectInterests.length`. Empty project interest list → `1`. |
-| `degreeProgramme` | `degreeProgrammeScore` | Compares the student's `degreeProgramme`/`department` (normalized, case/diacritic-insensitive) against the project's `department` column. Empty project department → `1`. Exact normalized match → `1`, else `0`. Projects have no separate `degreeProgramme` column in the MVP, so `department` doubles as the proxy. |
+| `degreeProgramme` | `degreeProgrammeScore` | Compares the student's canonical education field/programme (with legacy text fallback) against the project's field stored in the legacy `department` column. Empty project field → `1`. Exact normalized match → `1`, else `0`. |
 
 Every ratio function is written to **never divide by zero**: an empty "required" list on the project side always yields a full score for that criterion instead of `NaN` or a crash (`ratioScore(matched, required)` returns `1` when `required <= 0`).
 

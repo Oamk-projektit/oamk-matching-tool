@@ -167,7 +167,7 @@
     "card": {
       "deadline": "Deadline: {date}",
       "noDeadline": "No deadline",
-      "department": "Department: {department}"
+      "department": "Field: {department}"
     },
     "empty": {
       "title": "No projects found",
@@ -190,7 +190,7 @@
       "remoteAllowed": "Remote work allowed",
       "minimumStudyCredits": "Minimum study credits",
       "requiredLanguage": "Required language",
-      "department": "Department",
+      "department": "Field",
       "applicationDeadline": "Application deadline",
       "projectDates": "Project dates",
       "weightsTitle": "How this project is matched",
@@ -319,7 +319,9 @@
     },
     "fields": {
       "degreeProgramme": "Degree programme",
-      "department": "Department",
+      "department": "Field",
+      "educationField": "Field",
+      "specialization": "Specialization",
       "studyCredits": "Completed study credits",
       "availabilityStart": "Available from",
       "availabilityEnd": "Available until",
@@ -474,8 +476,10 @@
     "studentsEmptyDescription": "No students have registered yet.",
     "studentCard": {
       "degreeProgramme": "Degree programme",
-      "department": "Department",
-      "studyCredits": "Study credits"
+      "educationField": "Field",
+      "degreeTitle": "Degree title",
+      "specialization": "Specialization",
+      "studyCredits": "Completed study credits"
     },
     "studentDetail": {
       "backToStudents": "Back to students",
@@ -614,7 +618,7 @@
       "requiredLanguageLabel": "Required language",
       "languageFi": "Finnish",
       "languageEn": "English",
-      "departmentLabel": "Department",
+      "departmentLabel": "Field",
       "remoteAllowedLabel": "Remote work allowed",
       "sectionRequirements": "Requirements",
       "sectionRequirementsDescription": "Courses, skills, and interests used for matching.",
@@ -660,7 +664,7 @@
       "positionsLabel": "Positions",
       "workModeLabel": "Work mode",
       "locationLabel": "Location",
-      "departmentLabel": "Department",
+      "departmentLabel": "Field",
       "minimumCreditsLabel": "Minimum study credits",
       "requiredLanguageLabel": "Required language",
       "scheduleTitle": "Schedule",

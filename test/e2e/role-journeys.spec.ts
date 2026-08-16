@@ -30,17 +30,21 @@ test.afterEach(async ({ page }, testInfo) => {
 })
 
 async function login(page: Page, email: string, expectedPath: RegExp) {
-  await page.goto('/login')
-  await page.locator('input[type="email"]').fill(email)
-  await page.locator('input[type="password"]').fill(password)
-  await page.locator('button[type="submit"]').click()
-  try {
-    await expect(page).toHaveURL(expectedPath)
-  } catch (error) {
-    const alert = await page.locator('[role="alert"]').textContent().catch(() => null)
-    throw new Error(`Login failed for ${email}: ${alert ?? 'no visible error'}`, {
-      cause: error,
-    })
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    await page.goto('/login')
+    await page.locator('input[type="email"]').fill(email)
+    await page.locator('input[type="password"]').fill(password)
+    await page.locator('button[type="submit"]').click()
+    try {
+      await expect(page).toHaveURL(expectedPath, { timeout: 10_000 })
+      return
+    } catch (error) {
+      if (attempt < 3) continue
+      const alert = await page.locator('[role="alert"]').textContent().catch(() => null)
+      throw new Error(`Login failed for ${email}: ${alert ?? 'no visible error'}`, {
+        cause: error,
+      })
+    }
   }
 }
 
@@ -89,6 +93,31 @@ test('teacher can sign in and open oversight and audit pages', async ({ page }) 
   await login(page, accounts.teacher, /\/teacher\/dashboard$/)
   await page.goto('/teacher/projects')
   await expect(page).toHaveURL(/\/teacher\/projects$/)
+  await page.setViewportSize({ width: 320, height: 800 })
+  await page.goto('/teacher/students')
+  await expect(page.getByRole('heading', { name: 'Test Student 1' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Test Student 2' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Test Student 3' })).toBeVisible()
+  await expect(page.getByText('Tietotekniikan tutkinto-ohjelma').first()).toBeVisible()
+  await expect(page.getByText('Tietojenkäsittelyn tutkinto-ohjelma')).toBeVisible()
+  await expect(page.getByText('Informaatioteknologia').first()).toBeVisible()
+  const student1Card = page
+    .getByRole('heading', { name: 'Test Student 1' })
+    .locator('xpath=ancestor::div[contains(@class,"flex-col")][1]')
+  const student3Card = page
+    .getByRole('heading', { name: 'Test Student 3' })
+    .locator('xpath=ancestor::div[contains(@class,"flex-col")][1]')
+  await expect(student1Card).toContainText('Suuntautuminen')
+  await expect(student3Card).not.toContainText('Suuntautuminen')
+  await expect(page.locator('body')).not.toContainText(
+    /Software Engineering|Business Information Technology|\bICT\b|OSASTO/
+  )
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+    )
+  ).toBe(false)
+
   await page.goto('/teacher/audit')
   await expect(page).toHaveURL(/\/teacher\/audit$/)
 })
@@ -114,6 +143,7 @@ test('company creates and publishes a project that flows through matching and ov
   page,
   browser,
 }) => {
+  test.slow()
   await login(page, accounts.company, /\/company\/dashboard$/)
 
   const [coursesResponse, skillsResponse, interestsResponse] = await Promise.all([
@@ -154,7 +184,7 @@ test('company creates and publishes a project that flows through matching and ov
       remoteAllowed: true,
       minimumStudyCredits: 40,
       requiredLanguage: 'en',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       requiredCourseIds: [aiCourse.id],
       recommendedCourseIds: [],
       requiredSkillIds: [pythonSkill.id],

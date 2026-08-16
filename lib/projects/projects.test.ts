@@ -23,7 +23,7 @@ describe('project create', () => {
       projectType: 'company_project',
       minimumStudyCredits: 60,
       requiredLanguage: 'fi',
-      department: 'ICT',
+      department: 'Informaatioteknologia',
       workMode: 'hybrid',
       remoteAllowed: true,
       positions: 2,

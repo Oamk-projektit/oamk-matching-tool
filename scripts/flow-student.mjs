@@ -45,7 +45,7 @@ async function main() {
       method: 'POST',
       body: {
         degreeProgramme: 'Tietotekniikka',
-        department: 'ICT',
+        department: 'Informaatioteknologia',
         studyCredits: 100,
         preferredProjectTypes: ['company_project'],
       },

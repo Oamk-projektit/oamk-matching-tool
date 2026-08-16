@@ -167,7 +167,7 @@
     "card": {
       "deadline": "Määräaika: {date}",
       "noDeadline": "Ei määräaikaa",
-      "department": "Osasto: {department}"
+      "department": "Ala: {department}"
     },
     "empty": {
       "title": "Projekteja ei löytynyt",
@@ -190,7 +190,7 @@
       "remoteAllowed": "Etätyö sallittu",
       "minimumStudyCredits": "Vähimmäisopintopisteet",
       "requiredLanguage": "Vaadittu kieli",
-      "department": "Osasto",
+      "department": "Ala",
       "applicationDeadline": "Hakuaika päättyy",
       "projectDates": "Projektin ajankohta",
       "weightsTitle": "Miten tätä projektia arvioidaan",
@@ -319,7 +319,9 @@
     },
     "fields": {
       "degreeProgramme": "Tutkinto-ohjelma",
-      "department": "Osasto",
+      "department": "Ala",
+      "educationField": "Ala",
+      "specialization": "Suuntautuminen",
       "studyCredits": "Suoritetut opintopisteet",
       "availabilityStart": "Saatavilla alkaen",
       "availabilityEnd": "Saatavilla asti",
@@ -474,8 +476,10 @@
     "studentsEmptyDescription": "Yhtään opiskelijaa ei ole vielä rekisteröitynyt.",
     "studentCard": {
       "degreeProgramme": "Tutkinto-ohjelma",
-      "department": "Osasto",
-      "studyCredits": "Opintopisteet"
+      "educationField": "Ala",
+      "degreeTitle": "Tutkintonimike",
+      "specialization": "Suuntautuminen",
+      "studyCredits": "Suoritetut opintopisteet"
     },
     "studentDetail": {
       "backToStudents": "Takaisin opiskelijoihin",
@@ -614,7 +618,7 @@
       "requiredLanguageLabel": "Vaadittu kieli",
       "languageFi": "Suomi",
       "languageEn": "Englanti",
-      "departmentLabel": "Osasto",
+      "departmentLabel": "Ala",
       "remoteAllowedLabel": "Etätyö sallittu",
       "sectionRequirements": "Vaatimukset",
       "sectionRequirementsDescription": "Täsmäytyksessä käytettävät kurssit, taidot ja kiinnostuksen kohteet.",
@@ -660,7 +664,7 @@
       "positionsLabel": "Paikat",
       "workModeLabel": "Työskentelytapa",
       "locationLabel": "Sijainti",
-      "departmentLabel": "Osasto",
+      "departmentLabel": "Ala",
       "minimumCreditsLabel": "Vähimmäisopintopisteet",
       "requiredLanguageLabel": "Vaadittu kieli",
       "scheduleTitle": "Aikataulu",

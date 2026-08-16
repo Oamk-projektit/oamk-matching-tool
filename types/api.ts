@@ -92,6 +92,9 @@ export interface MeData {
 export type MeResponse = ApiSuccess<MeData>
 
 export interface CreateStudentRequest {
+  educationFieldCode?: import('@/lib/education/catalog').EducationFieldCode | null
+  degreeProgrammeCode?: import('@/lib/education/catalog').DegreeProgrammeCode | null
+  specializationCode?: import('@/lib/education/catalog').SpecializationCode | null
   degreeProgramme?: string | null
   department?: string | null
   studyCredits?: number
@@ -114,7 +117,14 @@ export interface StudentDetail extends Student {
 /** Limited student fields for company applicants (no private extras). */
 export type StudentCompanyView = Pick<
   Student,
-  'id' | 'degreeProgramme' | 'department' | 'studyCredits' | 'preferredProjectTypes'
+  | 'id'
+  | 'educationFieldCode'
+  | 'degreeProgrammeCode'
+  | 'specializationCode'
+  | 'degreeProgramme'
+  | 'department'
+  | 'studyCredits'
+  | 'preferredProjectTypes'
 >
 
 export type StudentResponse = ApiSuccess<Student>

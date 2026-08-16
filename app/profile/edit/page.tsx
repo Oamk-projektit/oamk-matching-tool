@@ -9,6 +9,7 @@ import {
   FormSection,
   Input,
   LoadingState,
+  Select,
   Tag,
 } from '@/components/ui'
 import { useAuth } from '@/lib/auth/AuthProvider'
@@ -18,10 +19,18 @@ import { api, ApiClientError } from '@/lib/api/client'
 import { localizedName } from '@/lib/format'
 import type { StudentDetail } from '@/types/api'
 import type { Course, Interest, ProjectType, Skill } from '@/types/domain'
+import {
+  DEGREE_PROGRAMMES,
+  SPECIALIZATIONS,
+  educationFieldName,
+  educationName,
+  type DegreeProgrammeCode,
+  type SpecializationCode,
+} from '@/lib/education/catalog'
 
 interface FormState {
-  degreeProgramme: string
-  department: string
+  degreeProgrammeCode: DegreeProgrammeCode | ''
+  specializationCode: SpecializationCode | ''
   studyCredits: string
   availabilityStart: string
   availabilityEnd: string
@@ -29,8 +38,8 @@ interface FormState {
 }
 
 const EMPTY_FORM: FormState = {
-  degreeProgramme: '',
-  department: '',
+  degreeProgrammeCode: '',
+  specializationCode: '',
   studyCredits: '',
   availabilityStart: '',
   availabilityEnd: '',
@@ -39,8 +48,8 @@ const EMPTY_FORM: FormState = {
 
 function studentToForm(student: StudentDetail): FormState {
   return {
-    degreeProgramme: student.degreeProgramme ?? '',
-    department: student.department ?? '',
+    degreeProgrammeCode: student.degreeProgrammeCode ?? '',
+    specializationCode: student.specializationCode ?? '',
     studyCredits: String(student.studyCredits ?? 0),
     availabilityStart: student.availabilityStart ?? '',
     availabilityEnd: student.availabilityEnd ?? '',
@@ -193,8 +202,20 @@ export default function EditProfilePage() {
     if (!validate()) return
 
     const payload = {
-      degreeProgramme: form.degreeProgramme.trim() || null,
-      department: form.department.trim() || null,
+      educationFieldCode: form.degreeProgrammeCode
+        ? DEGREE_PROGRAMMES[form.degreeProgrammeCode].fieldCode
+        : null,
+      degreeProgrammeCode: form.degreeProgrammeCode || null,
+      specializationCode: form.specializationCode || null,
+      degreeProgramme: form.degreeProgrammeCode
+        ? DEGREE_PROGRAMMES[form.degreeProgrammeCode].fi
+        : null,
+      department: form.degreeProgrammeCode
+        ? educationFieldName(
+            DEGREE_PROGRAMMES[form.degreeProgrammeCode].fieldCode,
+            'fi'
+          )
+        : null,
       studyCredits: form.studyCredits === '' ? 0 : Number(form.studyCredits),
       availabilityStart: form.availabilityStart || null,
       availabilityEnd: form.availabilityEnd || null,
@@ -372,15 +393,52 @@ export default function EditProfilePage() {
             title={t('profile.sections.basicInfo')}
             description={t('profile.sections.basicInfoDescription')}
           >
-            <Input
+            <Select
               label={t('profile.fields.degreeProgramme')}
-              value={form.degreeProgramme}
-              onChange={(e) => setForm((p) => ({ ...p, degreeProgramme: e.target.value }))}
+              value={form.degreeProgrammeCode}
+              onChange={(e) =>
+                setForm((p) => ({
+                  ...p,
+                  degreeProgrammeCode: e.target.value as DegreeProgrammeCode | '',
+                  specializationCode: '',
+                }))
+              }
+              options={[
+                { value: '', label: t('common.notProvided') },
+                ...Object.entries(DEGREE_PROGRAMMES).map(([value, programme]) => ({
+                  value,
+                  label: educationName(programme, locale),
+                })),
+              ]}
             />
             <Input
-              label={t('profile.fields.department')}
-              value={form.department}
-              onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}
+              label={t('profile.fields.educationField')}
+              value={
+                form.degreeProgrammeCode
+                  ? educationFieldName(
+                      DEGREE_PROGRAMMES[form.degreeProgrammeCode].fieldCode,
+                      locale
+                    ) ?? ''
+                  : ''
+              }
+              disabled
+            />
+            <Select
+              label={t('profile.fields.specialization')}
+              value={form.specializationCode}
+              onChange={(e) =>
+                setForm((p) => ({
+                  ...p,
+                  specializationCode: e.target.value as SpecializationCode | '',
+                }))
+              }
+              options={[
+                { value: '', label: t('common.notProvided') },
+                ...Object.entries(SPECIALIZATIONS).map(([value, specialization]) => ({
+                  value,
+                  label: educationName(specialization, locale),
+                })),
+              ]}
             />
             <Input
               label={t('profile.fields.studyCredits')}

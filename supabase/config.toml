@@ -14,3 +14,7 @@ sql_paths = ['./seed.sql']
 [api]
 enabled = true
 port = 54321
+
+[auth.rate_limit]
+# Browser E2E signs in several fixed roles from the same localhost address.
+sign_in_sign_ups = 100
