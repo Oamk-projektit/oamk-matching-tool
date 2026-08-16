@@ -120,6 +120,30 @@ test('teacher can sign in and open oversight and audit pages', async ({ page }) 
 
   await page.goto('/teacher/audit')
   await expect(page).toHaveURL(/\/teacher\/audit$/)
+
+  await expect(
+    page.getByRole('heading', { name: 'Projektia päivitettiin' }).first()
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Projekti luotiin' }).first()
+  ).toBeVisible()
+  await expect(
+    page.getByText('AI / Python machine learning lab', { exact: true }).first()
+  ).toBeVisible()
+
+  const technicalDetails = page
+    .locator('details')
+    .filter({ hasText: aiProjectId })
+    .first()
+  await expect(technicalDetails).not.toHaveAttribute('open', '')
+  await expect(technicalDetails.getByText(aiProjectId, { exact: true })).toBeHidden()
+  await technicalDetails.getByText('Näytä tekniset tiedot').click()
+  await expect(technicalDetails.getByText(aiProjectId, { exact: true })).toBeVisible()
+
+  const hasHorizontalOverflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+  )
+  expect(hasHorizontalOverflow).toBe(false)
 })
 
 test('wrong role cannot open company or teacher surfaces', async ({ page }) => {

@@ -382,6 +382,57 @@
       "studyCreditsInvalid": "Anna 0 tai suurempi opintopistemäärä."
     }
   },
+  "audit": {
+    "events": {
+      "projectCreated": "Projekti luotiin",
+      "projectUpdated": "Projektia päivitettiin",
+      "projectPublished": "Projekti julkaistiin",
+      "applicationCreated": "Opiskelija haki projektiin",
+      "applicationUpdated": "Hakemusta päivitettiin",
+      "applicationStatusChanged": "Hakemuksen tilaa muutettiin",
+      "applicationWithdrawn": "Hakemus peruttiin",
+      "applicationShortlisted": "Hakemus lisättiin karsintalistalle",
+      "applicationUnshortlisted": "Hakemus poistettiin karsintalistalta",
+      "matchSaved": "Yhteensopivuustulos muodostettiin",
+      "matchUpdated": "Yhteensopivuustulosta päivitettiin",
+      "selectionDecided": "Valintapäätös tehtiin",
+      "selectionSelected": "Opiskelija valittiin",
+      "selectionNotSelected": "Opiskelijaa ei valittu",
+      "selectionChanged": "Valintapäätöstä muutettiin",
+      "selectionReasonChanged": "Valintapäätöksen perustelua muutettiin",
+      "notificationCreated": "Ilmoitus luotiin",
+      "unknown": "Järjestelmätapahtuma"
+    },
+    "systemActor": "Järjestelmä",
+    "unknownActor": "Tuntematon käyttäjä",
+    "showTechnicalDetails": "Näytä tekniset tiedot",
+    "entities": {
+      "deletedProject": "Poistettu projekti",
+      "deletedApplication": "Poistettu hakemus",
+      "deletedStudent": "Poistettu opiskelija",
+      "deletedCompany": "Poistettu yritys",
+      "deletedUser": "Poistettu käyttäjä",
+      "deletedEntity": "Poistettu kohde"
+    },
+    "changes": {
+      "status": "Tila muutettiin:",
+      "applicationDeadline": "Hakuaikaa muutettiin:",
+      "decision": "Valintapäätös muutettiin:",
+      "to": "arvosta arvoon"
+    },
+    "values": {
+      "selected": "Valittu",
+      "not_selected": "Ei valittu"
+    },
+    "technical": {
+      "event": "Tapahtuma",
+      "entityType": "Kohteen tyyppi",
+      "entityId": "Kohteen ID",
+      "actorId": "Tekijän ID",
+      "timestamp": "Aikaleima",
+      "notAvailable": "Ei saatavilla"
+    }
+  },
   "teacher": {
     "loginTitle": "Opettajan kirjautuminen",
     "loginDescription": "Kirjaudu tarkastellaksesi yritysprojekteja, opiskelijoita ja alustan tapahtumia.",
@@ -495,7 +546,7 @@
       "noInterests": "Ei kirjattuja kiinnostuksen kohteita."
     },
     "auditTitle": "Lokitiedot",
-    "auditDescription": "Alustan arkaluonteiset toimet kirjataan palvelinpuolella vastuuvelvollisuuden vuoksi.",
+    "auditDescription": "Täällä näkyvät alustan tärkeät muutokset, kuten projektien luonti, muokkaus ja käyttäjiin liittyvät hallintatoimet. Tapahtumat tallennetaan myös järjestelmän turvallisuuden ja jäljitettävyyden vuoksi.",
     "auditNotExposedTitle": "Lokitiedot eivät ole vielä saatavilla",
     "auditNotExposedDescription": "Audit-rajapintaa ei ole vielä julkaistu. Tapahtumat kirjataan jo palvelinpuolella audit_events-tauluun.",
     "auditLoadError": "Lokitapahtumia ei voitu ladata. Yritä uudelleen.",

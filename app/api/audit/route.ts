@@ -1,39 +1,10 @@
 import {
-  ApiHttpError,
   handleRouteError,
   requireAuth,
   requireRole,
 } from '@/lib/api/auth'
 import { jsonData } from '@/lib/api/response'
-import type { AuditEvent } from '@/types/domain'
-
-function mapAuditEvent(row: {
-  id: string
-  actor_profile_id: string | null
-  action: string
-  entity_type: string
-  entity_id: string
-  old_values: unknown
-  new_values: unknown
-  created_at: string
-}): AuditEvent {
-  return {
-    id: row.id,
-    actorProfileId: row.actor_profile_id,
-    action: row.action,
-    entityType: row.entity_type,
-    entityId: row.entity_id,
-    oldValues:
-      row.old_values && typeof row.old_values === 'object'
-        ? (row.old_values as Record<string, unknown>)
-        : null,
-    newValues:
-      row.new_values && typeof row.new_values === 'object'
-        ? (row.new_values as Record<string, unknown>)
-        : null,
-    createdAt: row.created_at,
-  }
-}
+import { listAuditEvents } from '@/lib/audit/service'
 
 /**
  * Teacher/admin audit history.
@@ -58,19 +29,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const { data, error } = await ctx.supabase
-      .from('audit_events')
-      .select(
-        'id, actor_profile_id, action, entity_type, entity_id, old_values, new_values, created_at'
-      )
-      .order('created_at', { ascending: false })
-      .limit(limit)
-
-    if (error) {
-      throw new ApiHttpError(500, 'INTERNAL_ERROR', error.message)
-    }
-
-    const events = (data ?? []).map(mapAuditEvent)
+    const events = await listAuditEvents(ctx.supabase, limit)
     return jsonData(events, { count: events.length })
   } catch (error) {
     return handleRouteError(error)
