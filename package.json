@@ -11,6 +11,8 @@
     "test:integration": "node scripts/seed-test-data.mjs && vitest run --config vitest.config.mts test/integration",
     "test:seed": "node scripts/seed-test-data.mjs",
     "test:seed:reset": "node scripts/seed-test-data.mjs --reset",
+    "test:cloud-users": "node scripts/seed-cloud-manual-test-users.mjs",
+    "test:cloud-users:reset": "node scripts/seed-cloud-manual-test-users.mjs --reset",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
