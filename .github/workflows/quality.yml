@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run verify
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - uses: supabase/setup-cli@v1
         with:
@@ -41,7 +41,14 @@ jobs:
           supabase status -o env > supabase.env
           source supabase.env
           printf 'NEXT_PUBLIC_SUPABASE_URL=%s\nNEXT_PUBLIC_SUPABASE_ANON_KEY=%s\nSUPABASE_SERVICE_ROLE_KEY=%s\n' "$API_URL" "$ANON_KEY" "$SERVICE_ROLE_KEY" > .env.local
-      - run: npm run test:e2e
+          printf 'TEST_SEED_PASSWORD=%s\n' "$(openssl rand -base64 24)" >> .env.local
+          printf 'TEST_SEED_ALLOW=true\nTEST_SEED_CONFIRM=oamk-matching-test-data-v1\n' >> .env.local
+      - name: Seed and verify Supabase integration
+        shell: bash
+        run: set -a && source .env.local && set +a && npm run test:integration
+      - name: Run browser smoke suite
+        shell: bash
+        run: set -a && source .env.local && set +a && E2E_PASSWORD="$TEST_SEED_PASSWORD" npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
