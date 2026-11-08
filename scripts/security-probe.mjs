@@ -164,7 +164,7 @@ async function main() {
 
   // --- Student journey negatives ---
   const studentToken = await signIn(
-    process.env.SMOKE_STUDENT_EMAIL ?? 't3jato02@students.oamk.fi'
+    process.env.SMOKE_STUDENT_EMAIL ?? 'student.demo@students.example'
   )
   record('student-signin', 'PASS')
 
@@ -255,7 +255,7 @@ async function main() {
   )
 
   // --- Teacher allowed / cannot create ---
-  const teacherToken = await signIn('teacher.demo@oamk.fi')
+  const teacherToken = await signIn('teacher.demo@example.com')
   record('teacher-signin', 'PASS')
 
   const teacherAudit = await api(baseUrl, '/api/audit?limit=5', {
@@ -284,7 +284,7 @@ async function main() {
   )
 
   // --- Admin ---
-  const adminToken = await signIn('admin.demo@oamk.fi')
+  const adminToken = await signIn('admin.demo@example.com')
   record('admin-signin', 'PASS')
   const adminMe = await api(baseUrl, '/api/me', { token: adminToken })
   record(

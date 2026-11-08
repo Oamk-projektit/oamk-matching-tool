@@ -13,8 +13,8 @@ import { DEFAULT_PROJECT_WEIGHTS } from '@/types/domain'
 describe('validation (legacy helpers)', () => {
   it('requires name and valid email', () => {
     expect(assertRequiredName(' Aino ')).toBe('Aino')
-    expect(assertEmail('Aino@Students.oamk.fi')).toBe(
-      'aino@students.oamk.fi'
+    expect(assertEmail('Student.Demo@Students.Example')).toBe(
+      'student.demo@students.example'
     )
     expect(() => assertEmail('nope')).toThrow(ValidationError)
   })

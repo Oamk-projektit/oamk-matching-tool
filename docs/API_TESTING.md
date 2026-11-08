@@ -28,7 +28,7 @@ const client = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 const { data, error } = await client.auth.signInWithPassword({
-  email: 'aino.virtanen@students.oamk.fi',
+  email: 'student.demo@students.example',
   password: 'LocalDemoOnly!1',
 })
 console.log(data.session.access_token)
@@ -40,16 +40,16 @@ console.log(data.session.access_token)
 curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/token?grant_type=password" \
   -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"email":"aino.virtanen@students.oamk.fi","password":"LocalDemoOnly!1"}'
+  -d '{"email":"student.demo@students.example","password":"LocalDemoOnly!1"}'
 ```
 
 Copy `access_token` into the Postman collection variable.
 
 | Need | Seed email |
 |------|------------|
-| Student flows | `aino.virtanen@students.oamk.fi` |
+| Student flows | `student.demo@students.example` |
 | Company create / applicants / selection | `contact@nordicsoft.example` |
-| Teacher audit / oversight | `teacher.demo@oamk.fi` |
+| Teacher audit / oversight | `teacher.demo@example.com` |
 
 ## Suggested order
 

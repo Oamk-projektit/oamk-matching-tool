@@ -135,7 +135,7 @@ export default function StyleGuidePage() {
                 label="Email"
                 type="email"
                 helperText="We only use this to contact you about applications."
-                placeholder="name@students.oamk.fi"
+                placeholder="name@students.example"
               />
               <Input label="Phone number" error="Enter a valid phone number." placeholder="+358..." />
               <Select

@@ -30,10 +30,10 @@ Demo accounts (from `supabase/seed.sql`, password `LocalDemoOnly!1` for all — 
 
 | Role | Email |
 |------|-------|
-| Teacher | `teacher.demo@oamk.fi` |
-| Admin | `admin.demo@oamk.fi` |
+| Teacher | `teacher.demo@example.com` |
+| Admin | `admin.demo@example.com` |
 | Company | `contact@nordicsoft.example`, `hr@polarbyte.example` |
-| Student | `t3jato02@students.oamk.fi` (primary manual-test account, strong match), `mikko.korhonen@students.oamk.fi`, `sara.nieminen@students.oamk.fi`, `alex.smith@students.oamk.fi`, `emilia.laitinen@students.oamk.fi` |
+| Student | `student.demo@students.example` (primary manual-test account, strong match), `student2.demo@students.example`, `student3.demo@students.example`, `student4.demo@students.example`, `student5.demo@students.example` |
 
 ## Scripts
 

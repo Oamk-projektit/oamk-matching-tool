@@ -75,9 +75,9 @@ Data virtaa aina Supabase-skeeman läpi: sekä selain (RLS-rajattu istunto) ett�
 ## 6. Miten demota (How to demo)
 
 1. `supabase db reset` (skeema + seed-data) ja `npm run dev`
-2. Kirjaudu opiskelijana (`aino.virtanen@students.oamk.fi` / `LocalDemoOnly!1`) → profiili → projektit → matching-selitys → hakemus
+2. Kirjaudu opiskelijana (`student.demo@students.example` / `LocalDemoOnly!1`) → profiili → projektit → matching-selitys → hakemus
 3. Kirjaudu yrityksenä (`contact@nordicsoft.example`) → hakijalista pisteineen → Top 3 → valintapäätös
-4. Kirjaudu opettajana (`teacher.demo@oamk.fi`) → oversight-näkymä kaikkiin projekteihin/hakemuksiin + `GET /api/audit`
+4. Kirjaudu opettajana (`teacher.demo@example.com`) → oversight-näkymä kaikkiin projekteihin/hakemuksiin + `GET /api/audit`
 5. Näytä ilmoitus opiskelijalle valinnan jälkeen (`GET /api/notifications`)
 
 Katso myös: `docs/DEMO_CHECKLIST.md` (yksityiskohtainen ennen-demoa-lista), `docs/TESTING.md` (yksityisyystestit).

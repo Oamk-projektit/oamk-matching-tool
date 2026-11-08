@@ -21,22 +21,22 @@ export const DEMO_PASSWORD = 'LocalDemoOnly!1'
 export const DEMO_USERS = {
   teacher: {
     id: 'a0000000-0000-4000-8000-000000000001',
-    email: 'teacher.demo@oamk.fi',
+    email: 'teacher.demo@example.com',
     role: 'teacher' as const,
   },
   admin: {
     id: 'a0000000-0000-4000-8000-000000000002',
-    email: 'admin.demo@oamk.fi',
+    email: 'admin.demo@example.com',
     role: 'admin' as const,
   },
   aino: {
     id: 'a0000000-0000-4000-8000-000000000011',
-    email: 't3jato02@students.oamk.fi',
+    email: 'student.demo@students.example',
     role: 'student' as const,
   },
   mikko: {
     id: 'a0000000-0000-4000-8000-000000000012',
-    email: 'mikko.korhonen@students.oamk.fi',
+    email: 'student2.demo@students.example',
     role: 'student' as const,
   },
 } as const
@@ -45,7 +45,7 @@ export const DEMO_STUDENTS: Student[] = [
   {
     id: 'b0000000-0000-4000-8000-000000000011',
     user_id: DEMO_USERS.aino.id,
-    name: 'Aino Virtanen',
+    name: 'Demo Student 1',
     email: DEMO_USERS.aino.email,
     degree_program: 'Tietotekniikka',
     credits: 160,
@@ -66,7 +66,7 @@ export const DEMO_STUDENTS: Student[] = [
   {
     id: 'b0000000-0000-4000-8000-000000000012',
     user_id: DEMO_USERS.mikko.id,
-    name: 'Mikko Korhonen',
+    name: 'Demo Student 2',
     email: DEMO_USERS.mikko.email,
     degree_program: 'Tietotekniikka',
     credits: 90,

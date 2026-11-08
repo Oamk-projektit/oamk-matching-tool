@@ -1,7 +1,9 @@
 -- Local/dev seed for OAMK Matching Tool (projects model).
 -- Used by `supabase db reset` only — do not run against production.
 --
--- All emails/names are fictional. Local auth password for every demo user:
+-- DUMMY DATA ONLY: all accounts, names, companies and emails below are fictional.
+-- Emails use reserved example domains (example.com, students.example, *.example)
+-- and do not belong to real people. Local auth password for every demo user:
 --   LocalDemoOnly!1
 -- (Not a production secret; required only so Auth.users rows can sign in locally.)
 
@@ -32,7 +34,7 @@ VALUES
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000001',
     'authenticated', 'authenticated',
-    'teacher.demo@oamk.fi',
+    'teacher.demo@example.com',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
@@ -43,7 +45,7 @@ VALUES
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000002',
     'authenticated', 'authenticated',
-    'admin.demo@oamk.fi',
+    'admin.demo@example.com',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
@@ -76,55 +78,55 @@ VALUES
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000011',
     'authenticated', 'authenticated',
-    't3jato02@students.oamk.fi',
+    'student.demo@students.example',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"role":"student","display_name":"T3JATO02 Test Student","preferred_language":"fi"}',
+    '{"role":"student","display_name":"Demo Student 1","preferred_language":"fi"}',
     now(), now(), '', '', '', ''
   ),
   (
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000012',
     'authenticated', 'authenticated',
-    'mikko.korhonen@students.oamk.fi',
+    'student2.demo@students.example',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"role":"student","display_name":"Mikko Korhonen","preferred_language":"fi"}',
+    '{"role":"student","display_name":"Demo Student 2","preferred_language":"fi"}',
     now(), now(), '', '', '', ''
   ),
   (
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000013',
     'authenticated', 'authenticated',
-    'sara.nieminen@students.oamk.fi',
+    'student3.demo@students.example',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"role":"student","display_name":"Sara Nieminen","preferred_language":"fi"}',
+    '{"role":"student","display_name":"Demo Student 3","preferred_language":"fi"}',
     now(), now(), '', '', '', ''
   ),
   (
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000014',
     'authenticated', 'authenticated',
-    'alex.smith@students.oamk.fi',
+    'student4.demo@students.example',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"role":"student","display_name":"Alex Smith","preferred_language":"en"}',
+    '{"role":"student","display_name":"Demo Student 4","preferred_language":"en"}',
     now(), now(), '', '', '', ''
   ),
   (
     '00000000-0000-0000-0000-000000000000',
     'a0000000-0000-4000-8000-000000000015',
     'authenticated', 'authenticated',
-    'emilia.laitinen@students.oamk.fi',
+    'student5.demo@students.example',
     crypt('LocalDemoOnly!1', gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
-    '{"role":"student","display_name":"Emilia Laitinen","preferred_language":"fi"}',
+    '{"role":"student","display_name":"Demo Student 5","preferred_language":"fi"}',
     now(), now(), '', '', '', ''
   )
 ON CONFLICT (id) DO NOTHING;
@@ -157,15 +159,15 @@ ON CONFLICT DO NOTHING;
 -- trigger allows this privileged UPDATE).
 INSERT INTO public.profiles (id, role, display_name, email, preferred_language)
 VALUES
-  ('a0000000-0000-4000-8000-000000000001', 'teacher', 'Demo Teacher', 'teacher.demo@oamk.fi', 'fi'),
-  ('a0000000-0000-4000-8000-000000000002', 'admin', 'Demo Admin', 'admin.demo@oamk.fi', 'fi'),
+  ('a0000000-0000-4000-8000-000000000001', 'teacher', 'Demo Teacher', 'teacher.demo@example.com', 'fi'),
+  ('a0000000-0000-4000-8000-000000000002', 'admin', 'Demo Admin', 'admin.demo@example.com', 'fi'),
   ('a0000000-0000-4000-8000-000000000003', 'company', 'Nordic Soft Oy', 'contact@nordicsoft.example', 'fi'),
   ('a0000000-0000-4000-8000-000000000004', 'company', 'Polar Byte Ab', 'hr@polarbyte.example', 'en'),
-  ('a0000000-0000-4000-8000-000000000011', 'student', 'T3JATO02 Test Student', 't3jato02@students.oamk.fi', 'fi'),
-  ('a0000000-0000-4000-8000-000000000012', 'student', 'Mikko Korhonen', 'mikko.korhonen@students.oamk.fi', 'fi'),
-  ('a0000000-0000-4000-8000-000000000013', 'student', 'Sara Nieminen', 'sara.nieminen@students.oamk.fi', 'fi'),
-  ('a0000000-0000-4000-8000-000000000014', 'student', 'Alex Smith', 'alex.smith@students.oamk.fi', 'en'),
-  ('a0000000-0000-4000-8000-000000000015', 'student', 'Emilia Laitinen', 'emilia.laitinen@students.oamk.fi', 'fi')
+  ('a0000000-0000-4000-8000-000000000011', 'student', 'Demo Student 1', 'student.demo@students.example', 'fi'),
+  ('a0000000-0000-4000-8000-000000000012', 'student', 'Demo Student 2', 'student2.demo@students.example', 'fi'),
+  ('a0000000-0000-4000-8000-000000000013', 'student', 'Demo Student 3', 'student3.demo@students.example', 'fi'),
+  ('a0000000-0000-4000-8000-000000000014', 'student', 'Demo Student 4', 'student4.demo@students.example', 'en'),
+  ('a0000000-0000-4000-8000-000000000015', 'student', 'Demo Student 5', 'student5.demo@students.example', 'fi')
 ON CONFLICT (id) DO UPDATE SET
   role = EXCLUDED.role,
   display_name = EXCLUDED.display_name,
