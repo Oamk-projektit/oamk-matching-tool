@@ -183,8 +183,8 @@ No auth. Always probes database connectivity with a cheap privileged query.
     "profile": {
       "id": "90000000-0000-4000-8000-000000000001",
       "role": "student",
-      "displayName": "Aino Virtanen",
-      "email": "aino.virtanen@students.oamk.fi",
+      "displayName": "Demo Student 1",
+      "email": "student.demo@students.example",
       "preferredLanguage": "fi",
       "createdAt": "2026-08-01T10:00:00.000Z",
       "updatedAt": "2026-08-01T10:00:00.000Z"
@@ -372,8 +372,8 @@ Sorted by match `totalScore` desc when a match exists.
         "studyCredits": 120
       },
       "profile": {
-        "displayName": "Aino Virtanen",
-        "email": "aino.virtanen@students.oamk.fi"
+        "displayName": "Demo Student 1",
+        "email": "student.demo@students.example"
       },
       "match": {
         "totalScore": 85,
@@ -491,8 +491,8 @@ Full match list for the project (not student-visible).
         "studyCredits": 160
       },
       "profile": {
-        "displayName": "Aino Virtanen",
-        "email": "aino.virtanen@students.oamk.fi"
+        "displayName": "Demo Student 1",
+        "email": "student.demo@students.example"
       },
       "applicationId": "..."
     }
@@ -570,7 +570,7 @@ Effects (MVP):
       "type": "application_received",
       "language": "fi",
       "title": "New application",
-      "body": "Aino Virtanen applied to \"Campus portal renewal\".",
+      "body": "Demo Student 1 applied to \"Campus portal renewal\".",
       "readAt": null,
       "createdAt": "2026-08-04T12:00:00.000Z"
     }
@@ -648,8 +648,8 @@ Students and companies receive `403 FORBIDDEN`.
 {
   "id": "90000000-0000-4000-8000-000000000001",
   "role": "student",
-  "displayName": "Aino Virtanen",
-  "email": "aino.virtanen@students.oamk.fi",
+  "displayName": "Demo Student 1",
+  "email": "student.demo@students.example",
   "preferredLanguage": "fi",
   "createdAt": "2026-08-01T10:00:00.000Z",
   "updatedAt": "2026-08-01T10:00:00.000Z"

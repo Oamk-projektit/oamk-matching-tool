@@ -14,7 +14,7 @@ import {
   signInWithPassword,
 } from './lib/smoke-helpers.mjs'
 
-const email = process.env.SMOKE_TEACHER_EMAIL ?? 'teacher.demo@oamk.fi'
+const email = process.env.SMOKE_TEACHER_EMAIL ?? 'teacher.demo@example.com'
 const password = process.env.SMOKE_PASSWORD ?? 'LocalDemoOnly!1'
 const campusPortalId = '90000000-0000-4000-8000-000000000001'
 

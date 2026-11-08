@@ -58,7 +58,7 @@ These mirror the privacy rules in `docs/SECURITY.md` and should pass before any 
 
 | # | Rule | How to verify |
 |---|------|----------------|
-| 1 | Top 3 hidden from students | As `t3jato02@students.oamk.fi`, call `GET /api/projects/:id/top-candidates` for any project → expect `403 FORBIDDEN` |
+| 1 | Top 3 hidden from students | As `student.demo@students.example`, call `GET /api/projects/:id/top-candidates` for any project → expect `403 FORBIDDEN` |
 | 2 | Student sees only own match | As a student, call `GET /api/matches/me` → every row's `studentId` equals the caller's own student ID; no peer scores appear |
 | 3 | Full ranked applicant list is staff-only | As a student, call `GET /api/projects/:id/applicants` or `GET /api/projects/:id/matches` → expect `403 FORBIDDEN` |
 | 4 | Company isolation | As `contact@nordicsoft.example` (Nordic Soft), try to fetch a Polar Byte project's applicants/matches/selections → expect `403`/`404`, never Polar Byte data |
@@ -67,7 +67,7 @@ These mirror the privacy rules in `docs/SECURITY.md` and should pass before any 
 | 7 | Withdrawn applications cannot be selected | Withdraw an application, then attempt `POST /api/projects/:id/selections` referencing it → expect `409 CONFLICT` |
 | 8 | Selection capacity enforced | Fill all `positions` on a project with `selected` decisions, then attempt one more → expect `409 CONFLICT` |
 | 9 | Notifications are own-inbox only | As student A, call `GET /api/notifications` → only rows with `profileId` equal to A appear; never another user's notification |
-| 10 | Audit read is staff-only | As a student or company, call `GET /api/audit` → expect `403 FORBIDDEN`; as `teacher.demo@oamk.fi` or admin → `200` with recent events |
+| 10 | Audit read is staff-only | As a student or company, call `GET /api/audit` → expect `403 FORBIDDEN`; as `teacher.demo@example.com` or admin → `200` with recent events |
 | 11 | Service role never in browser | `grep -r SUPABASE_SERVICE_ROLE_KEY` the built client bundle (`.next/static`) → no matches; confirm `lib/supabase/admin.ts` starts with `import 'server-only'` |
 | 12 | Selection decision privacy | As a student not involved in a decision, `GET /api/applications/:id/decision` for someone else's application → expect `403` |
 | 13 | Student cannot escalate `profiles.role` | As a student, `PATCH` own `profiles` row with `{"role":"admin"}` (PostgREST or client) → expect error / role unchanged; signup metadata `role=teacher\|admin` must still create a `student` profile |
@@ -79,15 +79,15 @@ From `supabase/seed.sql` (local/dev only, loaded by `supabase db reset`). Passwo
 
 | Role | Email | Notes |
 |------|-------|-------|
-| Teacher | `teacher.demo@oamk.fi` | Oversight, `GET /api/audit` access |
-| Admin | `admin.demo@oamk.fi` | Full access |
+| Teacher | `teacher.demo@example.com` | Oversight, `GET /api/audit` access |
+| Admin | `admin.demo@example.com` | Full access |
 | Company | `contact@nordicsoft.example` | Owns Nordic Soft Oy projects |
 | Company | `hr@polarbyte.example` | Owns Polar Byte Ab projects — use for the company-isolation check above |
-| Student | `t3jato02@students.oamk.fi` | Primary manual-test account; 160 credits and strong overlap |
-| Student | `mikko.korhonen@students.oamk.fi` | 90 credits, partial overlap |
-| Student | `sara.nieminen@students.oamk.fi` | 45 credits, internship-only preference |
-| Student | `alex.smith@students.oamk.fi` | English-speaking profile |
-| Student | `emilia.laitinen@students.oamk.fi` | Broader skill set (cloud/security) |
+| Student | `student.demo@students.example` | Primary manual-test account; 160 credits and strong overlap |
+| Student | `student2.demo@students.example` | 90 credits, partial overlap |
+| Student | `student3.demo@students.example` | 45 credits, internship-only preference |
+| Student | `student4.demo@students.example` | English-speaking profile |
+| Student | `student5.demo@students.example` | Broader skill set (cloud/security) |
 
 ## Related docs
 

@@ -17,18 +17,18 @@ Manual end-to-end path for the final demo (#153). Canonical data model is **proj
 
 | Role | Email | Notes |
 |------|-------|-------|
-| Teacher | `teacher.demo@oamk.fi` | Oversight + audit (no project ownership) |
-| Admin | `admin.demo@oamk.fi` | Full access |
+| Teacher | `teacher.demo@example.com` | Oversight + audit (no project ownership) |
+| Admin | `admin.demo@example.com` | Full access |
 | Company (Nordic Soft) | `contact@nordicsoft.example` | Owns Campus portal project |
 | Company (Polar Byte) | `hr@polarbyte.example` | Isolation check vs Nordic Soft |
-| Student (strong match) | `t3jato02@students.oamk.fi` | Primary manual-test account; uses the requested OAMK address locally |
-| Student | `mikko.korhonen@students.oamk.fi` | Secondary |
+| Student (strong match) | `student.demo@students.example` | Primary manual-test account (fictional address) |
+| Student | `student2.demo@students.example` | Secondary |
 
 Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 
 ## MVP demopolku
 
-1. [ ] Opiskelija kirjautuu (`t3jato02@students.oamk.fi`) **tai** rekisteröityy uutena käyttäjänä
+1. [ ] Opiskelija kirjautuu (`student.demo@students.example`) **tai** rekisteröityy uutena käyttäjänä
 2. [ ] Opiskelijaprofiili voidaan täyttää / päivittää (`/profile/edit`)
 3. [ ] Kursseja, taitoja ja kiinnostuksia voidaan lisätä
 4. [ ] Yritys kirjautuu (`contact@nordicsoft.example`) ja luo projektin **tai** käyttää seed-projektia
@@ -45,7 +45,7 @@ Campus portal project id (seed): `90000000-0000-4000-8000-000000000001`
 15. [ ] Yritys tekee valinnan (kapasiteetti ≤ `projects.positions`)
 16. [ ] Valinta tallentuu audit-lokiin (`/teacher/audit` tai `GET /api/audit`)
 17. [ ] Opiskelijalle syntyy ilmoitus (`/notifications`)
-18. [ ] Opettaja näkee valinnan ja audit-tiedot (`teacher.demo@oamk.fi`)
+18. [ ] Opettaja näkee valinnan ja audit-tiedot (`teacher.demo@example.com`)
 19. [ ] Yritys A **ei** näe yrityksen B hakijoita (Nordic Soft vs Polar Byte)
 20. [ ] `GET /api/health` → `database: connected`
 
@@ -95,7 +95,7 @@ Owner for live dry-run: Tommi (Venla not on the project).
 
 - Matching is **deterministic and explainable**; the company always makes the final selection.
 - Email delivery uses a **stub** in MVP — notifications are persisted in-app.
-- `t3jato02@students.oamk.fi` is an Auth identifier in the local seed. The local seed does not send email or connect to the OAMK mailbox.
+- `student.demo@students.example` is a fictional Auth identifier in the local seed (reserved `.example` domain). The local seed does not send email.
 - One Auth email can have only one application role. Company, teacher and admin therefore retain separate fictional seed addresses.
 - Do not run `supabase/seed.sql` against a production Supabase project.
 - Legacy `/api/opportunities` routes return **410 Gone** — use `/api/projects`.
