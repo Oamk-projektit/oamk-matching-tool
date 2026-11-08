@@ -88,3 +88,7 @@ Database migrations live in `supabase/migrations/` (apply with the Supabase CLI 
 - **Thesis topics are out of scope.** `projects.projectType` supports only `company_project` and `internship`.
 - **Audit trail is DB-trigger based**, not a separate audit service: every sensitive write (projects, applications, matches, selections, notifications) is captured automatically by Postgres triggers into `audit_events`, readable via `GET /api/audit` (teacher/admin only).
 - No payments, chat, mobile app, or external AI matching service. See [docs/MVP_SCOPE.md](docs/MVP_SCOPE.md) for the full rajaus (scope boundary).
+
+## License
+
+Licensed under the MIT License. See [LICENSE](LICENSE).
